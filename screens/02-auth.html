@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Вход · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экранная специфика auth — канон: referens/welcome-v2.html → assets/ds.css. */
+  .auth-app {
+    background: var(--surface);
+    padding-bottom: 0;
+  }
+
+  .auth-scroll {
+    padding: 12px var(--space-6) calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .auth-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+  }
+  .auth-head p { margin: 8px 0 0; font-size: var(--fs-body); color: var(--muted); }
+
+  .tabs {
+    display: flex;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .tab {
+    flex: 0 0 auto;
+    margin-bottom: -1px;
+    padding: 12px 0 10px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard);
+  }
+  .tab:hover { color: var(--fg); }
+  .tab.is-active { color: var(--accent); border-color: var(--accent); }
+  .tab:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  .auth-pane { display: none; }
+  .auth-pane.is-active {
+    display: block;
+    animation: pane-in 320ms var(--ease-standard) both;
+  }
+  @keyframes pane-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .auth-pane.is-active { animation: none; } }
+  .auth-pane form { margin-top: 28px; }
+
+  .field { display: block; margin-bottom: var(--space-5); }
+  .field-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    color: var(--fg-2);
+  }
+  .field-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--h-base);
+    padding: 0 var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard),
+      box-shadow var(--motion-fast) var(--ease-standard);
+  }
+  .field:focus-within .field-inner {
+    background: var(--surface);
+    border-color: var(--accent);
+    box-shadow: var(--focus-ring);
+  }
+  .field.is-error .field-inner { background: var(--surface); border-color: var(--danger); }
+  .field.is-error:focus-within .field-inner { box-shadow: none; }
+  .field.is-success .field-inner { background: var(--surface); border-color: var(--success); }
+  .field-inner .field-icon { flex: 0 0 auto; color: var(--muted); }
+  .field-inner input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    color: var(--fg);
+  }
+  .field-inner input::placeholder { color: var(--placeholder); opacity: 1; }
+  .field-inner input[type="password"] { letter-spacing: 0.14em; }
+  .field-inner input[type="password"]::placeholder { letter-spacing: normal; }
+  .field-msg {
+    display: block;
+    min-height: 16px;
+    margin-top: var(--space-2);
+    font-size: var(--fs-meta);
+    color: var(--danger);
+  }
+  .ok { display: none; flex: 0 0 auto; color: var(--success); }
+  .field.is-success .ok { display: block; }
+  .eye {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 44px;
+    margin: -8px -8px -8px 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--meta);
+    cursor: pointer;
+    transition: color var(--motion-fast) var(--ease-standard);
+  }
+  .eye:hover { color: var(--fg); }
+  .eye:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .eye svg { display: block; }
+  .eye .eye-off { display: none; }
+
+  .row-between {
+    display: flex;
+    justify-content: flex-end;
+    margin: 2px 0 20px;
+  }
+  .link {
+    background: none;
+    border: none;
+    padding: 8px 0;
+    font-family: var(--font-body);
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .link:hover { text-decoration: underline; }
+  .link:focus-visible { outline: none; border-radius: 4px; box-shadow: var(--focus-ring); }
+
+  .form-alert {
+    display: none;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--danger);
+    background: color-mix(in oklab, var(--danger), transparent 92%);
+    color: var(--danger);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .form-alert.is-show {
+    display: block;
+    animation: pane-in 200ms var(--ease-standard) both;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 28px 0 20px;
+    font-size: var(--fs-meta);
+    color: var(--muted);
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .social { display: flex; flex-direction: column; gap: 12px; }
+  .btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    height: var(--h-lg);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard),
+      transform var(--motion-fast) var(--ease-standard);
+  }
+  .btn-social:hover { background: var(--surface-warm); border-color: var(--meta); }
+  .btn-social:active { transform: scale(0.98); }
+  .btn-social:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .gosuslugi-logo { flex: 0 0 auto; display: block; height: 26px; width: auto; }
+  .vk-logo { flex: 0 0 auto; display: block; height: 26px; width: 26px; }
+
+  .strength { display: none; margin-top: 12px; }
+  .strength-bars { display: flex; gap: 6px; }
+  .strength-bars i {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-soft);
+    transition: background-color var(--motion-base) var(--ease-standard);
+  }
+  .strength[data-level="1"] .strength-bars i:nth-child(1) { background: var(--danger); }
+  .strength[data-level="2"] .strength-bars i:nth-child(-n+2) { background: var(--warn); }
+  .strength[data-level="3"] .strength-bars i { background: var(--success); }
+  .strength-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    color: var(--muted);
+  }
+
+  .check-agree { margin: 4px 0 6px; }
+  .check-agree .check-text { color: var(--fg-2); }
+
+  .switch-note {
+    margin: 24px 0 0;
+    text-align: center;
+    font-size: var(--fs-body);
+    color: var(--muted);
+  }
+  .link-inline {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .link-inline:hover { text-decoration: underline; }
+  .link-inline:focus-visible { outline: none; border-radius: 4px; box-shadow: var(--focus-ring); }
+
+  .auth-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    z-index: 20;
+    max-width: calc(100% - 48px);
+    padding: 12px 20px;
+    border-radius: var(--radius-pill);
+    background: var(--fg);
+    color: var(--bg);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, 16px);
+    pointer-events: none;
+    transition:
+      opacity var(--motion-base) var(--ease-standard),
+      transform var(--motion-base) var(--ease-standard);
+  }
+  .auth-toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body data-od-id="auth-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app auth-app">
+  <header class="topbar" data-od-id="auth-header">
+    <a class="topbar-ic is-back" href="01-welcome.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h4 class="topbar-tx" id="auth-topbar-tx">Вход</h4>
+  </header>
+
+  <div class="body auth-scroll" data-od-id="auth-wrap">
+    <header class="auth-head">
+      <h2 id="auth-title">Добро пожаловать!</h2>
+      <p id="auth-sub">Войдите в свой аккаунт</p>
+    </header>
+
+    <div class="tabs" id="tablist" role="tablist" aria-label="Способ входа">
+      <button type="button" class="tab is-active" id="tab-login" role="tab" aria-selected="true" aria-controls="pane-login">Вход</button>
+      <button type="button" class="tab" id="tab-register" role="tab" tabindex="-1" aria-selected="false" aria-controls="pane-register">Регистрация</button>
+    </div>
+
+    <div class="auth-pane is-active" id="pane-login" role="tabpanel" aria-labelledby="tab-login">
+      <form id="form-login" novalidate>
+        <label class="field">
+          <span class="field-label">Телефон или Email</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2.5" y="4.5" width="15" height="11" rx="2"></rect>
+              <path d="M3.5 6.5 10 11l6.5-4.5"></path>
+            </svg>
+            <input id="login-id" type="text" inputmode="email" autocomplete="username" placeholder="Телефон или Email" spellcheck="false" aria-describedby="msg-login-id">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5 7.5 13.5 14.5 5.5"></path></svg>
+          </span>
+          <span class="field-msg" id="msg-login-id"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Пароль</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="9.5" width="10" height="7.5" rx="2"></rect>
+              <path d="M7.5 9.5V7.2a2.5 2.5 0 0 1 5 0v2.3"></path>
+            </svg>
+            <input id="login-pw" type="password" autocomplete="current-password" placeholder="Пароль" aria-describedby="msg-login-pw">
+            <button type="button" class="eye" id="eye-login" aria-label="Показать пароль" aria-pressed="false">
+              <svg class="eye-on" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.8 10S5.6 5.8 10 5.8 17.2 10 17.2 10 14.4 14.2 10 14.2 2.8 10 2.8 10Z"></path>
+                <circle cx="10" cy="10" r="2.2"></circle>
+              </svg>
+              <svg class="eye-off" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3.5 4.5 16.5 15.5"></path>
+                <path d="M6.4 7a12.6 12.6 0 0 0-3.6 3s2.8 4.2 7.2 4.2a7.6 7.6 0 0 0 3-.7"></path>
+                <path d="M10.9 14.2a10.8 10.8 0 0 0 6.3-4.2 12.6 12.6 0 0 0-2.2-2.6"></path>
+                <path d="M8.7 9.1a2 2 0 0 0 2.4 2.4"></path>
+              </svg>
+            </button>
+          </span>
+          <span class="field-msg" id="msg-login-pw"></span>
+        </label>
+
+        <div class="row-between">
+          <button type="button" class="link" id="btn-forgot">Забыли пароль?</button>
+        </div>
+
+        <div class="form-alert" id="alert-login" role="alert"></div>
+
+        <button type="submit" class="btn btn-accent btn-lg btn-block" id="btn-submit-login" disabled><span class="spinner" aria-hidden="true"></span>Войти</button>
+      </form>
+
+      <div class="divider" aria-hidden="true"><span>Или</span></div>
+
+      <div class="social">
+        <button type="button" class="btn-social" data-name="ВКонтакте">
+          <img class="vk-logo" src="../assets/auth/vk-logo.svg" alt="ВКонтакте">
+          Войти через ВКонтакте
+        </button>
+        <button type="button" class="btn-social" data-name="Госуслуги">
+          <img class="gosuslugi-logo" src="../assets/auth/gosuslugi-logo.svg" alt="Госуслуги">
+          Войти через Госуслуги
+        </button>
+      </div>
+
+      <p class="switch-note">Нет аккаунта? <button type="button" class="link-inline" id="goto-register">Зарегистрироваться</button></p>
+    </div>
+
+    <div class="auth-pane" id="pane-register" role="tabpanel" aria-labelledby="tab-register">
+      <form id="form-register" novalidate>
+        <label class="field">
+          <span class="field-label">ФИО</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="10" cy="6.8" r="3"></circle>
+              <path d="M4.5 16.2a5.5 5.5 0 0 1 11 0"></path>
+            </svg>
+            <input id="fio" type="text" autocomplete="name" maxlength="150" placeholder="Иванов Иван Иванович" spellcheck="false" aria-describedby="msg-fio">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5 7.5 13.5 14.5 5.5"></path></svg>
+          </span>
+          <span class="field-msg" id="msg-fio"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Email</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2.5" y="4.5" width="15" height="11" rx="2"></rect>
+              <path d="M3.5 6.5 10 11l6.5-4.5"></path>
+            </svg>
+            <input id="reg-email" type="email" inputmode="email" autocomplete="email" placeholder="ivanov@mail.ru" spellcheck="false" aria-describedby="msg-reg-email">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5 7.5 13.5 14.5 5.5"></path></svg>
+          </span>
+          <span class="field-msg" id="msg-reg-email"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Телефон</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.6 14.2v1.6a1.7 1.7 0 0 1-1.9 1.7 16.8 16.8 0 0 1-13.2-13.2A1.7 1.7 0 0 1 4.2 2.4h1.6l1.3 3.9-1.8 1.4a12.5 12.5 0 0 0 7 7l1.4-1.8Z"></path>
+            </svg>
+            <input id="reg-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (900) 000-00-00" aria-describedby="msg-reg-phone">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5 7.5 13.5 14.5 5.5"></path></svg>
+          </span>
+          <span class="field-msg" id="msg-reg-phone"></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Пароль</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="9.5" width="10" height="7.5" rx="2"></rect>
+              <path d="M7.5 9.5V7.2a2.5 2.5 0 0 1 5 0v2.3"></path>
+            </svg>
+            <input id="reg-pw" type="password" autocomplete="new-password" placeholder="Придумайте пароль (минимум 6 символов)" aria-describedby="msg-reg-pw">
+            <button type="button" class="eye" id="eye-reg" aria-label="Показать пароль" aria-pressed="false">
+              <svg class="eye-on" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.8 10S5.6 5.8 10 5.8 17.2 10 17.2 10 14.4 14.2 10 14.2 2.8 10 2.8 10Z"></path>
+                <circle cx="10" cy="10" r="2.2"></circle>
+              </svg>
+              <svg class="eye-off" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3.5 4.5 16.5 15.5"></path>
+                <path d="M6.4 7a12.6 12.6 0 0 0-3.6 3s2.8 4.2 7.2 4.2a7.6 7.6 0 0 0 3-.7"></path>
+                <path d="M10.9 14.2a10.8 10.8 0 0 0 6.3-4.2 12.6 12.6 0 0 0-2.2-2.6"></path>
+                <path d="M8.7 9.1a2 2 0 0 0 2.4 2.4"></path>
+              </svg>
+            </button>
+          </span>
+          <span class="field-msg" id="msg-reg-pw"></span>
+          <span class="strength" id="strength">
+            <span class="strength-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="strength-hint" id="strength-hint" aria-live="polite"></span>
+          </span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Подтверждение пароля</span>
+          <span class="field-inner">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="9.5" width="10" height="7.5" rx="2"></rect>
+              <path d="M7.5 9.5V7.2a2.5 2.5 0 0 1 5 0v2.3"></path>
+            </svg>
+            <input id="reg-pw2" type="password" autocomplete="new-password" placeholder="Повторите пароль" aria-describedby="msg-reg-pw2">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5 7.5 13.5 14.5 5.5"></path></svg>
+          </span>
+          <span class="field-msg" id="msg-reg-pw2"></span>
+        </label>
+
+        <label class="check check-agree" id="check-agree">
+          <input id="reg-agree" type="checkbox" aria-describedby="agree-msg">
+          <span class="box" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9 9.5 3.5"></path></svg>
+          </span>
+          <span class="check-text">Я согласен на обработку персональных данных</span>
+        </label>
+        <span class="field-msg" id="agree-msg"></span>
+
+        <div class="form-alert" id="alert-reg" role="alert"></div>
+
+        <button type="submit" class="btn btn-accent btn-lg btn-block" id="btn-submit-reg" disabled><span class="spinner" aria-hidden="true"></span>Зарегистрироваться</button>
+      </form>
+
+      <p class="switch-note">Уже есть аккаунт? <button type="button" class="link-inline" id="goto-login">Войти</button></p>
+    </div>
+  </div>
+</div>
+
+<div class="auth-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function isPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    return /^7\d{10}$/.test(d);
+  }
+  function validLoginId(v) { v = v.trim(); return RE_EMAIL.test(v) || isPhone(v); }
+  function fieldOf(input) { return input.closest('.field'); }
+  function setState(field, state, msg) {
+    field.classList.toggle('is-error', state === 'error');
+    field.classList.toggle('is-success', state === 'success');
+    field.querySelector('.field-msg').textContent = msg || '';
+    var input = field.querySelector('input, select, textarea');
+    if (input) input.setAttribute('aria-invalid', String(state === 'error'));
+  }
+
+  var toastEl = $('toast'), toastT = 0;
+  function toast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add('is-show');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('is-show'); }, 2600);
+  }
+  function showFormAlert(id, msg) {
+    var el = $(id);
+    el.textContent = msg;
+    el.classList.add('is-show');
+  }
+  function hideFormAlert(id) { $(id).classList.remove('is-show'); }
+
+  var authTitle = $('auth-title'), authSub = $('auth-sub');
+  var tabLogin = $('tab-login'), tabRegister = $('tab-register');
+  var paneLogin = $('pane-login'), paneRegister = $('pane-register');
+
+  function switchTab(reg) {
+    tabLogin.classList.toggle('is-active', !reg);
+    tabRegister.classList.toggle('is-active', reg);
+    tabLogin.setAttribute('aria-selected', String(!reg));
+    tabRegister.setAttribute('aria-selected', String(reg));
+    tabLogin.setAttribute('tabindex', reg ? '-1' : '0');
+    tabRegister.setAttribute('tabindex', reg ? '0' : '-1');
+    paneLogin.classList.toggle('is-active', !reg);
+    paneRegister.classList.toggle('is-active', reg);
+    authTitle.textContent = reg ? 'Создайте аккаунт' : 'Добро пожаловать!';
+    authSub.textContent = reg ? 'Начните свой спортивный путь' : 'Войдите в свой аккаунт';
+    $('auth-topbar-tx').textContent = reg ? 'Регистрация' : 'Вход';
+    setTimeout(function () { $(reg ? 'fio' : 'login-id').focus(); }, 140);
+  }
+  tabLogin.addEventListener('click', function () { switchTab(false); });
+  tabRegister.addEventListener('click', function () { switchTab(true); });
+  $('goto-login').addEventListener('click', function () { switchTab(false); });
+  $('goto-register').addEventListener('click', function () { switchTab(true); });
+  $('tablist').addEventListener('keydown', function (e) {
+    var current = tabLogin.getAttribute('aria-selected') === 'true' ? 0 : 1;
+    var next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') next = current === 0 ? 1 : 0;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = 1;
+    if (next === null) return;
+    e.preventDefault();
+    var target = next === 0 ? tabLogin : tabRegister;
+    target.focus();
+    switchTab(next === 1);
+  });
+
+  function checkLoginId(force) {
+    var el = $('login-id'), v = el.value.trim();
+    if (!v) { if (force) setState(fieldOf(el), 'error', 'Введите телефон или Email'); else setState(fieldOf(el), ''); return false; }
+    if (!validLoginId(v)) { if (force) setState(fieldOf(el), 'error', 'Неверный формат'); else setState(fieldOf(el), ''); return false; }
+    setState(fieldOf(el), 'success');
+    return true;
+  }
+  function checkLoginPw(force) {
+    var el = $('login-pw'), v = el.value;
+    if (!v) { if (force) setState(fieldOf(el), 'error', 'Введите пароль'); else setState(fieldOf(el), ''); return false; }
+    if (v.length < 6) { if (force) setState(fieldOf(el), 'error', 'Минимум 6 символов'); else setState(fieldOf(el), ''); return false; }
+    setState(fieldOf(el), 'success');
+    return true;
+  }
+  function updateLogin() {
+    hideFormAlert('alert-login');
+    checkLoginId(false);
+    checkLoginPw(false);
+    $('btn-submit-login').disabled = !(validLoginId($('login-id').value) && $('login-pw').value.length >= 6);
+  }
+  $('login-id').addEventListener('input', updateLogin);
+  $('login-pw').addEventListener('input', updateLogin);
+  $('login-id').addEventListener('blur', function () { checkLoginId(true); });
+  $('login-pw').addEventListener('blur', function () { checkLoginPw(true); });
+
+  $('form-login').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var okId = checkLoginId(true), okPw = checkLoginPw(true);
+    if (!(okId && okPw)) return;
+    if ($('login-pw').value === 'wrongpass') {
+      showFormAlert('alert-login', 'Неверный логин или пароль');
+      return;
+    }
+    hideFormAlert('alert-login');
+    var btn = $('btn-submit-login');
+    btn.classList.add('is-busy');
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    setTimeout(function () {
+      btn.classList.remove('is-busy');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      location.href = '06-home.html';
+    }, 500);
+  });
+
+  var regFio = $('fio'), regEmail = $('reg-email'), regPhone = $('reg-phone'),
+      regPw = $('reg-pw'), regPw2 = $('reg-pw2'), regAgree = $('reg-agree');
+
+  function maskPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    if (d.charAt(0) !== '7') d = '7' + d;
+    d = d.slice(0, 11);
+    var out = '+7';
+    if (d.length > 1) out += ' (' + d.slice(1, 4);
+    if (d.length >= 4) out += ') ' + d.slice(4, 7);
+    if (d.length >= 7) out += '-' + d.slice(7, 9);
+    if (d.length >= 9) out += '-' + d.slice(9, 11);
+    return out;
+  }
+
+  function checkFio(force) {
+    var v = regFio.value.trim();
+    if (!v) { if (force) setState(fieldOf(regFio), 'error', 'Введите ФИО'); else setState(fieldOf(regFio), ''); return false; }
+    if (v.length > 150) { setState(fieldOf(regFio), 'error', 'Не более 150 символов'); return false; }
+    setState(fieldOf(regFio), 'success');
+    return true;
+  }
+  function checkRegEmail(force) {
+    var v = regEmail.value.trim();
+    if (!v) { if (force) setState(fieldOf(regEmail), 'error', 'Введите email'); else setState(fieldOf(regEmail), ''); return false; }
+    if (!RE_EMAIL.test(v)) { if (force) setState(fieldOf(regEmail), 'error', 'Неверный формат email'); else setState(fieldOf(regEmail), ''); return false; }
+    setState(fieldOf(regEmail), 'success');
+    return true;
+  }
+  function checkRegPhone(force) {
+    var digits = regPhone.value.replace(/\D/g, '');
+    if (digits.length < 11) {
+      if (force) setState(fieldOf(regPhone), 'error', digits.length ? 'Неполный номер' : 'Введите телефон');
+      else setState(fieldOf(regPhone), '');
+      return false;
+    }
+    setState(fieldOf(regPhone), 'success');
+    return true;
+  }
+
+  function pwLevel(pw) {
+    if (!pw) return 0;
+    if (pw.length < 6) return 1;
+    var s = 0;
+    if (pw.length >= 8) s++;
+    if (/[a-zа-яё]/.test(pw) && /[A-ZА-ЯЁ]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-zА-ЯЁа-яё0-9]/.test(pw)) s++;
+    return s === 0 ? 1 : (s >= 3 ? 3 : 2);
+  }
+  var strength = $('strength'), strengthHint = $('strength-hint');
+  function renderStrength(pw) {
+    if (!pw) { strength.style.display = 'none'; return; }
+    var lvl = pwLevel(pw);
+    strength.style.display = 'block';
+    strength.setAttribute('data-level', String(lvl));
+    if (lvl === 1) strengthHint.textContent = 'Слабый · используйте заглавные буквы и цифры';
+    else if (lvl === 2) strengthHint.textContent = 'Средний';
+    else if (lvl === 3) strengthHint.textContent = 'Надёжный пароль';
+  }
+  function checkRegPw(force) {
+    var v = regPw.value;
+    renderStrength(v);
+    if (!v) { if (force) setState(fieldOf(regPw), 'error', 'Придумайте пароль'); else setState(fieldOf(regPw), ''); return false; }
+    if (v.length < 6) { if (force) setState(fieldOf(regPw), 'error', 'Минимум 6 символов'); else setState(fieldOf(regPw), ''); return false; }
+    setState(fieldOf(regPw), 'success');
+    return true;
+  }
+  function checkRegPw2(force) {
+    var v = regPw2.value;
+    if (!v) { if (force) setState(fieldOf(regPw2), 'error', 'Повторите пароль'); else setState(fieldOf(regPw2), ''); return false; }
+    if (v !== regPw.value) { if (force) setState(fieldOf(regPw2), 'error', 'Пароли не совпадают'); else setState(fieldOf(regPw2), ''); return false; }
+    setState(fieldOf(regPw2), 'success');
+    return true;
+  }
+  function checkAgree(force) {
+    var ok = regAgree.checked;
+    $('check-agree').classList.toggle('is-error', !ok && !!force);
+    $('agree-msg').textContent = (!ok && !!force) ? 'Необходимо согласие на обработку данных' : '';
+    regAgree.setAttribute('aria-invalid', String(!ok && !!force));
+    return ok;
+  }
+
+  function updateReg() {
+    hideFormAlert('alert-reg');
+    checkFio(false); checkRegEmail(false); checkRegPhone(false); checkRegPw(false); checkRegPw2(false);
+    var ok = regFio.value.trim() !== '' && regFio.value.trim().length <= 150 &&
+      RE_EMAIL.test(regEmail.value.trim()) &&
+      regPhone.value.replace(/\D/g, '').length >= 11 &&
+      regPw.value.length >= 6 &&
+      regPw2.value === regPw.value &&
+      regAgree.checked;
+    $('btn-submit-reg').disabled = !ok;
+  }
+
+  regPhone.addEventListener('input', function () {
+    var next = maskPhone(regPhone.value);
+    if (next !== regPhone.value) {
+      regPhone.value = next;
+      try { regPhone.setSelectionRange(next.length, next.length); } catch (err) {}
+    }
+    updateReg();
+  });
+  regAgree.addEventListener('change', function () { checkAgree(false); updateReg(); });
+
+  [regFio, regEmail, regPhone, regPw, regPw2].forEach(function (el) {
+    el.addEventListener('input', updateReg);
+    el.addEventListener('blur', function () {
+      if (el === regFio) checkFio(true);
+      else if (el === regEmail) checkRegEmail(true);
+      else if (el === regPhone) checkRegPhone(true);
+      else if (el === regPw) checkRegPw(true);
+      else if (el === regPw2) checkRegPw2(true);
+    });
+  });
+
+  $('form-register').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = checkFio(true) & checkRegEmail(true) & checkRegPhone(true) & checkRegPw(true) & checkRegPw2(true) & checkAgree(true);
+    if (!ok) return;
+    if (regEmail.value.trim().toLowerCase() === 'used@mail.ru') {
+      showFormAlert('alert-reg', 'Пользователь с таким email уже зарегистрирован');
+      return;
+    }
+    hideFormAlert('alert-reg');
+    var btn = $('btn-submit-reg');
+    btn.classList.add('is-busy');
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    setTimeout(function () {
+      btn.classList.remove('is-busy');
+      btn.removeAttribute('aria-busy');
+      btn.disabled = false;
+      location.href = '06-home.html';
+    }, 600);
+  });
+
+  function toggleEye(btn, inputId) {
+    var input = $(inputId);
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-pressed', String(show));
+    btn.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+    btn.querySelector('.eye-on').style.display = show ? 'none' : 'block';
+    btn.querySelector('.eye-off').style.display = show ? 'block' : 'none';
+  }
+  $('eye-login').addEventListener('click', function () { toggleEye(this, 'login-pw'); });
+  $('eye-reg').addEventListener('click', function () { toggleEye(this, 'reg-pw'); });
+
+  $('btn-forgot').addEventListener('click', function () {
+    toast('Экран восстановления пароля появится позже');
+  });
+  document.querySelectorAll('.btn-social').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      toast('Вход через ' + btn.dataset.name + ' появится позже');
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') location.href = '01-welcome.html';
+  });
+
+  var regParam = (location.search || '').match(/[?&]tab=reg/);
+  if (regParam) switchTab(true);
+})();
+</script>
+</body>
+</html>
