@@ -1471,9 +1471,9 @@ select.input:invalid { color: var(--muted); }
    .sheet, но видима всегда; на ≥560px — карточка.
    ──────────────────────────────────────────────── */
 .evc-hint {
-  margin: var(--space-2) 0 var(--space-1);
-  font-size: var(--fs-caption); font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta);
+  margin: var(--space-3) 0 var(--space-4);
+  font-weight: 500;
+  color: var(--meta);
 }
 .pick-list { display: grid; gap: var(--space-3); }
 
