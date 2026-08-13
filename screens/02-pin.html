@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Вход по ПИН · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экранная специфика входа по ПИН-коду. */
+  .pin-app { background: var(--surface); }
+  .pin-scroll { padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px)); }
+
+  .pin-head { margin-top: var(--space-6); text-align: center; }
+  .pin-head h2 { margin: 0; font-family: var(--font-display); font-size: var(--fs-display); font-weight: 700; color: var(--fg); }
+  .pin-head p { margin: var(--space-2) 0 0; font-size: var(--fs-body); line-height: 1.5; color: var(--muted); }
+
+  .pin-dots { display: flex; justify-content: center; gap: 18px; margin: var(--space-8) 0 var(--space-2); }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-strong); background: transparent; transition: background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard); }
+  .pin-dot.is-on { background: var(--accent); border-color: var(--accent); transform: scale(0.8); }
+  .pin-dot.is-err { background: var(--danger); border-color: var(--danger); }
+  .pin-dot.is-ok { background: var(--success); border-color: var(--success); transform: scale(0.8); }
+  .pin-msg { min-height: 18px; margin: var(--space-2) 0 0; font-size: var(--fs-meta); color: var(--danger); text-align: center; }
+  .pin-msg.is-ok { color: var(--success); }
+
+  .pin-enter { margin-top: var(--space-6); }
+
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 20px; max-width: 330px; margin: 0 auto; }
+  .key {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 50%;
+    font-family: var(--font-display); font-size: 26px; font-weight: 600;
+    font-variant-numeric: tabular-nums; color: var(--fg); cursor: pointer;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+  }
+  .key:active { transform: scale(0.94); background: var(--surface-2); border-color: var(--border-strong); }
+  .key:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .key svg { display: block; }
+
+  .pin-bio { display: flex; justify-content: center; margin-top: var(--space-6); }
+  .bio-btn {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: color-mix(in oklab, var(--accent), transparent 90%);
+    border: 1.5px solid color-mix(in oklab, var(--accent), transparent 60%);
+    color: var(--accent); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+  }
+  .bio-btn:active { transform: scale(0.94); }
+  .bio-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .bio-btn.is-ok { background: color-mix(in oklab, var(--success), transparent 90%); border-color: color-mix(in oklab, var(--success), transparent 50%); color: var(--success); }
+  .bio-scan.is-scan { animation: bio-scan 900ms var(--ease-out); }
+  @keyframes bio-scan {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.8); }
+    100% { transform: scale(1); }
+  }
+
+  .pin-again { margin-top: var(--space-8); text-align: center; }
+  .pin-again button { background: none; border: none; padding: 8px 12px; font-family: var(--font-body); font-size: var(--fs-meta); font-weight: 600; color: var(--accent); cursor: pointer; }
+  .pin-again button:hover { text-decoration: underline; }
+  .pin-again button:focus-visible { outline: none; border-radius: 6px; box-shadow: var(--focus-ring); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .key:active { transform: none; }
+    .bio-btn:active { transform: none; }
+    .bio-scan.is-scan { animation: none; }
+  }
+</style>
+</head>
+<body data-od-id="pin-screen">
+<div class="app pin-app">
+  <main class="body pin-scroll">
+
+    <header class="pin-head" data-od-id="pin-head">
+      <h2>Введите ПИН-код</h2>
+      <p id="pin-sub">Привет! Введите 4-значный ПИН-код, чтобы войти</p>
+    </header>
+
+    <div class="pin-dots" role="group" aria-label="ПИН-код из 4 цифр" data-od-id="pin-dots">
+      <span class="pin-dot" data-i="0"></span>
+      <span class="pin-dot" data-i="1"></span>
+      <span class="pin-dot" data-i="2"></span>
+      <span class="pin-dot" data-i="3"></span>
+    </div>
+    <p class="pin-msg" id="pin-msg" role="alert"></p>
+
+    <div class="pin-enter">
+      <div class="keypad" id="keypad" data-od-id="keypad" aria-label="Клавиатура ПИН">
+        <button type="button" class="key" data-n="1">1</button>
+        <button type="button" class="key" data-n="2">2</button>
+        <button type="button" class="key" data-n="3">3</button>
+        <button type="button" class="key" data-n="4">4</button>
+        <button type="button" class="key" data-n="5">5</button>
+        <button type="button" class="key" data-n="6">6</button>
+        <button type="button" class="key" data-n="7">7</button>
+        <button type="button" class="key" data-n="8">8</button>
+        <button type="button" class="key" data-n="9">9</button>
+        <span class="key" aria-hidden="true"></span>
+        <button type="button" class="key" data-n="0">0</button>
+        <button type="button" class="key" id="btn-back" aria-label="Стереть последнюю цифру">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 8l5 4-5 4V8Z"></path>
+            <path d="M3 12l5-4h6v8H8l-5-4Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="pin-bio">
+      <button type="button" class="bio-btn" id="btn-bio" aria-label="Войти по отпечатку пальца">
+        <svg class="bio-scan" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5.6 14.6A6.9 6.9 0 0 1 12 5.2a6.9 6.9 0 0 1 6.4 9.4"></path>
+          <path d="M8.3 16.6c-.4-1.6-.5-3.2-.2-4.7a3.9 3.9 0 0 1 7.7-.6c.3 1.3.3 2.9-.1 4.5"></path>
+          <path d="M10.9 21.2c-.1-2.1-.2-4.3-.4-6.4a1.5 1.5 0 0 1 3-.1c.2 2.1.2 4.3.1 6.5"></path>
+          <path d="M7.4 20.7c.2-2.7.4-5.3.8-7.8"></path>
+          <path d="M14.5 19.3c-.1-2-.2-4-.3-6"></path>
+          <path d="M17.5 17c-.3 1.7-.8 3.2-1.4 4.7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pin-again">
+      <button type="button" id="btn-pin-again">Войти по паролю</button>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var pin = '';
+  var LOCKED = '1234';
+
+  function $ (id) { return document.getElementById(id); }
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.pin-dot'));
+  var msg = $('pin-msg');
+
+  function paint() {
+    dots.forEach(function (d, i) {
+      d.classList.toggle('is-on', i < pin.length);
+      d.classList.remove('is-err');
+    });
+    msg.textContent = '';
+  }
+
+  function fail(reason) {
+    pin = '';
+    msg.textContent = reason || 'Неверный ПИН-код';
+    dots.forEach(function (d) { d.classList.add('is-err'); });
+    setTimeout(function () {
+      dots.forEach(function (d) { d.classList.remove('is-err', 'is-on', 'is-ok'); });
+      msg.textContent = '';
+    }, 600);
+  }
+
+  function done() {
+    msg.textContent = 'Всё верно!';
+    msg.classList.add('is-ok');
+    dots.forEach(function (d) { d.classList.add('is-ok'); });
+    setTimeout(function () { location.href = '06-home.html'; }, 700);
+  }
+
+  function press(digit) {
+    if (pin.length >= 4 || msg.textContent) return;
+    pin += digit;
+    paint();
+    if (pin.length === 4) {
+      setTimeout(function () {
+        if (pin === LOCKED) done();
+        else fail();
+      }, 160);
+    }
+  }
+
+  document.querySelectorAll('.key[data-n]').forEach(function (k) {
+    k.addEventListener('click', function () { press(k.dataset.n); });
+  });
+
+  $('btn-back').addEventListener('click', function () {
+    if (pin.length > 0) {
+      pin = pin.slice(0, -1);
+      paint();
+    }
+  });
+
+  var bioBtn = $('btn-bio');
+  var bioIcon = bioBtn.querySelector('.bio-scan');
+  var bioOk = false;
+  bioBtn.addEventListener('click', function () {
+    if (bioOk) return;
+    bioIcon.classList.remove('is-scan');
+    void bioIcon.offsetWidth;
+    bioIcon.classList.add('is-scan');
+    bioBtn.classList.add('is-ok');
+    bioOk = true;
+    setTimeout(function () { msg.textContent = 'Вход по отпечатку…'; msg.classList.add('is-ok'); }, 500);
+    setTimeout(function () {
+      msg.textContent = 'Всё верно!';
+      setTimeout(function () { location.href = '06-home.html'; }, 700);
+    }, 1000);
+  });
+
+  $('btn-pin-again').addEventListener('click', function () { location.href = '02-auth.html'; });
+
+  document.addEventListener('keydown', function (e) {
+    if (/^[0-9]$/.test(e.key)) press(e.key);
+    else if (e.key === 'Backspace') $('btn-back').click();
+  });
+})();
+</script>
+</body>
+</html>

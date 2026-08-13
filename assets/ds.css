@@ -1821,3 +1821,71 @@ select.input:invalid { color: var(--muted); }
 
 /* Примечание под списком листа */
 .sheet-note { margin-top: var(--space-3); font-size: var(--fs-caption); line-height: 1.45; color: var(--meta); text-align: center; }
+
+/* ────────────────────────────────────────────────
+   ЭТАП 20 · Успех (восстановление пароля, вход по ПИН)
+   .ok-overlay — полноэкранная подложка результата,
+   .ok-card — центрированная колонка (бейдж + заголовок +
+   подпись + кнопка), .ok-badge — анимированный значок:
+   градиентный круг «поп», прорисовка галочки, расходящееся
+   кольцо-пульс. Делит и удаляет: только transform/opacity,
+   анимация из токенов DS (--ease-out). Раритетный «delight» —
+   на экранах входа/восстановления.
+   ──────────────────────────────────────────────── */
+.ok-overlay {
+  position: fixed; inset: 0; z-index: 70;
+  margin: 0 auto; max-width: var(--container-max);
+  display: grid; place-items: center;
+  background: var(--surface);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+.ok-overlay.is-show { opacity: 1; pointer-events: auto; }
+.ok-card {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 0 var(--space-6);
+}
+.ok-card h2 {
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-display); font-size: var(--fs-display);
+  font-weight: 700; color: var(--fg);
+}
+.ok-card p { margin: var(--space-2) 0 0; font-size: var(--fs-body); line-height: 1.45; color: var(--muted); }
+.ok-card .btn { margin-top: var(--space-8); min-width: 220px; }
+.ok-card h2, .ok-card p { opacity: 0; animation: ok-up 320ms var(--ease-out) 380ms forwards; }
+
+.ok-badge { position: relative; width: 84px; height: 84px; }
+.ok-badge-circle {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+  box-shadow: 0 8px 32px var(--accent-glow);
+  opacity: 0; transform: scale(0.9);
+  animation: ok-pop 260ms var(--ease-out) forwards;
+}
+.ok-badge-circle svg { display: block; }
+.ok-badge-check {
+  stroke: var(--accent-on); stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: ok-draw 480ms var(--ease-out) 170ms forwards;
+}
+.ok-badge-pulse {
+  position: absolute; inset: 0; z-index: 0;
+  border-radius: 50%; border: 2px solid var(--accent);
+  opacity: 0;
+  animation: ok-pulse 900ms var(--ease-out) 360ms forwards;
+}
+@keyframes ok-pop { to { opacity: 1; transform: none; } }
+@keyframes ok-draw { to { stroke-dashoffset: 0; } }
+@keyframes ok-pulse {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+@keyframes ok-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ok-card h2, .ok-card p { opacity: 1; animation: none; }
+  .ok-badge-circle { opacity: 1; transform: none; animation: none; }
+  .ok-badge-check { stroke-dashoffset: 0; animation: none; }
+  .ok-badge-pulse { display: none; }
+}
