@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4B79FB">
+<title>Загрузка · Петровское СП</title>
+<style>
+:root {
+  --splash: #4B79FB;
+  --ring: #618AFF;
+  --ring-cap: #ffd200;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: var(--splash);
+  -webkit-font-smoothing: antialiased;
+}
+.splash {
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brand-logo {
+  position: relative;
+  width: 176px;
+  height: 176px;
+  flex: none;
+  animation: brand-in 0.5s cubic-bezier(0.2, 0, 0, 1) both;
+}
+.brand-logo img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 156px;
+  height: 156px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.loadring {
+  position: absolute;
+  inset: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 1.6s linear infinite;
+}
+.loadring path { fill: none; stroke: var(--ring); stroke-width: 4; stroke-linecap: round; }
+.loadring .cap { fill: var(--ring-cap); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes brand-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loadring { animation: none; }
+  .brand-logo { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="splash" data-od-id="splash-canvas" role="status" aria-label="Загрузка" aria-busy="true">
+  <div class="brand-logo" data-od-id="splash-screen">
+    <svg class="loadring" viewBox="0 0 166 166" aria-hidden="true">
+      <path d="M 83 2 A 81 81 0 1 1 12.85 42.5"/>
+      <circle class="cap" cx="83" cy="2" r="2.5"/>
+      <circle class="cap" cx="12.85" cy="42.5" r="2.5"/>
+    </svg>
+    <img src="../assets/splash/flag.png" alt="Флаг Петровское СП" width="156" height="156">
+  </div>
+</div>
+</body>
+</html>
