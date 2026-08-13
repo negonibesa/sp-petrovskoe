@@ -1306,6 +1306,12 @@ select.input:invalid { color: var(--muted); }
 .mrow-media.is-medal.is-bronze { background: var(--gto-bronze); color: var(--accent-on); }
 .mrow-media.is-medal svg { color: currentColor; }
 
+/* «Следующий норматив» — будущая цель, не медаль: пастельно-жёлтый
+   тайл (тонкая заливка --yellow поверх поверхности) + иконка-мишень
+   #ic-target цветом --yellow-ink-strong (чернила жёлтого). */
+.mrow-media.is-next { background: color-mix(in srgb, var(--yellow) 18%, var(--surface)); color: var(--yellow-ink-strong); }
+.mrow-media.is-next svg { color: currentColor; }
+
 .mrow-tx { flex: 1; min-width: 0; }
 .mrow-t { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mrow-s { display: block; margin-top: 1px; font-size: var(--fs-meta); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1975,18 +1981,19 @@ select.input:invalid { color: var(--muted); }
 .gto-plaque {
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 200px;
-  padding: var(--space-6) var(--space-4) var(--space-5);
+  min-height: 168px;
+  padding: var(--space-5) var(--space-4) var(--space-4);
   background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
-/* Эмблема в потоке (квадрат 60% ширины плашки), а не поверх: высота
-   плашки растёт под ширину, ничего не обрезается на любых размерах. */
+/* Эмблема в потоке (квадрат 50% ширины плашки), а не поверх: высота
+   плашки растёт под ширину, ничего не обрезается на любых размерах.
+   Знак 80% эмблемы — крупнее ленты, плашка компактнее по высоте. */
 .gto-emblem {
   position: relative;
-  width: 60%; aspect-ratio: 1 / 1;
+  width: 50%; aspect-ratio: 1 / 1;
 }
 .gto-emblem .gto-ribbon {
   position: absolute; inset: 0;
@@ -1996,7 +2003,7 @@ select.input:invalid { color: var(--muted); }
 }
 .gto-emblem .gto-sign {
   position: absolute; inset: 0; margin: auto; z-index: 1;
-  width: 62.5%; aspect-ratio: 1 / 1;
+  width: 80%; aspect-ratio: 1 / 1;
   object-fit: contain;
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.18));
 }
@@ -2006,7 +2013,7 @@ select.input:invalid { color: var(--muted); }
   position: relative; z-index: 1;
   margin-top: var(--space-2);
   text-align: center;
-  font-size: var(--fs-caption); font-weight: 600; color: var(--fg-2);
+  font-size: var(--fs-meta); font-weight: 600; color: var(--fg-2);
 }
 
 /* Микробар прогресса норматива (ряд ГТО): трек 5px, заливка акцентом */
