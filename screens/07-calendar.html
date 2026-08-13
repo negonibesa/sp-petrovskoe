@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Расписание · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body data-od-id="schedule-v2">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M20 20l-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-sliders" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+<div class="app">
+  <header class="topbar" data-od-id="schedule-header">
+    <a class="topbar-ic is-back" href="06-home.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h1 class="topbar-tx">Расписание</h1>
+    <span class="hd-acts">
+      <a class="icon-btn" href="#" aria-label="Поиск"><svg aria-hidden="true"><use href="#ic-search"></use></svg></a>
+      <a class="icon-btn" href="#" aria-label="Уведомления"><svg aria-hidden="true"><use href="#ic-bell"></use></svg><span class="notif" aria-hidden="true">3</span></a>
+    </span>
+  </header>
+
+  <main class="body" data-od-id="schedule-body">
+    <div class="chips" id="type-chips" data-od-id="type-filters" role="group" aria-label="Фильтр по типу события"></div>
+    <div class="chips chips-sub" id="sub-chips" data-od-id="sub-filters" role="group" aria-label="Подтип тренировки" hidden></div>
+
+    <section class="cal-card" data-od-id="calendar">
+      <div class="cal-head">
+        <h2 class="cal-month" id="cal-month">Август 2026</h2>
+        <button type="button" class="icon-btn icon-btn-sm" id="filter-btn" aria-haspopup="dialog" aria-label="Фильтр событий"><svg aria-hidden="true"><use href="#ic-sliders"></use></svg></button>
+        <div class="cal-nav">
+          <button type="button" class="icon-btn icon-btn-sm prev" id="prev" aria-label="Предыдущий месяц"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+          <button type="button" class="icon-btn icon-btn-sm next" id="next" aria-label="Следующий месяц"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+        </div>
+      </div>
+      <div class="cal-week" id="week"></div>
+      <div class="cal-grid" id="grid"></div>
+    </section>
+
+    <section class="day" data-od-id="day-panel">
+      <div class="day-head">
+        <h2 id="day-title">Выберите день</h2>
+        <span class="sec-count" id="day-count"></span>
+      </div>
+      <div class="cards" id="day-list"></div>
+    </section>
+  </main>
+</div>
+
+<a class="fab-add" href="07-add-event.html" data-od-id="add-event" aria-label="Добавить событие"><svg aria-hidden="true"><use href="#ic-plus"></use></svg></a>
+
+<nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Разделы">
+  <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+  <a class="tab is-on" href="#" aria-label="События"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <a class="tab" href="#" aria-label="Тренировки"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+  <a class="tab" href="#" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
+  <a class="tab" href="#" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></a>
+</nav>
+
+<div class="scrim" id="menu-scrim" aria-hidden="true"></div>
+<div class="sheet" id="menu-sheet" role="dialog" aria-modal="true" aria-label="Действия с событием">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Действия с событием</h3>
+    <button type="button" class="sheet-close js-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <button type="button" class="sheet-item js-sheet-close"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-bell"></use></svg></span><span class="sheet-it"><span class="sheet-il">Напомнить</span><span class="sheet-ih">Уведомление за 30 минут</span></span></button>
+    <button type="button" class="sheet-item js-sheet-close"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span><span class="sheet-it"><span class="sheet-il">Поделиться с клубом</span><span class="sheet-ih">Отправить участникам сообщества</span></span></button>
+    <button type="button" class="sheet-item is-off"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-clock"></use></svg></span><span class="sheet-it"><span class="sheet-il">Перенести время</span><span class="sheet-ih">Доступно за 3 часа до начала</span></span></button>
+  </div>
+  <button type="button" class="sheet-cancel js-sheet-close">Отмена</button>
+</div>
+
+<div class="scrim" id="filter-scrim" aria-hidden="true"></div>
+<div class="sheet" id="filter-sheet" role="dialog" aria-modal="true" aria-label="Фильтр событий">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Фильтр событий</h3>
+    <button type="button" class="sheet-close js-filter-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list" id="scope-list"></div>
+  <button type="button" class="sheet-cancel js-filter-close">Отмена</button>
+</div>
+
+<script>
+(function () {
+  var TYPE = {
+    training: 'var(--type-training)',
+    event: 'var(--type-event)',
+    club: 'var(--type-club)',
+    rental: 'var(--type-rental)'
+  };
+  var STATUS = {
+    confirmed: ['Подтв.', 'var(--st-confirmed)'],
+    open: ['Запись', 'var(--st-open)'],
+    pending: ['Ожид.', 'var(--st-pending)'],
+    done: ['Готово', 'var(--st-done)']
+  };
+  var FILTERS = [
+    { id: 'all', label: 'Все', token: null },
+    { id: 'training', label: 'Тренировки', token: '--type-training' },
+    { id: 'event', label: 'События СП', token: '--type-event' },
+    { id: 'club', label: 'Клубы', token: '--type-club' },
+    { id: 'rental', label: 'Аренда', token: '--type-rental' }
+  ];
+  var SUBS = [
+    { id: 'all', label: 'Все' },
+    { id: 'personal', label: 'Личные' },
+    { id: 'coach', label: 'С тренером' },
+    { id: 'group', label: 'Групповые' }
+  ];
+  var state = { filter: 'all', sub: 'all', scope: 'all' };
+  var SCOPE = [
+    { id: 'all', label: 'Все', hint: 'Все события календаря' },
+    { id: 'mine', label: 'Мои', hint: 'Тренировки и события, в которых участвую' },
+    { id: 'inv', label: 'Приглашения', hint: 'События, ожидающие вашего решения' }
+  ];
+  var EVENTS = [
+    { d: '2026-08-12', t: '05:40', title: 'Утренняя пробежка', place: 'парк у спорткомплекса', type: 'training', sub: 'personal', fmt: 'личная', st: 'confirmed' },
+    { d: '2026-08-12', t: '19:00', title: 'Аренда зала', place: 'Спорткомплекс «СП Петровское»', type: 'rental', sub: 'rental', fmt: 'аренда', st: 'open' },
+    { d: '2026-08-13', t: '09:00', title: 'Тренировка с тренером', place: 'тренажёрный зал', type: 'training', sub: 'coach', fmt: 'с тренером', st: 'confirmed' },
+    { d: '2026-08-14', t: '10:00', title: 'Турнир по шахматам', place: 'холл спорткомплекса', type: 'event', sub: 'event', fmt: 'турнир', st: 'open' },
+    { d: '2026-08-15', t: '09:00', title: 'Клуб любителей бега', place: 'стадион «Труд»', type: 'club', sub: 'club', fmt: 'клуб', st: 'open' },
+    { d: '2026-08-16', t: '12:00', title: 'Аренда бассейна', place: 'бассейн спорткомплекса', type: 'rental', sub: 'rental', fmt: 'аренда', st: 'confirmed' },
+    { d: '2026-08-18', t: '18:30', title: 'Силовая тренировка', place: 'тренажёрный зал', type: 'training', sub: 'personal', fmt: 'личная', st: 'pending' },
+    { d: '2026-08-21', t: '11:00', title: 'Летний Кубок · финал', place: 'стадион «Труд»', type: 'event', sub: 'event', fmt: 'турнир', st: 'open' },
+    { d: '2026-08-23', t: '10:00', title: 'Волейбольный турнир', place: 'волейбольная площадка', type: 'event', sub: 'event', fmt: 'турнир', st: 'open' },
+    { d: '2026-08-26', t: '18:00', title: 'Клуб настольного тенниса', place: 'клуб тенниса', type: 'club', sub: 'club', fmt: 'клуб', st: 'confirmed' },
+    { d: '2026-08-28', t: '16:00', title: 'Аренда корта', place: 'теннисный корт', type: 'rental', sub: 'rental', fmt: 'аренда', st: 'pending' },
+    { d: '2026-08-30', t: '08:00', title: 'Осенний полумарафон', place: 'центр поселения', type: 'event', sub: 'event', fmt: 'марафон', st: 'open' }
+  ];
+  var WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  var WD_FULL = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+  var MONTH_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  var MONTH_NOM = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+  var grid = document.getElementById('grid');
+  var week = document.getElementById('week');
+  var monthEl = document.getElementById('cal-month');
+  var dayTitle = document.getElementById('day-title');
+  var dayCount = document.getElementById('day-count');
+  var dayList = document.getElementById('day-list');
+
+  var today = new Date(2026, 7, 12);
+  var view = new Date(today.getFullYear(), today.getMonth(), 1);
+  var selected = today.getDate();
+
+  function iso(d, m, y) {
+    return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  }
+  function eventsFor(d) {
+    var key = iso(d.getDate(), d.getMonth(), d.getFullYear());
+    return EVENTS.filter(function (e) {
+      if (e.d !== key) return false;
+      if (state.filter !== 'all' && e.type !== state.filter) return false;
+      if (state.filter === 'training' && state.sub !== 'all' && e.sub !== state.sub) return false;
+      if (state.scope === 'mine' && e.st !== 'confirmed' && e.st !== 'done') return false;
+      if (state.scope === 'inv' && e.st !== 'pending') return false;
+      return true;
+    });
+  }
+  function mondayIndex(date) { return (date.getDay() + 6) % 7; }
+
+  function renderChips() {
+    var box = document.getElementById('type-chips');
+    box.innerHTML = '';
+    FILTERS.forEach(function (f) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fchip' + (state.filter === f.id ? ' is-on' : '');
+      if (f.token) b.style.setProperty('--c', 'var(' + f.token + ')');
+      b.innerHTML = (f.token ? '<span class="dot" aria-hidden="true"></span>' : '') + f.label;
+      b.addEventListener('click', function () {
+        if (state.filter === f.id) return;
+        state.filter = f.id;
+        state.sub = 'all';
+        renderChips();
+        renderSub();
+        renderGrid();
+        renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderSub() {
+    var box = document.getElementById('sub-chips');
+    box.hidden = state.filter !== 'training';
+    if (box.hidden) return;
+    box.innerHTML = '';
+    SUBS.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fchip' + (state.sub === s.id ? ' is-on' : '');
+      b.innerHTML = s.label;
+      b.addEventListener('click', function () {
+        if (state.sub === s.id) return;
+        state.sub = s.id;
+        renderSub();
+        renderGrid();
+        renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderScope() {
+    var box = document.getElementById('scope-list');
+    box.innerHTML = '';
+    SCOPE.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sheet-item' + (state.scope === s.id ? ' is-on' : '');
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', state.scope === s.id ? 'true' : 'false');
+      b.innerHTML =
+        '<span class="sheet-it"><span class="sheet-il">' + s.label + '</span>' +
+        '<span class="sheet-ih">' + s.hint + '</span></span>' +
+        '<span class="sheet-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
+      b.addEventListener('click', function () {
+        state.scope = s.id;
+        document.getElementById('filter-btn').classList.toggle('is-on', state.scope !== 'all');
+        renderScope();
+        closeFilter();
+        renderGrid();
+        renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderWeek() {
+    week.innerHTML = '';
+    WD.forEach(function (w) {
+      var el = document.createElement('span');
+      el.className = 'cal-wd';
+      el.textContent = w;
+      week.appendChild(el);
+    });
+  }
+
+  function renderGrid() {
+    var y = view.getFullYear(), m = view.getMonth();
+    var first = new Date(y, m, 1);
+    var dim = new Date(y, m + 1, 0).getDate();
+    var prevDim = new Date(y, m, 0).getDate();
+    var lead = mondayIndex(first);
+    monthEl.textContent = MONTH_NOM[m] + ' ' + y;
+    grid.innerHTML = '';
+    var cells = [];
+
+    for (var i = lead - 1; i >= 0; i--) {
+      cells.push({ d: prevDim - i, m: m - 1, y: y, other: true });
+    }
+    for (var d = 1; d <= dim; d++) {
+      cells.push({ d: d, m: m, y: y, other: false });
+    }
+    var tail = cells.length % 7;
+    if (tail !== 0) {
+      for (var k = 1; k <= 7 - tail; k++) {
+        cells.push({ d: k, m: m + 1, y: y, other: true });
+      }
+    }
+
+    cells.forEach(function (c) {
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cal-cell';
+      if (c.other) cell.classList.add('is-other');
+      var isToday = c.d === today.getDate() && c.m === today.getMonth() && c.y === today.getFullYear() && !c.other;
+      if (isToday) cell.classList.add('is-today');
+      if (c.d === selected && c.m === view.getMonth() && c.y === view.getFullYear() && !c.other) cell.classList.add('is-sel');
+      cell.setAttribute('aria-label', String(c.d));
+
+      var num = document.createElement('span');
+      num.className = 'cal-num';
+      num.textContent = c.d;
+      cell.appendChild(num);
+
+      var events = eventsFor(new Date(c.y, c.m, c.d));
+      if (events.length) {
+        var dots = document.createElement('span');
+        dots.className = 'cal-dots';
+        var shown = Math.min(events.length, 4);
+        for (var j = 0; j < shown; j++) {
+          var dot = document.createElement('span');
+          dot.className = 'cal-dot';
+          dot.style.setProperty('--c', TYPE[events[j].type] || 'var(--meta)');
+          dots.appendChild(dot);
+        }
+        cell.appendChild(dots);
+      }
+      cell.addEventListener('click', function () {
+        selected = c.d;
+        renderGrid();
+        renderDay(new Date(c.y, c.m, c.d));
+      });
+      grid.appendChild(cell);
+    });
+  }
+
+  function evLabel(date) {
+    var t = today;
+    if (date.getDate() === t.getDate() && date.getMonth() === t.getMonth() && date.getFullYear() === t.getFullYear()) return 'Сегодня';
+    var tm = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1);
+    if (date.getDate() === tm.getDate() && date.getMonth() === tm.getMonth() && date.getFullYear() === tm.getFullYear()) return 'Завтра';
+    return WD[mondayIndex(date)];
+  }
+
+  function renderDay(date) {
+    var events = eventsFor(date);
+    dayTitle.textContent = WD_FULL[mondayIndex(date)][0].toUpperCase() + WD_FULL[mondayIndex(date)].slice(1) + ', ' + date.getDate() + ' ' + MONTH_GEN[date.getMonth()];
+    dayCount.textContent = events.length;
+    dayList.innerHTML = '';
+    if (!events.length) {
+      var empty = document.createElement('div');
+      empty.className = 'day-empty';
+      empty.innerHTML = '<svg aria-hidden="true"><use href="#ic-events"></use></svg><div>В этот день пока ничего нет</div>';
+      dayList.appendChild(empty);
+      return;
+    }
+    events.forEach(function (e) {
+      var card = document.createElement('article');
+      card.className = 'ev-card';
+      card.style.setProperty('--c', TYPE[e.type]);
+      var st = STATUS[e.st] || STATUS.done;
+      var stCls = e.st === 'pending' ? ' is-pending' : '';
+      card.innerHTML =
+        '<div class="ev-when"><span class="ev-day"></span><span class="ev-time"></span></div>' +
+        '<div class="ev-body"><h3 class="ev-title"></h3><div class="ev-place"></div></div>' +
+        '<span class="ev-status' + stCls + '" style="--c:' + st[1] + '"></span>' +
+        '<button class="ev-menu" type="button" aria-label="Ещё"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>';
+      card.querySelector('.ev-day').textContent = evLabel(date);
+      card.querySelector('.ev-time').textContent = e.t;
+      card.querySelector('.ev-title').textContent = e.title;
+      var fmtEl = document.createElement('span');
+      fmtEl.className = 'ev-fmt';
+      fmtEl.textContent = e.fmt;
+      card.querySelector('.ev-title').appendChild(fmtEl);
+      card.querySelector('.ev-place').textContent = e.place;
+      card.querySelector('.ev-status').textContent = st[0];
+      dayList.appendChild(card);
+    });
+  }
+
+  document.getElementById('prev').addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+    renderGrid();
+  });
+  document.getElementById('next').addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+    renderGrid();
+  });
+
+  renderWeek();
+  renderChips();
+  renderSub();
+  renderGrid();
+  renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
+
+  var scrim = document.getElementById('menu-scrim');
+  var sheet = document.getElementById('menu-sheet');
+  function openMenu() { scrim.classList.add('open'); sheet.classList.add('open'); }
+  function closeMenu() { scrim.classList.remove('open'); sheet.classList.remove('open'); }
+  if (scrim && sheet) {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.ev-card .ev-menu');
+      if (btn) openMenu();
+    });
+    scrim.addEventListener('click', closeMenu);
+    document.querySelectorAll('.js-sheet-close').forEach(function (btn) {
+      btn.addEventListener('click', closeMenu);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+  }
+
+  var fScrim = document.getElementById('filter-scrim');
+  var fSheet = document.getElementById('filter-sheet');
+  function openFilter() { fScrim.classList.add('open'); fSheet.classList.add('open'); }
+  function closeFilter() { fScrim.classList.remove('open'); fSheet.classList.remove('open'); }
+  if (fScrim && fSheet) {
+    document.getElementById('filter-btn').addEventListener('click', function () {
+      renderScope();
+      openFilter();
+    });
+    fScrim.addEventListener('click', closeFilter);
+    document.querySelectorAll('.js-filter-close').forEach(function (btn) {
+      btn.addEventListener('click', closeFilter);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeFilter();
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

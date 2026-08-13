@@ -1,0 +1,7 @@
+# Служебные папки Open Design (не часть прототипа)
+.file-versions/
+.od-skills/
+*.artifact.json
+
+# Внутренние референсы для разработки (не часть приложения)
+referens/

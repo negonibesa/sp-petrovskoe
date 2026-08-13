@@ -1,0 +1,717 @@
+{
+  "appName": "Спортивная платформа",
+  "description": "User flow мобильного приложения для спортивной платформы с функциями записи на тренировки, рейтингом, сообществами и личным кабинетом",
+  "screens": {
+    "welcome": {
+      "id": "welcome",
+      "title": "Приветственный экран",
+      "type": "entry_point",
+      "next": [
+        "auth"
+      ]
+    },
+    "auth": {
+      "id": "auth",
+      "title": "Вход / Регистрация по коду (SMS или email)",
+      "type": "authentication",
+      "next": [
+        "role_selection"
+      ]
+    },
+    "role_selection": {
+      "id": "role_selection",
+      "title": "Выбор роли",
+      "description": "Клиент / Тренер (судейство — по запросу в настройках карточки соревнований)",
+      "type": "decision",
+      "conditions": [
+        {
+          "condition": "first_login",
+          "label": "Первый вход",
+          "next": "onboarding"
+        },
+        {
+          "condition": "returning_user",
+          "label": "Повторный вход",
+          "next": "home"
+        }
+      ]
+    },
+    "onboarding": {
+      "id": "onboarding",
+      "title": "Онбординг",
+      "type": "flow",
+      "next": [
+        "questionnaire"
+      ]
+    },
+    "questionnaire": {
+      "id": "questionnaire",
+      "title": "Анкета",
+      "description": "ФИО, возраст, ID, сообщество, контакт родителя или другого ответственного лица для несовершеннолетних",
+      "type": "form",
+      "next": [
+        "home"
+      ]
+    },
+    "home": {
+      "id": "home",
+      "title": "Главная",
+      "type": "main_screen",
+      "sections": [
+        {
+          "id": "activity_rating",
+          "title": "Ваша активность и рейтинг по региону/друзьям",
+          "actions": [
+            {
+              "action": "tap_rating",
+              "description": "По тапу открывается информация за что были начислены баллы и сформирован рейтинг (базируется в личном кабинете, на главном экране — дашборд)",
+              "next": "rating_details"
+            }
+          ]
+        },
+        {
+          "id": "news_feed",
+          "title": "Лента новостей",
+          "features": [
+            "Фильтр по тегам: события площадки, события друзей, события клубов"
+          ],
+          "actions": [
+            {
+              "action": "filter_news",
+              "description": "Фильтр новостей по тегам",
+              "next": "news_filter"
+            },
+            {
+              "action": "go_to_event_from_news",
+              "description": "Из новости можно перейти к мероприятию и записаться на него, после чего оно появится в календаре",
+              "next": "event_signup"
+            }
+          ]
+        },
+        {
+          "id": "upcoming_bookings",
+          "title": "Карточка ваших ближайших записей/запланированных тренировок",
+          "actions": [
+            {
+              "action": "go_to_calendar",
+              "description": "Переход к календарю записей",
+              "next": "booking_calendar"
+            }
+          ]
+        },
+        {
+          "id": "club_events",
+          "title": "Карточка ближайших событий в клубе",
+          "actions": [
+            {
+              "action": "quick_signup",
+              "description": "Быстрая запись прямо из карточки + информация кто из друзей записан",
+              "next": "quick_booking"
+            },
+            {
+              "action": "go_to_club_schedule",
+              "description": "Переход к расписанию клуба",
+              "next": "club_schedule"
+            }
+          ]
+        },
+        {
+          "id": "communities",
+          "title": "Список сообществ по интересам",
+          "actions": [
+            {
+              "action": "view_community",
+              "description": "Мероприятия и соревнования сообщества, кто из друзей состоит в сообществе",
+              "next": "community_details"
+            }
+          ]
+        }
+      ],
+      "navigation": [
+        "schedule",
+        "training_calendar",
+        "notifications",
+        "profile",
+        "qr_scanner"
+      ]
+    },
+    "notifications": {
+      "id": "notifications",
+      "title": "Уведомления",
+      "type": "screen",
+      "content": {
+        "types": [
+          "О начале тренировки",
+          "О новой записи на тренировку",
+          "Об отмене тренировки",
+          "О новом большом событии (например соревнование, где участвует спортшкола)"
+        ],
+        "actions": [
+          {
+            "action": "delete_notification",
+            "description": "Возможность удалить уведомление"
+          }
+        ]
+      }
+    },
+    "schedule": {
+      "id": "schedule",
+      "title": "Расписание активностей и тренировок платформы",
+      "type": "screen",
+      "tabs": [
+        {
+          "id": "individual_training",
+          "title": "Запись на индивидуальную тренировку",
+          "flow": [
+            {
+              "step": "filter",
+              "title": "Фильтр по типу тренировки и тренеру"
+            },
+            {
+              "step": "trainer_card",
+              "title": "Карточка тренера со слотами времени"
+            },
+            {
+              "step": "booking",
+              "title": "Запись / Отмена"
+            }
+          ]
+        },
+        {
+          "id": "group_training",
+          "title": "Запись на групповую тренировку или событие / отмена записи",
+          "flow": [
+            {
+              "step": "filter",
+              "title": "Фильтр по типу тренировки, тренеру, возрастной группе, сложности"
+            },
+            {
+              "step": "booking",
+              "title": "Запись / Отмена"
+            }
+          ]
+        },
+        {
+          "id": "self_training",
+          "title": "Самостоятельные тренировки"
+        },
+        {
+          "id": "court_rental",
+          "title": "Аренда корта/площадки/роликов/времени в зале",
+          "flow": [
+            {
+              "step": "booking",
+              "title": "Запись / Отмена"
+            }
+          ]
+        }
+      ]
+    },
+    "training_calendar": {
+      "id": "training_calendar",
+      "title": "Календарь запланированных тренировок",
+      "type": "screen",
+      "actions": [
+        {
+          "action": "tap_date",
+          "description": "По клику на дату открывается карточка тренировки: информация о тренировке, информация о прибытии, информация о состоянии после тренировки (если пользователь заполнил опрос)",
+          "next": "training_card_details"
+        }
+      ]
+    },
+    "booking_calendar": {
+      "id": "booking_calendar",
+      "title": "Календарь записей",
+      "type": "screen",
+      "actions": [
+        {
+          "action": "view_all_bookings",
+          "title": "Просмотр всех записей",
+          "next": "all_bookings_list"
+        },
+        {
+          "action": "add_change_cancel",
+          "title": "Добавить / Отменить / Изменить запись"
+        }
+      ]
+    },
+    "all_bookings_list": {
+      "id": "all_bookings_list",
+      "title": "Просмотр всех записей в строчном режиме",
+      "description": "Видно запись и статус: посетил / не прибыл",
+      "type": "screen",
+      "next": [
+        "training_constructor"
+      ]
+    },
+    "training_constructor": {
+      "id": "training_constructor",
+      "title": "Конструктор тренировки",
+      "description": "Можно сформировать тренировку самостоятельно и добавить её в календарь. Для ГТО — отдельная заготовка из упражнений для подготовки к сдаче.",
+      "type": "screen",
+      "features": [
+        "Формирование произвольной тренировки",
+        "Добавление в календарь",
+        "Заготовка упражнений для ГТО",
+        "Рекомендации на основе предыдущих опросов о самочувствии"
+      ],
+      "actions": [
+        {
+          "action": "add_change_cancel",
+          "title": "Добавить / Отменить / Изменить"
+        }
+      ]
+    },
+    "club_schedule": {
+      "id": "club_schedule",
+      "title": "Расписание клуба",
+      "type": "screen",
+      "tabs": [
+        "Самостоятельные тренировки",
+        "Групповые",
+        "Индивидуальные",
+        "Аренда корта/площадки"
+      ],
+      "actions": [
+        {
+          "action": "book_training",
+          "description": "Запись на тренировку или аренду площадки, выбор свободного слота времени. Возможность отмены записи, возможность поделиться ссылкой на тренировку.",
+          "next": "booking_confirmation"
+        }
+      ]
+    },
+    "profile": {
+      "id": "profile",
+      "title": "Личный кабинет",
+      "type": "screen",
+      "sections": [
+        {
+          "id": "personal_data",
+          "title": "ФИО, возраст, ID, сообщество, контакт родителя для несовершеннолетних"
+        },
+        {
+          "id": "activity_rating",
+          "title": "Рейтинг активности",
+          "description": "Информация о том, как начисляются баллы за активности, из которых формируется рейтинг"
+        },
+        {
+          "id": "role_status",
+          "title": "Роль и статус: клиент, тренер, судья"
+        },
+        {
+          "id": "friends",
+          "title": "Друзья",
+          "actions": [
+            {
+              "action": "view_friends_list",
+              "title": "Список друзей и их активности"
+            },
+            {
+              "action": "invite_friend",
+              "title": "Пригласить друга или поделиться событием"
+            },
+            {
+              "action": "remove_friend",
+              "title": "Удалить друга"
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "title": "Настройки",
+          "options": [
+            "Уведомления",
+            "Аккаунт",
+            "Приватность",
+            "Удаление",
+            "Загрузка фото"
+          ]
+        }
+      ]
+    },
+    "qr_scanner": {
+      "id": "qr_scanner",
+      "title": "Сканирование QR",
+      "description": "Переключатель вкладок для входа в клуб или сканирования кода на тренажере",
+      "type": "utility"
+    },
+    "post_training_survey": {
+      "id": "post_training_survey",
+      "title": "Опрос после тренировки",
+      "description": "После завершения тренировки приходит уведомление: как прошла тренировка? Оцените — пара вопросов, чтобы в следующий раз при планировании тренировки были предложены упражнения с корректировкой интенсивности или сложности на основе выводов о самочувствии участника.",
+      "type": "survey",
+      "triggers": [
+        "После записи на индивидуальную тренировку",
+        "После записи на групповую тренировку",
+        "После аренды площадки"
+      ]
+    },
+    "rating_details": {
+      "id": "rating_details",
+      "title": "Детали рейтинга",
+      "description": "Информация за что были начислены баллы и сформирован рейтинг. Базируется в личном кабинете, на главном экране отображается в виде дашборда.",
+      "type": "screen"
+    }
+  },
+  "connections": [
+    {
+      "from": "welcome",
+      "to": "auth",
+      "label": null
+    },
+    {
+      "from": "auth",
+      "to": "role_selection",
+      "label": null
+    },
+    {
+      "from": "role_selection",
+      "to": "onboarding",
+      "label": "Первый вход"
+    },
+    {
+      "from": "role_selection",
+      "to": "home",
+      "label": "Повторный вход"
+    },
+    {
+      "from": "onboarding",
+      "to": "questionnaire",
+      "label": null
+    },
+    {
+      "from": "questionnaire",
+      "to": "home",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "activity_rating",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "news_feed",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "upcoming_bookings",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "club_events",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "communities",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "notifications",
+      "label": null
+    },
+    {
+      "from": "home",
+      "to": "schedule",
+      "label": "Навигация"
+    },
+    {
+      "from": "home",
+      "to": "training_calendar",
+      "label": "Навигация"
+    },
+    {
+      "from": "home",
+      "to": "profile",
+      "label": "Навигация"
+    },
+    {
+      "from": "activity_rating",
+      "to": "rating_details",
+      "label": "Тап"
+    },
+    {
+      "from": "news_feed",
+      "to": "news_filter",
+      "label": null
+    },
+    {
+      "from": "news_filter",
+      "to": "event_signup_from_news",
+      "label": "Переход к мероприятию"
+    },
+    {
+      "from": "upcoming_bookings",
+      "to": "booking_calendar",
+      "label": null
+    },
+    {
+      "from": "booking_calendar",
+      "to": "all_bookings_list",
+      "label": null
+    },
+    {
+      "from": "booking_calendar",
+      "to": "add_change_cancel",
+      "label": null
+    },
+    {
+      "from": "all_bookings_list",
+      "to": "training_constructor",
+      "label": null
+    },
+    {
+      "from": "training_constructor",
+      "to": "add_change_cancel",
+      "label": null
+    },
+    {
+      "from": "club_events",
+      "to": "quick_booking",
+      "label": "Быстрая запись"
+    },
+    {
+      "from": "club_events",
+      "to": "club_schedule",
+      "label": "Расписание клуба"
+    },
+    {
+      "from": "club_schedule",
+      "to": "booking_confirmation",
+      "label": null
+    },
+    {
+      "from": "communities",
+      "to": "community_details",
+      "label": null
+    },
+    {
+      "from": "schedule",
+      "to": "individual_training",
+      "label": "Вкладка"
+    },
+    {
+      "from": "schedule",
+      "to": "group_training",
+      "label": "Вкладка"
+    },
+    {
+      "from": "schedule",
+      "to": "court_rental",
+      "label": "Вкладка"
+    },
+    {
+      "from": "individual_training",
+      "to": "filter_trainer",
+      "label": null
+    },
+    {
+      "from": "filter_trainer",
+      "to": "trainer_card",
+      "label": null
+    },
+    {
+      "from": "trainer_card",
+      "to": "booking_confirm",
+      "label": "Запись / Отмена"
+    },
+    {
+      "from": "group_training",
+      "to": "filter_group",
+      "label": null
+    },
+    {
+      "from": "filter_group",
+      "to": "booking_confirm_group",
+      "label": "Запись / Отмена"
+    },
+    {
+      "from": "court_rental",
+      "to": "booking_confirm_rental",
+      "label": "Запись / Отмена"
+    },
+    {
+      "from": "booking_confirm",
+      "to": "post_training_survey",
+      "label": "После завершения"
+    },
+    {
+      "from": "booking_confirm_group",
+      "to": "post_training_survey",
+      "label": "После завершения"
+    },
+    {
+      "from": "booking_confirm_rental",
+      "to": "post_training_survey",
+      "label": "После завершения"
+    },
+    {
+      "from": "training_calendar",
+      "to": "training_card_details",
+      "label": "Клик по дате"
+    },
+    {
+      "from": "profile",
+      "to": "personal_data",
+      "label": null
+    },
+    {
+      "from": "profile",
+      "to": "activity_rating_section",
+      "label": null
+    },
+    {
+      "from": "profile",
+      "to": "role_status",
+      "label": null
+    },
+    {
+      "from": "profile",
+      "to": "friends",
+      "label": null
+    },
+    {
+      "from": "profile",
+      "to": "settings",
+      "label": null
+    },
+    {
+      "from": "friends",
+      "to": "friends_list",
+      "label": null
+    },
+    {
+      "from": "friends",
+      "to": "invite_friend",
+      "label": null
+    },
+    {
+      "from": "friends",
+      "to": "remove_friend",
+      "label": null
+    },
+    {
+      "from": "notifications",
+      "to": "notification_details",
+      "label": null
+    },
+    {
+      "from": "notification_details",
+      "to": "delete_notification",
+      "label": null
+    }
+  ],
+  "keyFlows": [
+    {
+      "name": "Регистрация нового пользователя",
+      "steps": [
+        "welcome",
+        "auth",
+        "role_selection",
+        "onboarding",
+        "questionnaire",
+        "home"
+      ]
+    },
+    {
+      "name": "Повторный вход",
+      "steps": [
+        "welcome",
+        "auth",
+        "role_selection",
+        "home"
+      ]
+    },
+    {
+      "name": "Запись на индивидуальную тренировку",
+      "steps": [
+        "home",
+        "schedule",
+        "individual_training",
+        "filter_trainer",
+        "trainer_card",
+        "booking_confirm",
+        "post_training_survey"
+      ]
+    },
+    {
+      "name": "Запись на групповую тренировку",
+      "steps": [
+        "home",
+        "schedule",
+        "group_training",
+        "filter_group",
+        "booking_confirm",
+        "post_training_survey"
+      ]
+    },
+    {
+      "name": "Аренда площадки/корта",
+      "steps": [
+        "home",
+        "schedule",
+        "court_rental",
+        "booking_confirm",
+        "post_training_survey"
+      ]
+    },
+    {
+      "name": "Самостоятельная тренировка через конструктор",
+      "steps": [
+        "home",
+        "booking_calendar",
+        "all_bookings_list",
+        "training_constructor",
+        "add_to_calendar"
+      ]
+    },
+    {
+      "name": "Просмотр и управление рейтингом",
+      "steps": [
+        "home",
+        "activity_rating",
+        "rating_details"
+      ]
+    },
+    {
+      "name": "Управление друзьями",
+      "steps": [
+        "home",
+        "profile",
+        "friends",
+        "friends_list / invite_friend / remove_friend"
+      ]
+    },
+    {
+      "name": "Запись через новость",
+      "steps": [
+        "home",
+        "news_feed",
+        "news_filter",
+        "event_from_news",
+        "training_calendar"
+      ]
+    },
+    {
+      "name": "Быстрая запись из карточки клуба",
+      "steps": [
+        "home",
+        "club_events",
+        "club_schedule",
+        "booking_confirmation"
+      ]
+    },
+    {
+      "name": "Сканирование QR для входа в клуб",
+      "steps": [
+        "home",
+        "qr_scanner",
+        "club_entry / equipment_scan"
+      ]
+    }
+  ]
+}
