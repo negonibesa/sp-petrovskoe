@@ -584,7 +584,7 @@
       btn.classList.remove('is-busy');
       btn.removeAttribute('aria-busy');
       btn.disabled = false;
-      location.href = '06-home.html';
+      location.href = '03-role.html';
     }, 500);
   });
 
@@ -722,7 +722,14 @@
       btn.classList.remove('is-busy');
       btn.removeAttribute('aria-busy');
       btn.disabled = false;
-      location.href = '06-home.html';
+      try {
+        sessionStorage.setItem('od-reg', JSON.stringify({
+          fio: regFio.value.trim(),
+          phone: regPhone.value.trim(),
+          email: regEmail.value.trim()
+        }));
+      } catch (err) {}
+      location.href = '03-role.html';
     }, 600);
   });
 

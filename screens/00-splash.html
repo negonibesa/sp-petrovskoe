@@ -8,6 +8,7 @@
 <style>
 :root {
   --splash: #4B79FB;
+  --splash-purple: #9175e8;
   --ring: #618AFF;
   --ring-cap: #ffd200;
 }
@@ -17,7 +18,7 @@ body {
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  background: var(--splash);
+  background: linear-gradient(135deg, var(--splash) 0%, var(--splash) 45%, var(--splash-purple) 180%);
   -webkit-font-smoothing: antialiased;
 }
 .splash {

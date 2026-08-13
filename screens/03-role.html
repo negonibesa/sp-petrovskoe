@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Выбор роли · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экранная специфика выбора роли — канон: referens/welcome-v2.html (screen-role).
+     Карточки — DS .pick-card + метрики канона (padding 20 · аватар 56 · заголовок 18 · маркер 26). */
+  .role-app { background: var(--surface); padding-bottom: 0; }
+  .role-scroll { padding: 12px var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); }
+
+  .role-head { width: 100%; text-align: center; }
+  .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .role-head h2 {
+    margin: 10px 0 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+  }
+  .role-sub {
+    margin: 10px auto 0;
+    max-width: 36ch;
+    font-size: var(--fs-body);
+    line-height: var(--leading-body);
+    color: var(--muted);
+  }
+
+  .role-list { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+  .role-list .pick-card { padding: 20px; }
+  .role-list .pick-card:hover { border-color: var(--meta); background: var(--border-soft); }
+  .role-list .pick-card:has(input:focus-visible) { box-shadow: var(--focus-ring); }
+  .role-list .pick-media.is-round {
+    width: 56px; height: 56px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+  }
+  .role-list .pick-card:has(input:checked) .pick-media.is-round {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 82%);
+  }
+  .role-list .pick-name { font-size: var(--fs-title); }
+  .role-list .pick-desc { color: var(--muted); }
+  .role-list .pick-mark { width: 26px; height: 26px; }
+  .role-list .pick-mark::after { width: 12px; height: 12px; }
+
+  .cta-foot { margin-top: 40px; padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px)); }
+</style>
+</head>
+<body data-od-id="role-selection">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app role-app">
+  <header class="topbar" data-od-id="role-header">
+    <button type="button" class="topbar-ic is-back" id="btn-role-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Выбор роли</h4>
+    <button type="button" class="topbar-act" id="btn-role-skip">Пропустить</button>
+  </header>
+
+  <main class="body role-scroll" data-od-id="role-body">
+    <header class="role-head">
+      <p class="eyebrow">Шаг 1 из 3</p>
+      <h2>Кто вы в мире спорта?</h2>
+      <p class="role-sub">Выберите роль, и мы подстроим приложение под ваши задачи.</p>
+    </header>
+
+    <div class="pick-list role-list" role="radiogroup" aria-label="Выберите роль">
+      <label class="pick-card" data-role="athlete">
+        <input type="radio" name="role" value="athlete">
+        <span class="pick-media is-round" aria-hidden="true"><img src="../assets/role/role-basketball.png" alt="" width="56" height="56"></span>
+        <span class="pick-tx">
+          <span class="pick-name">Спортсмен</span>
+          <span class="pick-desc">Записывайтесь на тренировки и следите за результатами</span>
+        </span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+      <label class="pick-card" data-role="coach">
+        <input type="radio" name="role" value="coach">
+        <span class="pick-media is-round" aria-hidden="true"><img src="../assets/role/role-coach.png" alt="" width="56" height="56"></span>
+        <span class="pick-tx">
+          <span class="pick-name">Тренер</span>
+          <span class="pick-desc">Ведите расписание и управляйте группой спортсменов</span>
+        </span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+      <label class="pick-card" data-role="referee">
+        <input type="radio" name="role" value="referee">
+        <span class="pick-media is-round" aria-hidden="true"><img src="../assets/role/role-referee.png" alt="" width="56" height="56"></span>
+        <span class="pick-tx">
+          <span class="pick-name">Судья</span>
+          <span class="pick-desc">Контролируйте матчи и фиксируйте результаты</span>
+        </span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+    </div>
+
+    <footer class="cta-foot">
+      <button type="button" class="btn btn-accent btn-lg btn-block" id="btn-role-continue" disabled><span class="spinner" aria-hidden="true"></span>Продолжить</button>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  var roleCards = document.querySelectorAll('.pick-card');
+  var roleContinue = $('btn-role-continue');
+  var roleValue = 'athlete';
+
+  roleCards.forEach(function (card) {
+    var input = card.querySelector('input');
+    input.addEventListener('change', function () {
+      roleValue = input.checked ? input.value : roleValue;
+      roleContinue.disabled = !input.checked;
+    });
+  });
+
+  roleContinue.addEventListener('click', function () {
+    if (roleContinue.disabled) return;
+    roleContinue.classList.add('is-busy');
+    roleContinue.setAttribute('aria-busy', 'true');
+    roleContinue.disabled = true;
+    setTimeout(function () { location.href = '05-questionnaire.html'; }, 500);
+  });
+
+  $('btn-role-skip').addEventListener('click', function () {
+    roleValue = 'athlete';
+    location.href = '05-questionnaire.html';
+  });
+
+  $('btn-role-back').addEventListener('click', function () { location.href = '02-auth.html'; });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') location.href = '02-auth.html';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Анкета · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экранная специфика анкеты — канон: referens/welcome-v2.html (screen-questionnaire).
+     Чипы — DS .pick-chip в контейнере .chips.is-wrap; внутри .field рельсу ds.css сбрасываем. */
+  .q-app { background: var(--surface); padding-bottom: 0; }
+  .q-scroll { padding: 12px var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); }
+
+  .q-head { width: 100%; text-align: left; }
+  .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .q-head h2 {
+    margin: 10px 0 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+  }
+  .q-head .role-sub { margin: 10px 0 0; text-align: left; }
+  .q-scroll form { margin-top: 28px; }
+
+  .q-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .q-contact {
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: var(--surface-warm);
+  }
+  .q-contact-head { margin-bottom: 14px; }
+  .q-contact-title { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .q-contact-hint { display: block; margin-top: 3px; font-size: var(--fs-caption); line-height: 1.4; color: var(--meta); }
+  .q-contact .field { margin-bottom: 14px; }
+  .q-contact .field:last-child { margin-bottom: 0; }
+
+  .field-inner input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  .field-inner input[type="number"]::-webkit-outer-spin-button,
+  .field-inner input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .q-scroll .chips { margin: 0; padding: 0; overflow: visible; gap: 10px; }
+  .q-scroll .chips.is-wrap { gap: 10px; }
+  .q-scroll .chips.is-wrap > .pick-chip { flex: 1 1 calc(50% - 5px); }
+  .q-scroll .pick-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .q-scroll .field.is-error .pick-chip { border-color: var(--danger); }
+
+  .cta-foot { margin-top: 40px; padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px)); }
+
+  .form-alert {
+    display: none;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--danger);
+    background: color-mix(in oklab, var(--danger), transparent 92%);
+    color: var(--danger);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .form-alert.is-show { display: block; }
+</style>
+</head>
+<body data-od-id="questionnaire-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app q-app">
+  <header class="topbar" data-od-id="questionnaire-header">
+    <button type="button" class="topbar-ic is-back" id="btn-q-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Анкета</h4>
+  </header>
+
+  <main class="body q-scroll" data-od-id="questionnaire-body">
+    <header class="q-head">
+      <p class="eyebrow">Почти всё готово</p>
+      <h2>Расскажите о себе</h2>
+      <p class="role-sub">Данные из регистрации подставим автоматически — проверьте их.</p>
+    </header>
+
+    <form id="form-questionnaire" novalidate>
+      <p class="form-alert" id="alert-q" role="alert"></p>
+
+      <label class="field" id="field-q-fio">
+        <span class="field-label">ФИО</span>
+        <span class="field-inner">
+          <input id="q-fio" name="q-fio" type="text" autocomplete="name" placeholder="Иванов Иван Иванович">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <div class="q-row">
+        <label class="field" id="field-q-birth">
+          <span class="field-label">Дата рождения <span class="opt">(для нормативов ГТО)</span></span>
+          <span class="field-inner">
+            <input id="q-birth" name="q-birth" type="date" autocomplete="bday">
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-q-exp">
+          <span class="field-label">Стаж, лет <span class="opt">(необязательно)</span></span>
+          <span class="field-inner">
+            <input id="q-exp" name="q-exp" type="number" inputmode="numeric" min="0" max="50" placeholder="0">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+      </div>
+
+      <div class="field" id="field-q-sex">
+        <span class="field-label">Пол</span>
+        <div class="chips" role="radiogroup" aria-label="Пол">
+          <label class="pick-chip">
+            <input type="radio" name="q-sex" value="Мужской">
+            <span>Мужской</span>
+          </label>
+          <label class="pick-chip">
+            <input type="radio" name="q-sex" value="Женский">
+            <span>Женский</span>
+          </label>
+        </div>
+        <span class="field-msg" id="sex-msg"></span>
+      </div>
+
+      <div class="field" id="field-q-sport">
+        <span class="field-label">Виды спорта</span>
+        <div class="chips is-wrap" role="group" aria-label="Виды спорта">
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Плавание"><span>Плавание</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Футбол"><span>Футбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Волейбол"><span>Волейбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Баскетбол"><span>Баскетбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Лёгкая атлетика"><span>Лёгкая атлетика</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Единоборства"><span>Единоборства</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Теннис"><span>Теннис</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Лыжные гонки"><span>Лыжные гонки</span></label>
+          <label class="pick-chip"><input type="checkbox" name="q-sport" value="Другое"><span>Другое</span></label>
+        </div>
+        <span class="field-msg"></span>
+      </div>
+
+      <label class="field" id="field-q-city">
+        <span class="field-label">Город <span class="opt">(необязательно)</span></span>
+        <span class="field-inner">
+          <input id="q-city" name="q-city" type="text" autocomplete="address-level2" placeholder="Петровск">
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <label class="field" id="field-q-phone">
+        <span class="field-label">Телефон</span>
+        <span class="field-inner">
+          <input id="q-phone" name="q-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <label class="field" id="field-q-email">
+        <span class="field-label">Email</span>
+        <span class="field-inner">
+          <input id="q-email" name="q-email" type="email" autocomplete="email" placeholder="email@example.com">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <div class="q-contact" id="field-q-parent">
+        <div class="q-contact-head">
+          <span class="q-contact-title">Родитель или доверительное лицо</span>
+          <span class="q-contact-hint">Для участников младше 18 лет. Доверительное лицо — взрослый (18+).</span>
+        </div>
+        <label class="field" id="field-q-parent-name">
+          <span class="field-label">ФИО родителя или доверительного лица</span>
+          <span class="field-inner">
+            <input id="q-parent-name" name="q-parent-name" type="text" autocomplete="name" placeholder="Иванова Мария Петровна">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-q-parent-role">
+          <span class="field-label">Кем приходится</span>
+          <span class="field-inner select-wrap">
+            <select id="q-parent-role" name="q-parent-role" required>
+              <option value="" selected>Выберите</option>
+              <option value="Родитель">Родитель</option>
+              <option value="Доверительное лицо">Доверительное лицо</option>
+              <option value="Другое">Другое</option>
+            </select>
+          </span>
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-q-parent-phone">
+          <span class="field-label">Телефон</span>
+          <span class="field-inner">
+            <input id="q-parent-phone" name="q-parent-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+      </div>
+
+      <label class="field" id="field-q-about">
+        <span class="field-label">О себе <span class="opt">(необязательно)</span></span>
+        <span class="field-inner is-area">
+          <textarea id="q-about" name="q-about" rows="3" placeholder="Разряды, медицинские особенности..."></textarea>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+    </form>
+
+    <footer class="cta-foot">
+      <button type="submit" form="form-questionnaire" class="btn btn-accent btn-lg btn-block" id="btn-q-save" disabled><span class="spinner" aria-hidden="true"></span>Сохранить и начать</button>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function isPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    return /^7\d{10}$/.test(d);
+  }
+  function fieldOf(input) { return input.closest('.field'); }
+  function setState(field, state, msg) {
+    field.classList.toggle('is-error', state === 'error');
+    field.classList.toggle('is-success', state === 'success');
+    var m = field.querySelector('.field-msg');
+    if (m) m.textContent = msg || '';
+    var input = field.querySelector('input, select, textarea');
+    if (input) input.setAttribute('aria-invalid', String(state === 'error'));
+  }
+  function maskPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    if (d.charAt(0) !== '7') d = '7' + d;
+    d = d.slice(0, 11);
+    var out = '+7';
+    if (d.length > 1) out += ' (' + d.slice(1, 4);
+    if (d.length >= 4) out += ') ' + d.slice(4, 7);
+    if (d.length >= 7) out += '-' + d.slice(7, 9);
+    if (d.length >= 9) out += '-' + d.slice(9, 11);
+    return out;
+  }
+  function showFormAlert(id, msg) {
+    var el = $(id);
+    el.textContent = msg;
+    el.classList.add('is-show');
+  }
+  function hideFormAlert(id) { $(id).classList.remove('is-show'); }
+
+  var qFio = $('q-fio'), qBirth = $('q-birth'), qExp = $('q-exp'),
+      qEmail = $('q-email'), qPhone = $('q-phone'),
+      qParentName = $('q-parent-name'), qParentRole = $('q-parent-role'), qParentPhone = $('q-parent-phone');
+  var sexInputs = document.querySelectorAll('input[name="q-sex"]');
+  var sportInputs = document.querySelectorAll('input[name="q-sport"]');
+
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('od-reg') || 'null');
+    if (saved) {
+      if (saved.fio) qFio.value = saved.fio;
+      if (saved.phone) qPhone.value = saved.phone;
+      if (saved.email) qEmail.value = saved.email;
+    }
+  } catch (err) {}
+
+  function qSexValue() {
+    var c = document.querySelector('input[name="q-sex"]:checked');
+    return c ? c.value : '';
+  }
+  function birthDate() {
+    var v = qBirth.value.trim();
+    if (!v) return null;
+    var d = new Date(v + 'T00:00:00');
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function ageYears() {
+    var d = birthDate();
+    if (!d) return NaN;
+    var now = new Date();
+    var y = now.getFullYear() - d.getFullYear();
+    if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) y--;
+    return y;
+  }
+  function parentVisible() {
+    var n = ageYears();
+    return !isNaN(n) && n < 18;
+  }
+  function updateParent() {
+    var box = $('field-q-parent');
+    var show = parentVisible();
+    box.style.display = show ? 'block' : 'none';
+    box.setAttribute('aria-hidden', String(!show));
+    if (show) {
+      setTimeout(function () {
+        var r = box.getBoundingClientRect();
+        if (r.top < 0 || r.bottom > window.innerHeight) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 60);
+    }
+  }
+  function initBirthLimits() {
+    var now = new Date();
+    function iso(d) {
+      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    }
+    qBirth.max = iso(new Date(now.getFullYear() - 6, now.getMonth(), now.getDate()));
+    qBirth.min = iso(new Date(now.getFullYear() - 99, now.getMonth(), now.getDate()));
+  }
+  initBirthLimits();
+  updateParent();
+  qBirth.addEventListener('input', updateParent);
+
+  function countWords(v) { return v.trim().split(/\s+/).filter(Boolean).length; }
+  function checkQFio(force) {
+    var v = qFio.value.trim();
+    if (!v) { if (force) setState(fieldOf(qFio), 'error', 'Введите ФИО'); else setState(fieldOf(qFio), ''); return false; }
+    if (countWords(v) < 2) { if (force) setState(fieldOf(qFio), 'error', 'Укажите имя и фамилию'); else setState(fieldOf(qFio), ''); return false; }
+    setState(fieldOf(qFio), 'success');
+    return true;
+  }
+  function checkQBirth(force) {
+    var a = ageYears();
+    if (isNaN(a)) { if (force) setState(fieldOf(qBirth), 'error', 'Укажите дату рождения'); else setState(fieldOf(qBirth), ''); return false; }
+    if (a < 6 || a > 99) { if (force) setState(fieldOf(qBirth), 'error', 'Возраст от 6 до 99 лет'); else setState(fieldOf(qBirth), ''); return false; }
+    setState(fieldOf(qBirth), 'success');
+    return true;
+  }
+  function checkQExp(force) {
+    var v = qExp.value.trim();
+    if (!v) { setState(fieldOf(qExp), ''); return true; }
+    var n = Number(v);
+    if (!Number.isInteger(n) || n < 0 || n > 50) { if (force) setState(fieldOf(qExp), 'error', 'Стаж до 50 лет'); else setState(fieldOf(qExp), ''); return false; }
+    setState(fieldOf(qExp), 'success');
+    return true;
+  }
+  function checkQSex(force) {
+    var v = qSexValue();
+    $('field-q-sex').classList.toggle('is-error', !v && !!force);
+    $('sex-msg').textContent = (!v && !!force) ? 'Укажите пол' : '';
+    sexInputs.forEach(function (i) { i.setAttribute('aria-invalid', String(!v && !!force)); });
+    return !!v;
+  }
+  function sportSelected() {
+    return Array.prototype.some.call(sportInputs, function (i) { return i.checked; });
+  }
+  function checkQSport(force) {
+    var ok = sportSelected();
+    if (!ok) { if (force) setState($('field-q-sport'), 'error', 'Выберите хотя бы один вид спорта'); else setState($('field-q-sport'), ''); return false; }
+    setState($('field-q-sport'), 'success');
+    return true;
+  }
+  function checkQPhone(force) {
+    if (!isPhone(qPhone.value)) {
+      if (force) setState(fieldOf(qPhone), 'error', qPhone.value.replace(/\D/g, '') ? 'Неполный номер' : 'Введите телефон');
+      else setState(fieldOf(qPhone), '');
+      return false;
+    }
+    setState(fieldOf(qPhone), 'success');
+    return true;
+  }
+  function checkQEmail(force) {
+    var v = qEmail.value.trim();
+    if (!v) { if (force) setState(fieldOf(qEmail), 'error', 'Введите email'); else setState(fieldOf(qEmail), ''); return false; }
+    if (!RE_EMAIL.test(v)) { if (force) setState(fieldOf(qEmail), 'error', 'Неверный формат email'); else setState(fieldOf(qEmail), ''); return false; }
+    setState(fieldOf(qEmail), 'success');
+    return true;
+  }
+  function checkQParent(force) {
+    var box = $('field-q-parent');
+    if (box.style.display === 'none') {
+      setState($('field-q-parent-name'), '');
+      setState($('field-q-parent-role'), '');
+      setState($('field-q-parent-phone'), '');
+      return true;
+    }
+    var okName = countWords(qParentName.value) >= 2;
+    var okRole = qParentRole.value !== '';
+    var okPhone = isPhone(qParentPhone.value);
+    if (!okName) { if (force) setState($('field-q-parent-name'), 'error', 'Укажите ФИО'); else setState($('field-q-parent-name'), ''); }
+    else setState($('field-q-parent-name'), 'success');
+    if (!okRole) { if (force) setState($('field-q-parent-role'), 'error', 'Укажите, кем приходится'); else setState($('field-q-parent-role'), ''); }
+    else setState($('field-q-parent-role'), 'success');
+    if (!okPhone) { if (force) setState($('field-q-parent-phone'), 'error', 'Укажите телефон'); else setState($('field-q-parent-phone'), ''); }
+    else setState($('field-q-parent-phone'), 'success');
+    return okName && okRole && okPhone;
+  }
+
+  function updateQ() {
+    hideFormAlert('alert-q');
+    checkQFio(false); checkQBirth(false); checkQExp(false); checkQSport(false); checkQPhone(false); checkQEmail(false); checkQParent(false);
+    var a = ageYears();
+    var ok = countWords(qFio.value) >= 2 &&
+      !isNaN(a) && a >= 6 && a <= 99 &&
+      qSexValue() !== '' &&
+      sportSelected() &&
+      isPhone(qPhone.value) &&
+      RE_EMAIL.test(qEmail.value.trim()) &&
+      checkQParent(false);
+    $('btn-q-save').disabled = !ok;
+  }
+
+  qFio.addEventListener('input', updateQ);
+  qBirth.addEventListener('input', function () { updateParent(); updateQ(); });
+  qExp.addEventListener('input', updateQ);
+  qEmail.addEventListener('input', updateQ);
+  sportInputs.forEach(function (i) { i.addEventListener('change', updateQ); });
+  sexInputs.forEach(function (i) { i.addEventListener('change', updateQ); });
+  qPhone.addEventListener('input', function () {
+    var next = maskPhone(qPhone.value);
+    if (next !== qPhone.value) {
+      qPhone.value = next;
+      try { qPhone.setSelectionRange(next.length, next.length); } catch (err) {}
+    }
+    updateQ();
+  });
+  qParentName.addEventListener('input', updateQ);
+  qParentRole.addEventListener('change', updateQ);
+  qParentPhone.addEventListener('input', function () {
+    var next = maskPhone(qParentPhone.value);
+    if (next !== qParentPhone.value) {
+      qParentPhone.value = next;
+      try { qParentPhone.setSelectionRange(next.length, next.length); } catch (err) {}
+    }
+    updateQ();
+  });
+  [qFio, qBirth, qExp, qEmail, qPhone, qParentName, qParentRole, qParentPhone].forEach(function (el) {
+    el.addEventListener('blur', function () {
+      if (el === qFio) checkQFio(true);
+      else if (el === qBirth) checkQBirth(true);
+      else if (el === qExp) checkQExp(true);
+      else if (el === qEmail) checkQEmail(true);
+      else if (el === qPhone) checkQPhone(true);
+      else if (el === qParentName || el === qParentRole || el === qParentPhone) checkQParent(true);
+    });
+  });
+
+  document.querySelectorAll('.pick-chip').forEach(function (label) {
+    var input = label.querySelector('input');
+    input.addEventListener('change', function () {
+      if (input.name === 'q-sex') {
+        document.querySelectorAll('input[name="q-sex"]').forEach(function (i) {
+          i.closest('.pick-chip').classList.toggle('is-on', i.checked);
+        });
+      } else {
+        label.classList.toggle('is-on', input.checked);
+      }
+      updateQ();
+    });
+  });
+
+  $('form-questionnaire').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = checkQFio(true) & checkQBirth(true) & checkQExp(true) & checkQSex(true) &
+      checkQSport(true) & checkQPhone(true) & checkQEmail(true) & checkQParent(true);
+    if (!ok) return;
+    var btn = $('btn-q-save');
+    btn.classList.add('is-busy');
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    setTimeout(function () {
+      location.href = '06-home.html';
+    }, 600);
+  });
+
+  $('btn-q-back').addEventListener('click', function () { location.href = '03-role.html'; });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') location.href = '03-role.html';
+  });
+
+  updateQ();
+})();
+</script>
+</body>
+</html>
