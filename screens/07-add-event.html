@@ -17,7 +17,7 @@
   <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
   <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 5.5H5a0 0 0 0 0 0 0v1.5A3 3 0 0 0 8 10M16 5.5h3a0 0 0 0 1 0 0V7a3 3 0 0 1-3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 13v3M8.5 20h7M9.5 16h5l.5 4h-6l.5-4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-rental" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2.2a2.2 2.2 0 0 0 0 5.6V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.2a2.2 2.2 0 0 0 0-5.6V7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 5.5v13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
-  <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M6 4v16M6 4h10l-1 4 1 4H6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M7 4v16M7 4h10l-1 4 1 4H7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.3-6.5-10a6.5 6.5 0 0 1 13 0c0 4.7-6.5 10-6.5 10z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
@@ -902,11 +902,11 @@
       if (!p) return;
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "sheet-item";
+      b.className = "user-row";
       b.innerHTML =
-        '<span class="sheet-ic" style="color:#fff;background:var(--type-rental)">' + initials(p.name) + "</span>" +
-        '<span class="sheet-it"><span class="sheet-il">' + p.name + "</span></span>" +
-        '<span class="sheet-check"><svg aria-hidden="true"><use href="#ic-close"></use></svg></span>';
+        '<span class="user-row-ava">' + initials(p.name) + "</span>" +
+        '<span class="user-row-tx"><span class="user-row-il">' + p.name + "</span></span>" +
+        '<span class="user-row-check"><svg aria-hidden="true"><use href="#ic-close"></use></svg></span>';
       b.addEventListener("click", function () {
         st.people = st.people.filter(function (x) { return x !== id; });
         renderFriendsCounter();
@@ -932,11 +932,11 @@
       var on = st.people.indexOf(p.id) !== -1;
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "sheet-item" + (on ? " is-on" : "");
+      b.className = "user-row" + (on ? " is-on" : "");
       b.innerHTML =
-        '<span class="sheet-ic" style="color:#fff;background:var(--type-rental)">' + initials(p.name) + "</span>" +
-        '<span class="sheet-it"><span class="sheet-il">' + p.name + '</span><span class="sheet-ih">' + p.club + "</span></span>" +
-        '<span class="sheet-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
+        '<span class="user-row-ava">' + initials(p.name) + "</span>" +
+        '<span class="user-row-tx"><span class="user-row-il">' + p.name + '</span><span class="user-row-ih">' + p.club + "</span></span>" +
+        '<span class="user-row-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
       b.addEventListener("click", function () {
         if (on) st.people = st.people.filter(function (x) { return x !== p.id; });
         else st.people.push(p.id);

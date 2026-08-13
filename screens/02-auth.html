@@ -24,37 +24,14 @@
     margin: 0;
     font-family: var(--font-display);
     font-size: var(--fs-display);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.01em;
     color: var(--fg);
   }
   .auth-head p { margin: 8px 0 0; font-size: var(--fs-body); color: var(--muted); }
 
-  .tabs {
-    display: flex;
-    gap: var(--space-8);
-    margin-top: var(--space-8);
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .tab {
-    flex: 0 0 auto;
-    margin-bottom: -1px;
-    padding: 12px 0 10px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    transition:
-      color var(--motion-fast) var(--ease-standard),
-      border-color var(--motion-fast) var(--ease-standard);
-  }
-  .tab:hover { color: var(--fg); }
-  .tab.is-active { color: var(--accent); border-color: var(--accent); }
-  .tab:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .tabs { margin-top: var(--space-8); }
+  .tabs .tab { margin-bottom: -1px; }
 
   .auth-pane { display: none; }
   .auth-pane.is-active {
@@ -68,78 +45,7 @@
   @media (prefers-reduced-motion: reduce) { .auth-pane.is-active { animation: none; } }
   .auth-pane form { margin-top: 28px; }
 
-  .field { display: block; margin-bottom: var(--space-5); }
-  .field-label {
-    display: block;
-    margin-bottom: var(--space-2);
-    font-size: var(--fs-meta);
-    font-weight: 600;
-    color: var(--fg-2);
-  }
-  .field-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    height: var(--h-base);
-    padding: 0 var(--space-4);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    transition:
-      background-color var(--motion-fast) var(--ease-standard),
-      border-color var(--motion-fast) var(--ease-standard),
-      box-shadow var(--motion-fast) var(--ease-standard);
-  }
-  .field:focus-within .field-inner {
-    background: var(--surface);
-    border-color: var(--accent);
-    box-shadow: var(--focus-ring);
-  }
-  .field.is-error .field-inner { background: var(--surface); border-color: var(--danger); }
-  .field.is-error:focus-within .field-inner { box-shadow: none; }
-  .field.is-success .field-inner { background: var(--surface); border-color: var(--success); }
-  .field-inner .field-icon { flex: 0 0 auto; color: var(--muted); }
-  .field-inner input {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    border: none;
-    background: transparent;
-    outline: none;
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    color: var(--fg);
-  }
-  .field-inner input::placeholder { color: var(--placeholder); opacity: 1; }
-  .field-inner input[type="password"] { letter-spacing: 0.14em; }
   .field-inner input[type="password"]::placeholder { letter-spacing: normal; }
-  .field-msg {
-    display: block;
-    min-height: 16px;
-    margin-top: var(--space-2);
-    font-size: var(--fs-meta);
-    color: var(--danger);
-  }
-  .ok { display: none; flex: 0 0 auto; color: var(--success); }
-  .field.is-success .ok { display: block; }
-  .eye {
-    flex: 0 0 auto;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 44px;
-    margin: -8px -8px -8px 0;
-    background: none;
-    border: none;
-    border-radius: var(--radius-sm);
-    color: var(--meta);
-    cursor: pointer;
-    transition: color var(--motion-fast) var(--ease-standard);
-  }
-  .eye:hover { color: var(--fg); }
-  .eye:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .eye svg { display: block; }
   .eye .eye-off { display: none; }
 
   .row-between {
@@ -177,47 +83,8 @@
     animation: pane-in 200ms var(--ease-standard) both;
   }
 
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin: 28px 0 20px;
-    font-size: var(--fs-meta);
-    color: var(--muted);
-  }
-  .divider::before, .divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
   .social { display: flex; flex-direction: column; gap: 12px; }
-  .btn-social {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    height: var(--h-lg);
-    border-radius: var(--radius-pill);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--fg);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    font-weight: 600;
-    cursor: pointer;
-    transition:
-      background-color var(--motion-fast) var(--ease-standard),
-      border-color var(--motion-fast) var(--ease-standard),
-      transform var(--motion-fast) var(--ease-standard);
-  }
-  .btn-social:hover { background: var(--surface-warm); border-color: var(--meta); }
-  .btn-social:active { transform: scale(0.98); }
-  .btn-social:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .gosuslugi-logo { flex: 0 0 auto; display: block; height: 26px; width: auto; }
-  .vk-logo { flex: 0 0 auto; display: block; height: 26px; width: 26px; }
+  .vk-logo { width: 26px; }
 
   .strength { display: none; margin-top: var(--space-2); }
   .strength-bars { display: flex; gap: 6px; }

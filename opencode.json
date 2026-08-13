@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "html-to-figma": {
+      "type": "local",
+      "command": ["node", "C:\\Users\\Rakutin\\htmlToFigma\\figmaToDesign\\dist\\index.js"],
+      "enabled": true,
+      "env": {
+        "PUPPETEER_EXECUTABLE_PATH": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      }
+    }
+  }
+}

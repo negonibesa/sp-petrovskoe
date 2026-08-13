@@ -58,10 +58,20 @@
   .field-inner input[type="number"]::-webkit-outer-spin-button,
   .field-inner input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-  .q-scroll .chips { margin: 0; padding: 0; overflow: visible; gap: 10px; }
-  .q-scroll .chips.is-wrap { gap: 10px; }
-  .q-scroll .chips.is-wrap > .pick-chip { flex: 1 1 calc(50% - 5px); }
-  .q-scroll .pick-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  /* Дата рождения — кнопка-поле, открывает барабан (как 07-add-event). */
+  .field-inner.is-picker {
+    width: 100%;
+    font-family: var(--font-body); font-size: var(--fs-body); color: var(--fg);
+    text-align: left; cursor: pointer;
+  }
+  .field-inner.is-picker .picker-val {
+    flex: 1; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .field-inner.is-picker .picker-val.is-empty { color: var(--placeholder); }
+  .field-inner.is-picker .chev { flex: 0 0 auto; color: var(--meta); }
+
+  .q-scroll .chips { margin: 0; padding: 0; overflow: visible; }
   .q-scroll .field.is-error .pick-chip { border-color: var(--danger); }
 
   .cta-foot { margin-top: 40px; padding: 0 0 calc(20px + env(safe-area-inset-bottom, 0px)); }
@@ -84,6 +94,8 @@
 <body data-od-id="questionnaire-screen">
 <svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
 </svg>
 
 <div class="app q-app">
@@ -114,10 +126,15 @@
       <div class="q-row">
         <label class="field" id="field-q-birth">
           <span class="field-label">Дата рождения <span class="opt">(для нормативов ГТО)</span></span>
-          <span class="field-inner">
-            <input id="q-birth" name="q-birth" type="date" autocomplete="bday">
+          <button type="button" class="field-inner is-picker" id="btn-q-birth" aria-haspopup="dialog">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+            </svg>
+            <span class="picker-val is-empty" id="val-q-birth">Выберите дату</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
             <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          </span>
+          </button>
+          <input id="q-birth" name="q-birth" type="hidden" autocomplete="bday">
           <span class="field-msg"></span>
         </label>
         <label class="field" id="field-q-exp">
@@ -234,6 +251,30 @@
   </main>
 </div>
 
+<div class="scrim" id="birth-scrim" aria-hidden="true"></div>
+<div class="sheet" id="birth-sheet" role="dialog" aria-modal="true" aria-label="Дата рождения">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Дата рождения</h3>
+    <button type="button" class="sheet-close js-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="wheel" role="group" aria-label="Выбор даты рождения">
+    <div class="wheel-head">
+      <span class="wheel-label">День</span>
+      <span class="wheel-label">Месяц</span>
+      <span class="wheel-label">Год</span>
+    </div>
+    <div class="wheel-body">
+      <div class="wheel-col" id="wb-day"></div>
+      <div class="wheel-col" id="wb-month"></div>
+      <div class="wheel-col" id="wb-year"></div>
+      <span class="wheel-mask" aria-hidden="true"></span>
+    </div>
+  </div>
+  <button type="button" class="sheet-primary" id="birth-ok">Выбрать</button>
+  <button type="button" class="sheet-cancel js-sheet-close">Отмена</button>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -322,17 +363,143 @@
       }, 60);
     }
   }
-  function initBirthLimits() {
-    var now = new Date();
-    function iso(d) {
-      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  /* ── Дата рождения: барабаны (как 07-add-event) ── */
+  var MONTHS = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  var MONTHS_G = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  var WB_MIN_AGE = 6, WB_MAX_AGE = 99;
+
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function fmtBirthShort(d) { return d.getDate() + " " + MONTHS_G[d.getMonth()] + " " + d.getFullYear(); }
+  function fmtBirthISO(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+
+  function buildWheel(colId, items, selIdx, onChange) {
+    var col = $(colId);
+    col.style.justifyContent = "flex-start";
+    col.style.overflowY = "auto";
+    col.style.scrollSnapType = "y mandatory";
+    col.style.paddingTop = "96px";
+    col.style.paddingBottom = "96px";
+    var cards = [];
+    var ITEM_H = 32, CENTER = 112;
+    function paint(top) {
+      cards.forEach(function (c) {
+        var cy = 96 + c.i * ITEM_H + ITEM_H / 2 - top;
+        var t = Math.min(1, Math.abs(cy - CENTER) / (ITEM_H * 2.2));
+        c.el.style.transform = "scale(" + (1.12 - 0.18 * t).toFixed(3) + ")";
+        c.el.style.opacity = (1 - 0.5 * t).toFixed(3);
+        c.el.classList.toggle("is-sel", Math.abs(cy - CENTER) < ITEM_H / 2);
+      });
     }
-    qBirth.max = iso(new Date(now.getFullYear() - 6, now.getMonth(), now.getDate()));
-    qBirth.min = iso(new Date(now.getFullYear() - 99, now.getMonth(), now.getDate()));
+    function rebuild(list, idx) {
+      col.innerHTML = "";
+      cards = [];
+      list.forEach(function (it, i) {
+        var d = document.createElement("div");
+        d.className = "wheel-item";
+        d.style.scrollSnapAlign = "center";
+        d.style.flex = "none";
+        d.textContent = it.label;
+        d.addEventListener("click", function () { setIdx(i); });
+        col.appendChild(d);
+        cards.push({ el: d, i: i, v: it.value });
+      });
+      last = -1;
+      setIdx(idx === undefined ? 0 : idx);
+    }
+    var last = -1;
+    function setIdx(i) {
+      i = Math.max(0, Math.min(cards.length - 1, i));
+      col.scrollTop = i * ITEM_H;
+      paint(col.scrollTop);
+      last = i;
+      if (onChange && cards.length) onChange(cards[i].v);
+    }
+    var raf = null;
+    col.addEventListener("scroll", function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = null;
+        if (!cards.length) return;
+        var top = col.scrollTop;
+        paint(top);
+        var i = Math.max(0, Math.min(cards.length - 1, Math.round(top / ITEM_H)));
+        if (i !== last) { last = i; if (onChange) onChange(cards[i].v); }
+      });
+    });
+    rebuild(items, selIdx);
+    return { rebuild: rebuild, setIdx: setIdx };
   }
-  initBirthLimits();
+
+  var birthSel = { y: 2006, m: 0, d: 1 };
+  var wbDay, wbMonth, wbYear;
+
+  function dayItems(n) {
+    var a = [];
+    for (var i = 1; i <= n; i++) a.push({ label: String(i), value: i });
+    return a;
+  }
+  function yearItems() {
+    var nowY = new Date().getFullYear();
+    var a = [];
+    for (var y = nowY - WB_MIN_AGE; y >= nowY - WB_MAX_AGE; y--) a.push({ label: String(y), value: y });
+    return a;
+  }
+  function rebuildDayWheel() {
+    if (!birthSel) return;
+    var n = daysIn(birthSel.y, birthSel.m);
+    if (birthSel.d > n) birthSel.d = n;
+    wbDay.rebuild(dayItems(n), birthSel.d - 1);
+    paintBirthPick();
+  }
+  function paintBirthPick() {
+    if (!birthSel) return;
+    $("birth-ok").textContent = "Выбрать · " + fmtBirthShort(new Date(birthSel.y, birthSel.m, birthSel.d));
+  }
+  function openBirthSheet() {
+    var cur = birthDate();
+    var nowY = new Date().getFullYear();
+    if (cur && cur.getFullYear() >= nowY - WB_MAX_AGE) {
+      birthSel = { y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate() };
+    } else {
+      birthSel = { y: nowY - 20, m: new Date().getMonth(), d: 1 };
+    }
+    wbDay.setIdx(birthSel.d - 1);
+    wbMonth.setIdx(birthSel.m);
+    wbYear.setIdx(nowY - WB_MIN_AGE - birthSel.y);
+    paintBirthPick();
+    $("birth-scrim").classList.add("open");
+    $("birth-sheet").classList.add("open");
+  }
+  function closeBirthSheet() {
+    $("birth-scrim").classList.remove("open");
+    $("birth-sheet").classList.remove("open");
+  }
+  function confirmBirth() {
+    var d = new Date(birthSel.y, birthSel.m, birthSel.d);
+    qBirth.value = fmtBirthISO(d);
+    var val = $("val-q-birth");
+    val.textContent = fmtBirthShort(d);
+    val.classList.remove("is-empty");
+    closeBirthSheet();
+    updateParent();
+    updateQ();
+    checkQBirth(false);
+  }
+
+  var nowY0 = new Date().getFullYear();
+  wbDay = buildWheel("wb-day", dayItems(daysIn(nowY0 - 20, 0)), 0, function (v) { birthSel.d = v; paintBirthPick(); });
+  wbMonth = buildWheel("wb-month", MONTHS.map(function (m, i) { return { label: m, value: i }; }), 0, function (v) { birthSel.m = v; rebuildDayWheel(); });
+  wbYear = buildWheel("wb-year", yearItems(), 0, function (v) { birthSel.y = v; rebuildDayWheel(); });
+
+  $("btn-q-birth").addEventListener("click", openBirthSheet);
+  $("birth-ok").addEventListener("click", confirmBirth);
+  $("birth-scrim").addEventListener("click", closeBirthSheet);
+  document.querySelectorAll("#birth-sheet .js-sheet-close").forEach(function (b) {
+    b.addEventListener("click", closeBirthSheet);
+  });
+
   updateParent();
-  qBirth.addEventListener('input', updateParent);
 
   function countWords(v) { return v.trim().split(/\s+/).filter(Boolean).length; }
   function checkQFio(force) {
@@ -424,7 +591,6 @@
   }
 
   qFio.addEventListener('input', updateQ);
-  qBirth.addEventListener('input', function () { updateParent(); updateQ(); });
   qExp.addEventListener('input', updateQ);
   qEmail.addEventListener('input', updateQ);
   sportInputs.forEach(function (i) { i.addEventListener('change', updateQ); });
@@ -447,10 +613,9 @@
     }
     updateQ();
   });
-  [qFio, qBirth, qExp, qEmail, qPhone, qParentName, qParentRole, qParentPhone].forEach(function (el) {
+  [qFio, qExp, qEmail, qPhone, qParentName, qParentRole, qParentPhone].forEach(function (el) {
     el.addEventListener('blur', function () {
       if (el === qFio) checkQFio(true);
-      else if (el === qBirth) checkQBirth(true);
       else if (el === qExp) checkQExp(true);
       else if (el === qEmail) checkQEmail(true);
       else if (el === qPhone) checkQPhone(true);

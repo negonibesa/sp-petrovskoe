@@ -527,7 +527,6 @@ a { color: inherit; }
 .goal-card .goal-count-n { font-size: var(--fs-display); font-weight: 500; line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums; }
 .goal-head-sign { flex: none; }
 .goal-card .cv-a-head { justify-content: flex-end; }
-.goal-card .gchip .dot { display: none; }
 .goal-progress { position: relative; display: flex; width: 100%; height: 36px; margin-top: var(--space-4); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: var(--radius-pill); overflow: hidden; pointer-events: none; }
 .goal-progress-fill { position: absolute; top: 2px; left: 2px; bottom: 2px; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; background: linear-gradient(90deg, var(--accent), var(--accent-purple)); border-radius: var(--radius-pill); }
 .goal-progress-pct { color: var(--accent-on); font-size: var(--fs-body); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -695,7 +694,7 @@ a { color: inherit; }
   position: relative; flex: none;
   display: inline-flex; align-items: center; gap: var(--space-2);
   height: var(--h-sm); padding: 0 var(--space-4);
-  border: 1px solid var(--border); border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border); border-radius: var(--radius-pill);
   background: var(--bg); color: var(--fg-2);
   font-size: var(--fs-meta); font-weight: 600; letter-spacing: 0.01em;
   cursor: pointer;
@@ -713,10 +712,10 @@ a { color: inherit; }
 .pick-chip {
   flex: 1; min-width: 0;
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  padding: var(--space-3) var(--space-2);
+  height: var(--h-base); padding: 0 var(--space-3);
   border: 1.5px solid var(--border); border-radius: var(--radius-md);
-  background: var(--bg); color: var(--fg-2);
-  font-family: var(--font-body); font-size: var(--fs-body); font-weight: 500;
+  background: var(--surface); color: var(--fg-2);
+  font-family: var(--font-body); font-size: var(--fs-body); font-weight: 600;
   cursor: pointer; text-align: center; white-space: nowrap;
   transition: border-color var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
 }
@@ -731,6 +730,7 @@ a { color: inherit; }
 .pick-chip .dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--meta)); }
 .pick-chip.is-on .dot { background: var(--accent); }
 .pick-chip svg { width: var(--icon-md); height: var(--icon-md); }
+.pick-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
 
 /* ────────────────────────────────────────────────
    ЭТАП 7 · Карточка выбора (роль / событие) + формы
@@ -982,6 +982,35 @@ a { color: inherit; }
 .sheet-il { display: block; font-size: var(--fs-body); font-weight: 500; color: var(--fg); }
 .sheet-ih { display: block; font-size: var(--fs-meta); line-height: 1.35; color: var(--meta); margin-top: 1px; }
 
+/* Строка пользователя — круглый аватар + имя/подпись (+ трейлинг).
+   Скелет — .sheet-item, но аватар-плашка круглая (.user-row-ava), а не
+   квадратная иконка .sheet-ic. Кнопка; выбранная — .is-on. */
+.user-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  width: 100%; text-align: left; border: 0; background: none;
+  border-radius: var(--radius-md); padding: var(--space-3) var(--space-2);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.user-row:hover { background: var(--surface-2); }
+.user-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.user-row.is-off { cursor: default; opacity: 0.45; }
+.user-row.is-off:hover { background: none; }
+.user-row.is-on .user-row-il { color: var(--accent); font-weight: 700; }
+.user-row-ava {
+  flex: none; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; overflow: hidden;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-body); font-size: var(--fs-body); font-weight: 700;
+}
+.user-row-ava img { width: 100%; height: 100%; object-fit: cover; }
+.user-row-tx { flex: 1; min-width: 0; }
+.user-row-il { display: block; font-size: var(--fs-body); font-weight: 500; color: var(--fg); }
+.user-row-ih { display: block; font-size: var(--fs-meta); line-height: 1.35; color: var(--meta); margin-top: 1px; }
+.user-row-check { flex: none; margin-left: auto; color: var(--accent); opacity: 0; transition: opacity var(--motion-fast) var(--ease-standard); }
+.user-row.is-on .user-row-check { opacity: 1; }
+.user-row-check svg { width: 18px; height: 18px; }
+
 /* Тост. Текст — всегда --fg (контраст 4.5+), цветовой акцент — только
    иконка через --c (затемнённый тон из токена). */
 .toast-row { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -1106,7 +1135,7 @@ a { color: inherit; }
 
 /* --- Простое поле · .input --- */
 .input {
-  width: 100%; height: 48px;
+  width: 100%; height: var(--h-base);
   border: 1px solid var(--border); border-radius: var(--radius-md);
   background: var(--surface); color: var(--fg);
   font-family: var(--font-body); font-size: var(--fs-body);
@@ -1243,10 +1272,16 @@ select.input:invalid { color: var(--muted); }
   width: 100%; min-height: 56px; padding: var(--space-2) var(--space-1);
   border: 0; background: none; text-align: left;
   border-radius: var(--radius-md); cursor: pointer;
+  color: inherit; text-decoration: none;
   transition: background var(--motion-fast) var(--ease-standard);
 }
 .mrow:hover { background: var(--surface-2); }
 .mrow:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Неинтерактивная строка (просмотр, «шеврон у профиля»): без
+   курсора pointer и ховер-фона, разметка та же (.mrow-side не клик). */
+.mrow.is-static { cursor: default; }
+.mrow.is-static:hover { background: none; }
 
 .mrow-ava {
   flex: none; width: 44px; height: 44px;
@@ -1513,6 +1548,22 @@ select.input:invalid { color: var(--muted); }
 .card .field:last-child { margin-bottom: 0; }
 .card .total-card { margin: 0; }
 
+/* Кликабельная плашка-карточка .card.card-link: сама белая плашка —
+   контрол (медиа 44 + текст + шеврон прямо внутри), без вложенной
+   строки .mrow. Ховер — фон --surface-warm + рамка --border-strong,
+   нажатие — scale(0.99), фокус — --focus-ring (язык .pick-card). */
+.card.card-link {
+  display: flex; align-items: center; gap: var(--space-3);
+  color: inherit; text-decoration: none; cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+.card.card-link:hover { border-color: var(--border-strong); background: var(--surface-warm); }
+.card.card-link:active { transform: scale(0.99); }
+.card.card-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
 .evd-type {
   display: flex; align-items: center; gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -1585,11 +1636,11 @@ select.input:invalid { color: var(--muted); }
    Визуал — чип выбора .pick-chip (рамка; выбранный — светлый акцентный фон + синий текст) */
 .slot-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 .slot {
-  flex: none; min-width: 88px; height: 46px;
-  padding: 0 14px;
-  border: 1.5px solid var(--border-strong); border-radius: var(--radius-md);
+  flex: none; min-width: 88px; height: var(--h-base);
+  padding: 0 var(--space-3);
+  border: 1.5px solid var(--border); border-radius: var(--radius-md);
   background: var(--surface); color: var(--fg-2);
-  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  font-family: var(--font-body); font-size: var(--fs-body); font-weight: 600;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
   transition: border-color var(--motion-fast) var(--ease-standard),
@@ -1598,7 +1649,7 @@ select.input:invalid { color: var(--muted); }
 }
 .slot:hover { border-color: var(--meta); }
 .slot:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.slot.is-free { border-color: var(--border-strong); background: var(--surface); color: var(--fg-2); }
+.slot.is-free { border-color: var(--border); background: var(--surface); color: var(--fg-2); }
 .slot.is-free:hover { border-color: var(--meta); }
 .slot.is-sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--accent); }
 .slot.is-off { opacity: 0.5; pointer-events: none; text-decoration: line-through; }
@@ -1888,4 +1939,121 @@ select.input:invalid { color: var(--muted); }
   .ok-badge-circle { opacity: 1; transform: none; animation: none; }
   .ok-badge-check { stroke-dashoffset: 0; animation: none; }
   .ok-badge-pulse { display: none; }
+}
+
+/* ────────────────────────────────────────────────
+   ГТО · иконки нормативов и значки металлов
+   Официальные иконки — assets/gto-icons.svg (24 шт. из
+   брендбука ВФСК ГТО; id: gto-00-beg-1 … gto-23-strelba).
+   Разметка: <svg class="gto-ic" aria-hidden="true">
+               <use href="assets/gto-icons.svg#gto-00-beg-1"></use>
+             </svg>
+   Монохром — цвет через currentColor (наследует у родителя).
+   Значки металлов в трёх размерах:
+     .gto-dot     7px    — точка в чипах (.gchip .dot);
+     .gto-badge   40×40  — круглый значок в списках/строках (.mrow),
+                  нейтральный фон — цвет несёт сам знак;
+     .gto-plaque  плашка — большой знак + лента (.gto-ribbon) под ним
+                  центр-в-центр как фон: дневник, «Знак ГТО получен».
+   ──────────────────────────────────────────────── */
+.gto-ic { flex: none; display: block; width: var(--icon-md); height: var(--icon-md); color: inherit; fill: currentColor; }
+
+.gto-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--gto-bronze)); }
+.gto-dot.is-silver { background: var(--gto-silver); }
+.gto-dot.is-gold { background: var(--gto-gold); }
+.gto-dot.is-bronze { background: var(--gto-bronze); }
+
+.gto-badge {
+  flex: none; width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 50%; overflow: hidden;
+  background: var(--surface-2);
+}
+.gto-badge img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gto-badge .gto-ic { width: 24px; height: 24px; color: var(--muted); }
+
+.gto-plaque {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 200px;
+  padding: var(--space-6) var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+/* Эмблема в потоке (квадрат 60% ширины плашки), а не поверх: высота
+   плашки растёт под ширину, ничего не обрезается на любых размерах. */
+.gto-emblem {
+  position: relative;
+  width: 60%; aspect-ratio: 1 / 1;
+}
+.gto-emblem .gto-ribbon {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  z-index: 0;
+}
+.gto-emblem .gto-sign {
+  position: absolute; inset: 0; margin: auto; z-index: 1;
+  width: 62.5%; aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.18));
+}
+/* Подпись в потоке под эмблемой: группа «эмблема + подпись» центрируется
+   по высоте баннера (justify-content: center). */
+.gto-plaque .gto-plaque-cap {
+  position: relative; z-index: 1;
+  margin-top: var(--space-2);
+  text-align: center;
+  font-size: var(--fs-caption); font-weight: 600; color: var(--fg-2);
+}
+
+/* Микробар прогресса норматива (ряд ГТО): трек 5px, заливка акцентом */
+.gto-row { display: flex; align-items: center; gap: var(--space-3); }
+.gto-tx { flex: 1; min-width: 0; }
+.gto-tx b { display: block; font-size: var(--fs-meta); font-weight: 600; }
+.gto-tx small { display: block; margin-top: var(--space-1); font-size: var(--fs-meta); color: var(--muted); }
+.gto-progress { flex: none; width: 64px; text-align: right; }
+.gto-bar { display: block; height: 5px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+.gto-bar span { display: block; height: 100%; background: var(--accent); border-radius: var(--radius-pill); }
+.gto-progress small { display: block; margin-top: var(--space-1); font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Кольцо прогресса (цель ГТО, дневник). Разметка:
+   <span class="ring" style="--ring-c:126">
+     <svg viewBox="0 0 40 40">
+       <circle class="trk" cx="20" cy="20" r="17"></circle>
+       <circle class="fill" cx="20" cy="20" r="17"
+               style="stroke-dasharray:126; stroke-dashoffset:45"></circle>
+     </svg>
+     <span class="pct">85%</span>
+   </span> */
+.ring { position: relative; flex: none; width: 112px; height: 112px; }
+.ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 5; }
+.ring .trk { stroke: var(--surface-2); }
+.ring .fill { stroke: var(--success); stroke-linecap: round; filter: drop-shadow(0 0 12px var(--accent-mint-glow)); }
+.ring .pct {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--font-body); font-size: var(--fs-title); font-weight: 500; color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ────────────────────────────────────────────────
+   Прогресс-анимации · после загрузки экрана
+   Бары и кольца дотягиваются до целевого значения
+   (заданного inline) с небольшой задержкой; target
+   не трогаем — стартуем от нуля. Отключается в
+   prefers-reduced-motion ниже.
+   ──────────────────────────────────────────────── */
+@keyframes ds-fill-bar { from { width: 0; } }
+@keyframes ds-fill-ring { from { stroke-dashoffset: var(--ring-c, 100); } }
+
+.goal-progress-fill,
+.gto-bar span { animation: ds-fill-bar 700ms var(--ease-out) 150ms both; }
+
+.ring .fill { animation: ds-fill-ring 900ms var(--ease-out) 250ms both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-progress-fill, .gto-bar span, .ring .fill { animation: none; }
 }

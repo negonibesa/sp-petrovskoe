@@ -12,7 +12,7 @@
 <style>
   /* Экранная специфика выбора роли — канон: referens/welcome-v2.html (screen-role).
      Карточки — DS .pick-card + метрики канона (padding 20 · аватар 56 · заголовок 18 · маркер 26). */
-  .role-app { background: var(--surface); padding-bottom: 0; }
+  .role-app { background: #fff; padding-bottom: 0; }
   .role-scroll { padding: 12px var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); }
 
   .role-head { width: 100%; text-align: center; }
@@ -34,17 +34,16 @@
 
   .role-list { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
   .role-list .pick-card { padding: 20px; }
-  .role-list .pick-card:hover { border-color: var(--meta); background: var(--border-soft); }
+  .role-list .pick-card:hover { border-color: var(--border-strong); background: var(--surface); }
   .role-list .pick-card:has(input:focus-visible) { box-shadow: var(--focus-ring); }
   .role-list .pick-media.is-round {
     width: 56px; height: 56px;
     background: var(--surface);
     border: 1.5px solid var(--border);
   }
-  .role-list .pick-card:has(input:checked) .pick-media.is-round {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 82%);
-  }
+  .role-list .pick-card:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--surface)); }
+  .role-list .pick-card:has(input:checked) .pick-mark { border-color: var(--accent); }
+  .role-list .pick-card:has(input:checked) .pick-mark::after { opacity: 1; transform: scale(1); }
   .role-list .pick-name { font-size: var(--fs-title); }
   .role-list .pick-desc { color: var(--muted); }
   .role-list .pick-mark { width: 26px; height: 26px; }
