@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Приветственный экран · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экранная специфика welcome — канон в assets/ds.css, здесь только своё. */
+  .app-welcome {
+    max-width: 430px;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+    background: var(--surface-warm);
+  }
+  @media (min-width: 768px) and (min-height: 680px) {
+    .app-welcome {
+      margin-block: 24px;
+      height: calc(100dvh - 48px);
+      min-height: 640px;
+      border-radius: 36px;
+      border: 1px solid var(--border);
+    }
+  }
+
+  .welcome-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .welcome-bg img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    animation: venue-cycle 30s var(--ease-standard) infinite;
+  }
+  .welcome-bg img:nth-child(1) { animation-delay: 0s; }
+  .welcome-bg img:nth-child(2) { animation-delay: -6s; }
+  .welcome-bg img:nth-child(3) { animation-delay: -12s; }
+  .welcome-bg img:nth-child(4) { animation-delay: -18s; }
+  .welcome-bg img:nth-child(5) { animation-delay: -24s; }
+  @keyframes venue-cycle {
+    0%   { opacity: 0; transform: scale(1.06); }
+    2%   { opacity: 1; transform: scale(1); }
+    18%  { opacity: 1; transform: scale(1); }
+    20%  { opacity: 0; transform: scale(1.03); }
+    100% { opacity: 0; transform: scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-bg img { animation: none; opacity: 0; }
+    .welcome-bg img:nth-child(1) { opacity: 1; }
+  }
+
+  .welcome-body {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @keyframes od-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .r { animation: od-rise 640ms var(--ease-standard) both; }
+  .r-1 { animation-delay: 40ms; }
+  .r-2 { animation-delay: 180ms; }
+  .r-3 { animation-delay: 320ms; }
+  .r-4 { animation-delay: 460ms; }
+
+  .brand {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: clamp(32px, 7vh, 64px);
+    padding: 0 var(--space-6);
+    text-align: center;
+  }
+  .brand h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+  }
+  .brand .sub {
+    margin: 0;
+    font-size: var(--fs-meta);
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+  .brand .version {
+    margin-top: 2px;
+    font-size: var(--fs-caption);
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .grow { flex: 1 1 auto; min-height: 0; }
+
+  .cta-foot {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-8) calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .cta-foot .btn {
+    width: min(80%, 300px);
+  }
+  .guest-link {
+    margin-top: 4px;
+    background: none;
+    border: none;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+  .guest-link:hover { text-decoration: underline; }
+  .guest-link:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .r { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body data-od-id="welcome">
+<div class="app app-welcome">
+  <div class="welcome-bg" aria-hidden="true">
+    <img src="../assets/welcome/basketball.png" alt="">
+    <img src="../assets/welcome/football.png" alt="">
+    <img src="../assets/welcome/volleyball.png" alt="">
+    <img src="../assets/welcome/tennis.png" alt="">
+    <img src="../assets/welcome/run.png" alt="">
+  </div>
+
+  <div class="welcome-body">
+    <header class="brand r r-1" data-od-id="welcome-brand">
+      <h1>Петровское</h1>
+      <p class="sub">Спортивная платформа</p>
+      <p class="version">Версия 1.0.0</p>
+    </header>
+
+    <div class="grow" aria-hidden="true"></div>
+
+    <footer class="cta-foot r r-4" data-od-id="welcome-cta">
+      <button type="button" class="btn btn-accent btn-lg" id="btn-login">Войти</button>
+      <button type="button" class="btn btn-ghost btn-lg" id="btn-register">Зарегистрироваться</button>
+      <button type="button" class="guest-link" id="btn-guest">Войти как гость</button>
+    </footer>
+  </div>
+</div>
+</body>
+</html>
