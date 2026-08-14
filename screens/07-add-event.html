@@ -185,7 +185,7 @@
 
   </main>
 
-  <footer class="evd-bar" data-od-id="add-bar">
+  <footer class="evd-bar" id="evd-bar" data-od-id="add-bar">
     <div class="recap" id="recap" hidden="">
       <span class="recap-ic"><svg aria-hidden="true"><use href="#ic-rental"></use></svg></span>
       <span class="recap-name" id="recap-name"></span>
@@ -902,11 +902,11 @@
       if (!p) return;
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "user-row";
+      b.className = "mrow is-on";
       b.innerHTML =
-        '<span class="user-row-ava">' + initials(p.name) + "</span>" +
-        '<span class="user-row-tx"><span class="user-row-il">' + p.name + "</span></span>" +
-        '<span class="user-row-check"><svg aria-hidden="true"><use href="#ic-close"></use></svg></span>';
+        '<span class="mrow-ava">' + initials(p.name) + "</span>" +
+        '<span class="mrow-tx"><span class="mrow-t">' + p.name + "</span></span>" +
+        '<span class="mrow-check"><svg aria-hidden="true"><use href="#ic-close"></use></svg></span>';
       b.addEventListener("click", function () {
         st.people = st.people.filter(function (x) { return x !== id; });
         renderFriendsCounter();
@@ -932,11 +932,11 @@
       var on = st.people.indexOf(p.id) !== -1;
       var b = document.createElement("button");
       b.type = "button";
-      b.className = "user-row" + (on ? " is-on" : "");
+      b.className = "mrow" + (on ? " is-on" : "");
       b.innerHTML =
-        '<span class="user-row-ava">' + initials(p.name) + "</span>" +
-        '<span class="user-row-tx"><span class="user-row-il">' + p.name + '</span><span class="user-row-ih">' + p.club + "</span></span>" +
-        '<span class="user-row-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
+        '<span class="mrow-ava">' + initials(p.name) + "</span>" +
+        '<span class="mrow-tx"><span class="mrow-t">' + p.name + '</span><span class="mrow-s">' + p.club + "</span></span>" +
+        '<span class="mrow-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
       b.addEventListener("click", function () {
         if (on) st.people = st.people.filter(function (x) { return x !== p.id; });
         else st.people.push(p.id);

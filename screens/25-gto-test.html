@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Сдача норматива ГТО · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Сдача норматива ГТО» — модель: product-spec §4.19 (тест-день — событие),
+     логика блоков: referens/gto-test.html. Компоненты из ДС v2: топбар .topbar,
+     плашка .card, чипы .fchip, фикс-бар .evd-bar. Пороги знака и ввод результата —
+     экранная специфика на токенах знака ГТО. */
+  .gt-app { background: var(--surface); padding-bottom: calc(152px + env(safe-area-inset-bottom, 0px)); }
+  .gt-body { padding-top: 4px; }
+
+  .gt-lead { padding: var(--space-1) var(--space-1) 0; }
+  .gt-lead .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .gt-lead .gt-sub { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+
+  .gt-norm-top { display: flex; align-items: baseline; gap: var(--space-2); }
+  .gt-norm-top h2 { margin: 0; flex: 1; font-size: var(--fs-title-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .gt-norm-target { flex: none; font-size: var(--fs-meta); font-weight: 600; color: var(--gto-gold); }
+  .gt-norm-note { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+
+  .gt-thr-list { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .gt-thr {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    background: var(--surface-warm);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    padding: 9px 12px;
+  }
+  .gt-thr b { font-size: var(--fs-body); }
+  .gt-thr span { font-size: var(--fs-meta); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .gt-thr[data-lvl="0"] b { color: var(--gto-bronze); }
+  .gt-thr[data-lvl="1"] b { color: var(--gto-silver); }
+  .gt-thr[data-lvl="2"] b { color: var(--gto-gold); }
+
+  .gt-label { margin: 0 0 var(--space-3); font-size: var(--fs-meta); font-weight: 600; color: var(--fg-2); }
+  .gt-stepper {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    background: var(--surface-warm);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 6px;
+  }
+  .gt-step-btn {
+    flex: none; width: 44px; height: 44px; border-radius: var(--radius-md);
+    border: 0; background: var(--surface); color: var(--accent);
+    font-size: 26px; font-weight: 600; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background var(--motion-fast) var(--ease-standard);
+  }
+  .gt-step-btn:hover { background: var(--surface-2); }
+  .gt-step-btn:active { background: var(--border-soft); }
+  .gt-step-btn:disabled { opacity: 0.35; cursor: default; }
+  .gt-step-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .gt-value { min-width: 0; font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; text-align: center; }
+  .gt-value small { font-size: var(--fs-meta); font-weight: 600; color: var(--meta); }
+  .gt-hint { margin: var(--space-3) 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--meta); }
+  .gt-field {
+    width: 100%; height: 52px; padding: 0 var(--space-4);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface-warm); color: var(--fg);
+    font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: center;
+    outline: none;
+    transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+  }
+  .gt-field:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .gt-chips { margin-top: var(--space-3); }
+
+  .gt-result { display: none; }
+  .gt-result.is-show { display: block; }
+  .gt-badge { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-soft); }
+  .gt-badge .gt-ic { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; }
+  .gt-badge .gt-ic svg { width: var(--icon-lg); height: var(--icon-lg); }
+  .gt-badge .gt-txt { flex: 1; min-width: 0; }
+  .gt-badge .gt-txt b { display: block; font-size: var(--fs-body); letter-spacing: -0.01em; color: var(--fg); }
+  .gt-badge .gt-txt span { display: block; margin-top: 2px; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+  .gt-badge.is-gold .gt-ic { background: var(--gto-gold); }
+  .gt-badge.is-gold { background: color-mix(in srgb, var(--gto-gold) 10%, var(--surface)); border-color: color-mix(in srgb, var(--gto-gold) 45%, var(--border)); }
+  .gt-badge.is-gold .gt-txt b { color: color-mix(in srgb, var(--gto-gold) 55%, #7a5a00); }
+  .gt-badge.is-silver .gt-ic { background: var(--gto-silver); }
+  .gt-badge.is-silver { background: color-mix(in srgb, var(--gto-silver) 12%, var(--surface)); border-color: color-mix(in srgb, var(--gto-silver) 50%, var(--border)); }
+  .gt-badge.is-bronze .gt-ic { background: var(--gto-bronze); }
+  .gt-badge.is-bronze { background: color-mix(in srgb, var(--gto-bronze) 11%, var(--surface)); border-color: color-mix(in srgb, var(--gto-bronze) 45%, var(--border)); }
+  .gt-badge.is-bronze .gt-txt b { color: color-mix(in srgb, var(--gto-bronze) 60%, #5a3210); }
+  .gt-badge.is-fail .gt-ic { background: var(--danger); }
+  .gt-badge.is-fail { background: color-mix(in srgb, var(--danger) 9%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+  .gt-badge.is-fail .gt-txt b { color: var(--danger); }
+  .gt-meta { margin-top: var(--space-3); font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+  .gt-meta b { color: var(--fg-2); font-weight: 600; }
+</style>
+</head>
+<body data-od-id="gto-test-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3.9-1.8z" fill="currentColor"></path><path d="M8.5 13.5L6.5 21l3.5-1.5L12 21l2-1.5L17.5 21l-2-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app gt-app">
+  <header class="topbar" data-od-id="gto-test-header">
+    <button type="button" class="topbar-ic is-back" id="gt-back" aria-label="Назад к цели"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Сдача норматива</h4>
+  </header>
+
+  <main class="body gt-body">
+    <div class="gt-lead">
+      <p class="eyebrow">Петровское СП · Дневник ГТО</p>
+      <p class="gt-sub">12 августа · 10:00 · Спуск на ул. Школьной</p>
+    </div>
+
+    <section class="card" data-od-id="gto-test-norm">
+      <div class="gt-norm-top">
+        <h2 id="gt-norm-name">Подтягивания</h2>
+        <span class="gt-norm-target" id="gt-norm-target">цель · 20 раз</span>
+      </div>
+      <p class="gt-norm-note" id="gt-norm-note">Тестирование в рамках спортивной площадки. Судья фиксирует результат в протокол.</p>
+      <div class="gt-thr-list" id="gt-thresholds"></div>
+    </section>
+
+    <section class="card" data-od-id="gto-test-entry">
+      <p class="gt-label">Ваш результат</p>
+      <div id="gt-entry"></div>
+      <div class="chips is-wrap gt-chips" id="gt-chips"></div>
+    </section>
+
+    <section class="card gt-result" id="gt-result" data-od-id="gto-test-result">
+      <div class="gt-badge" id="gt-badge"></div>
+      <p class="gt-meta" id="gt-meta"></p>
+    </section>
+  </main>
+</div>
+
+<div class="evd-bar" data-od-id="gto-test-bar">
+  <button type="button" class="btn btn-accent" id="gt-submit" disabled data-od-id="gto-test-submit">Зафиксировать результат</button>
+</div>
+
+<script>
+(function () {
+  function qs(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function $(id) { return document.getElementById(id); }
+
+  var METRICS = {
+    pull: {
+      name: 'Подтягивания', unit: 'раз', lower: false,
+      levels: [8, 12, 20], levelNames: ['Бронзовый знак', 'Серебряный знак', 'Золотой знак'],
+      placeholders: 'От 8 раз — бронза, от 12 — серебро, от 20 — золото'
+    },
+    run100: {
+      name: 'Бег 100 м', unit: 'с', lower: true,
+      levels: [15.6, 14.6, 13.5], levelNames: ['Бронзовый знак', 'Серебряный знак', 'Золотой знак'],
+      placeholders: 'До 15,6 с — бронза, до 14,6 — серебро, до 13,5 — золото'
+    }
+  };
+
+  var norm = METRICS[qs('norm')] ? qs('norm') : 'pull';
+  var m = METRICS[norm];
+  var value = 0;
+  var valueSet = false;
+  var submitted = false;
+
+  function fmtNum(v) {
+    if (m.lower) return (Math.round(v * 100) / 100).toString().replace('.', ',');
+    return String(Math.round(v));
+  }
+
+  function levelFor(v) {
+    if (m.lower) {
+      if (v <= m.levels[2] + 1e-9) return 2;
+      if (v <= m.levels[1] + 1e-9) return 1;
+      if (v <= m.levels[0] + 1e-9) return 0;
+    } else {
+      if (v >= m.levels[2]) return 2;
+      if (v >= m.levels[1]) return 1;
+      if (v >= m.levels[0]) return 0;
+    }
+    return -1;
+  }
+
+  $('gt-norm-name').textContent = m.name;
+  $('gt-norm-target').textContent = 'цель · ' + fmtNum(m.levels[2]) + ' ' + m.unit;
+
+  var thr = $('gt-thresholds');
+  ['Бронза', 'Серебро', 'Золото'].forEach(function (lbl, i) {
+    var d = document.createElement('div');
+    d.className = 'gt-thr';
+    d.setAttribute('data-lvl', String(i));
+    d.setAttribute('data-od-id', 'gto-test-thr-' + i);
+    d.innerHTML = '<b>' + lbl + '</b><span>' + fmtNum(m.levels[i]) + ' ' + m.unit + '</span>';
+    thr.appendChild(d);
+  });
+
+  function renderEntry() {
+    var host = $('gt-entry');
+    if (m.lower) {
+      host.innerHTML =
+        '<input type="text" inputmode="decimal" class="gt-field" id="gt-field" placeholder="Например 14,6" aria-label="Результат в секундах">';
+      $('gt-field').addEventListener('input', function () {
+        var t = this.value.replace(',', '.').trim();
+        if (t === '' || isNaN(+t)) { valueSet = false; value = 0; }
+        else { value = +t; valueSet = true; }
+        $('gt-submit').disabled = !valueSet;
+        setChips();
+      });
+    } else {
+      host.innerHTML =
+        '<div class="gt-stepper">' +
+          '<button type="button" class="gt-step-btn" id="gt-minus" data-od-id="gto-test-step-minus" aria-label="Уменьшить">−</button>' +
+          '<div class="gt-value" id="gt-value">0<small> ' + m.unit + '</small></div>' +
+          '<button type="button" class="gt-step-btn" id="gt-plus" data-od-id="gto-test-step-plus" aria-label="Увеличить">+</button>' +
+        '</div>' +
+        '<p class="gt-hint">' + m.placeholders + '</p>';
+      var valEl = $('gt-value');
+      function paint() {
+        valEl.innerHTML = fmtNum(value) + '<small> ' + m.unit + '</small>';
+        $('gt-minus').disabled = value <= 0;
+        $('gt-submit').disabled = !valueSet;
+        setChips();
+      }
+      $('gt-plus').addEventListener('click', function () { value++; valueSet = true; paint(); });
+      $('gt-minus').addEventListener('click', function () { value = Math.max(0, value - 1); paint(); });
+      paint();
+    }
+  }
+
+  function setChips() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-od-id^=gto-test-chip-]'), function (c) {
+      c.classList.toggle('is-on', valueSet && Math.abs(+c.getAttribute('data-v') - value) < 1e-9);
+    });
+  }
+
+  function renderChips() {
+    var host = $('gt-chips');
+    host.innerHTML = '';
+    ['Бронза', 'Серебро', 'Золото'].forEach(function (lbl, i) {
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'fchip';
+      c.setAttribute('data-od-id', 'gto-test-chip-' + i);
+      c.setAttribute('data-v', String(m.levels[i]));
+      c.textContent = lbl + ' · ' + fmtNum(m.levels[i]);
+      c.addEventListener('click', function () {
+        value = m.levels[i]; valueSet = true;
+        if (m.lower) { $('gt-field').value = fmtNum(value); }
+        else { $('gt-value').innerHTML = fmtNum(value) + '<small> ' + m.unit + '</small>'; }
+        $('gt-submit').disabled = !valueSet;
+        setChips();
+      });
+      host.appendChild(c);
+    });
+    setChips();
+  }
+
+  var submit = $('gt-submit');
+  submit.addEventListener('click', function () {
+    if (!valueSet || submitted) return;
+    submitted = true;
+    var lvl = levelFor(value);
+    var badge = $('gt-badge');
+    var meta = $('gt-meta');
+    var res = $('gt-result');
+    var ic = '<svg aria-hidden="true"><use href="#ic-medal"></use></svg>';
+
+    if (lvl < 0) {
+      badge.className = 'gt-badge is-fail';
+      badge.innerHTML = '<span class="gt-ic">' + ic + '</span>' +
+        '<span class="gt-txt"><b>Норматив не выполнен</b><span>Нужно от ' + fmtNum(m.levels[0]) + ' ' + m.unit + ', у вас ' + fmtNum(value) + ' ' + m.unit + '</span></span>';
+      meta.innerHTML = 'Можно попробовать ещё раз на ближайшей сдаче норматива или на дополнительном тестировании. План подготовки уже в календаре.';
+      submit.textContent = 'К плану подготовки';
+      submit.onclick = function () { location.href = '23-gto-plan.html'; };
+    } else {
+      var key = ['bronze', 'silver', 'gold'][lvl];
+      badge.className = 'gt-badge is-' + key;
+      badge.innerHTML = '<span class="gt-ic">' + ic + '</span>' +
+        '<span class="gt-txt"><b>' + m.levelNames[lvl] + '</b><span>Результат ' + fmtNum(value) + ' ' + m.unit + ' · протокол подтверждён</span></span>';
+      meta.innerHTML = 'Судья внес результат в протокол. Знак привяжем к профилю — шеврон появится рядом с ником.';
+      submit.textContent = 'Получить знак';
+      submit.onclick = function () {
+        location.href = '26-gto-result.html?norm=' + norm + '&level=' + lvl + '&v=' + encodeURIComponent(fmtNum(value));
+      };
+    }
+    res.classList.add('is-show');
+    res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  $('gt-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = 'goal.html';
+  });
+
+  renderEntry();
+  renderChips();
+})();
+</script>
+</body>
+</html>

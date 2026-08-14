@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>План подготовки к ГТО · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «План подготовки к ГТО» — модель: product-spec §4.16 (план — часть цели),
+     логика блоков: referens/gto-plan.html. Компоненты из ДС v2: топбар .topbar,
+     чипы-табы .fchip, плашка .card, сегменты .seg, фикс-бар .evd-bar, тост .toast.
+     Таблица плана — экранная специфика (7 дней × упражнения, горизонтальный скролл). */
+  .gp-app { background: var(--surface); padding-bottom: calc(224px + env(safe-area-inset-bottom, 0px)); }
+  .gp-body { padding-top: 4px; }
+
+  .gp-lead { padding: var(--space-1) var(--space-1) var(--space-2); }
+  .gp-lead .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .gp-lead .gp-sub { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+
+  .gp-tabs { flex-wrap: wrap; margin-top: var(--space-1); }
+  .gp-tabs .fchip { height: var(--h-md); }
+
+  .gp-card-top { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+  .gp-card-top h2 { margin: 0; flex: 1; font-size: var(--fs-title-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .gp-card-top .gp-key { font-size: var(--fs-meta); font-weight: 600; color: var(--meta); }
+  .gp-rows { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+  .gp-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-meta); line-height: 1.4; }
+  .gp-row .rk { flex: 1; color: var(--muted); }
+  .gp-row b { font-weight: 600; color: var(--fg); }
+  .gp-groups { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+
+  .gp-week { margin-top: var(--space-4); }
+  .gp-wsum { display: block; margin-top: var(--space-2); text-align: right; font-size: var(--fs-meta); color: var(--meta); }
+
+  .gp-wrap {
+    margin-top: var(--space-3); overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface);
+  }
+  .gp-table { display: grid; grid-template-columns: 150px repeat(7, 84px); min-width: 738px; }
+  .gp-cell {
+    min-height: 56px; display: flex; align-items: center; justify-content: center;
+    padding: 6px; text-align: center;
+    border-top: 1px solid var(--border-soft); border-left: 1px solid var(--border-soft);
+    font-size: var(--fs-meta); line-height: 1.25; color: var(--fg-2);
+  }
+  .gp-table .gp-head { color: var(--meta); font-weight: 600; font-size: var(--fs-caption); letter-spacing: 0.03em; text-transform: uppercase; }
+  .gp-table .gp-head.ex { text-align: left; justify-content: flex-start; padding-left: var(--space-4); }
+  .gp-table .gp-col0 { border-left: 0; }
+  .gp-table .gp-row0 .gp-cell { border-top: 0; }
+  .gp-cell.gp-ex { justify-content: flex-start; text-align: left; padding-left: var(--space-4); flex-direction: column; align-items: flex-start; gap: 3px; }
+  .gp-ex .gp-ex-name { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .gp-ex .gp-ex-group { font-size: var(--fs-caption); color: var(--muted); }
+  .gp-cell.is-rest { color: var(--meta); background: var(--surface-warm); font-size: var(--fs-caption); }
+  .gp-cell.is-day {
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; position: relative;
+    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .gp-cell.is-day:hover { background: var(--surface-2); }
+  .gp-cell.is-day:active { transform: scale(0.96); }
+  .gp-cell.is-day:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+  .gp-cell.is-day.is-done {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 10%, var(--surface));
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--success) 55%, transparent);
+  }
+  .gp-cell.is-day.is-done::after {
+    content: ""; position: absolute; top: 3px; right: 5px; width: 12px; height: 12px;
+    background: var(--success);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .gp-cell.gp-day { cursor: pointer; }
+  .gp-cell.gp-day:hover { background: var(--surface-2); }
+  .gp-cell.gp-day.is-restday { cursor: default; opacity: 0.7; }
+  .gp-cell.gp-day.is-restday:hover { background: none; }
+
+  .gp-legend { margin-top: var(--space-3); font-size: var(--fs-meta); line-height: 1.6; color: var(--meta); }
+  .gp-legend b { color: var(--fg-2); font-weight: 600; }
+
+  .gp-foot { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-soft); font-size: var(--fs-meta); line-height: 1.7; color: var(--meta); }
+  .gp-foot b { color: var(--fg-2); font-weight: 600; }
+
+  .gp-empty { background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: var(--space-6) var(--space-5); text-align: center; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+  .gp-empty b { display: block; color: var(--fg-2); font-size: var(--fs-body); margin-bottom: var(--space-1); }
+  .gp-empty .gp-empty-ic { width: 44px; height: 44px; margin: 0 auto var(--space-3); border-radius: var(--radius-md); display: grid; place-items: center; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+  .gp-empty .gp-empty-ic svg { width: var(--icon-lg); height: var(--icon-lg); }
+
+  .gp-cal-link { display: inline-flex; align-items: center; justify-content: center; min-height: var(--h-base); font-size: var(--fs-body); font-weight: 600; color: var(--accent); text-decoration: none; }
+  .gp-cal-link:hover { color: var(--accent-hover); }
+
+  .gp-rise { animation: gp-rise 340ms var(--ease-out) both; }
+  .gp-rise + .gp-rise { animation-delay: 60ms; }
+  @keyframes gp-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .gp-rise { animation: none; } }
+</style>
+</head>
+<body data-od-id="gto-plan-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 12h6M9 15.5h6M9 8.5h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="7.8" r="0.5" fill="currentColor"></circle></symbol>
+</svg>
+
+<div class="app gp-app">
+  <header class="topbar" data-od-id="gto-plan-header">
+    <button type="button" class="topbar-ic is-back" id="gp-back" aria-label="Назад к цели"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">План подготовки к ГТО</h4>
+  </header>
+
+  <main class="body gp-body">
+    <div class="gp-lead" data-od-id="gto-plan-lead">
+      <p class="eyebrow">Петровское СП · Дневник ГТО</p>
+      <p class="gp-sub">Норматив → группы мышц → упражнения по дням · 3 недели до тест-дня</p>
+    </div>
+
+    <div class="chips is-wrap gp-tabs" id="gp-tabs" data-od-id="gto-plan-tabs"></div>
+
+    <div id="gp-panel" data-od-id="gto-plan-panel"></div>
+
+    <footer class="gp-foot" data-od-id="gto-plan-footer">
+      <b>Структура</b> · на каждый норматив — набор упражнений на группы мышц, которые «закрывают» норму, с прогрессией по дням и неделям до тест-дня.<br>
+      <b>Данные</b> · упражнения, объёмы и сроки — пример, наполняется методистом. Напротив дней, где «отдых», тренировок нет.<br>
+      <b>Календарь</b> · «Добавить в календарь» заводит тренировки недель 1–3 и тест-день в общее расписание.
+    </footer>
+  </main>
+</div>
+
+<div class="evd-bar" data-od-id="gto-plan-bar">
+  <button type="button" class="btn btn-accent" id="gp-workout" data-od-id="gto-plan-workout">
+    <svg aria-hidden="true"><use href="#ic-play"></use></svg>Начать тренировку
+  </button>
+  <button type="button" class="btn btn-ghost" id="gp-calendar" data-od-id="gto-plan-calendar">
+    <svg aria-hidden="true"><use href="#ic-cal"></use></svg>Добавить тренировки в календарь
+  </button>
+  <a class="gp-cal-link" id="gp-cal-link" href="07-calendar.html" data-od-id="gto-plan-cal-link" hidden>
+    Открыть расписание →
+  </a>
+</div>
+
+<div class="evd-toast" id="gp-toast" role="status" aria-live="polite">
+  <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-info"></use></svg></span><span id="gp-toast-tx">Готово</span></div>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var toastTimer = null;
+  function toast(msg) {
+    $('gp-toast-tx').textContent = msg;
+    $('gp-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('gp-toast').classList.remove('open'); }, 2400);
+  }
+
+  /* Мок-данные: норматив → группы мышц → упражнения по неделям (Д1..Д7).
+     Список нормативов согласован с экраном «Моя цель» (product-spec §4.19). */
+  var PLAN = {
+    pull: {
+      name: 'Подтягивания', target: '20 раз', current: '9 раз', testDate: '12 сентября',
+      groups: ['Спина', 'Бицепс', 'Предплечья'],
+      exercises: [
+        { name: 'Отжимания', group: 'Грудь · трицепс', w: [
+          ['3×10', '3×10 +до отказа', '3×15', 'отдых', '3×15', '4×12', 'отдых'],
+          ['4×12', '4×12 +до отказа', '4×15', 'отдых', '4×15', '4×12 +до отказа', 'отдых'],
+          ['4×15', '4×15 +до отказа', '5×12', 'отдых', '5×12', '4×15 +до отказа', 'отдых']
+        ]},
+        { name: 'Планка', group: 'Кор · стабилизация', w: [
+          ['30 с', '45 с', '30 с', 'отдых', '45 с', '60 с', 'отдых'],
+          ['45 с', '60 с', '45 с', 'отдых', '60 с', '75 с', 'отдых'],
+          ['60 с', '75 с', '60 с', 'отдых', '75 с', '90 с', 'отдых']
+        ]},
+        { name: 'Подтягивания с резинкой', group: 'Широчайшие · бицепс', w: [
+          ['3×5', '3×6', '3×7', 'отдых', '3×8', '3×6', 'отдых'],
+          ['3×8', '3×9', '3×10', 'отдых', '3×10', '3×8', 'отдых'],
+          ['4×8', '4×9', '4×10', 'отдых', '4×10', '4×8', 'отдых']
+        ]},
+        { name: 'Вис на перекладине', group: 'Хват · предплечья', w: [
+          ['3×15 с', '3×20 с', '3×25 с', 'отдых', '3×30 с', '3×20 с', 'отдых'],
+          ['3×30 с', '3×35 с', '3×40 с', 'отдых', '3×45 с', '3×30 с', 'отдых'],
+          ['4×30 с', '4×40 с', '4×45 с', 'отдых', '4×50 с', '4×40 с', 'отдых']
+        ]}
+      ]
+    },
+    run100: {
+      name: 'Бег 100 м', target: '14,6 с', current: '15,2 с', testDate: '12 сентября',
+      groups: ['Ноги', 'Ягодицы', 'Кардио'],
+      exercises: [
+        { name: 'Интервалы 100 м · темп 80%', group: 'Беговая техника', w: [
+          ['4×100 м', '4×100 м', '5×100 м', 'отдых', '5×100 м', '4×100 м', 'отдых'],
+          ['5×100 м', '5×100 м', '6×100 м', 'отдых', '6×100 м', '5×100 м', 'отдых'],
+          ['6×100 м', '6×100 м', '7×100 м', 'отдых', '7×100 м', '6×100 м', 'отдых']
+        ]},
+        { name: 'Лёгкий бег · пульс ~140', group: 'Аэробная база', w: [
+          ['15 мин', '20 мин', '15 мин', 'отдых', '20 мин', '25 мин', 'отдых'],
+          ['20 мин', '25 мин', '20 мин', 'отдых', '25 мин', '30 мин', 'отдых'],
+          ['25 мин', '30 мин', '25 мин', 'отдых', '30 мин', '35 мин', 'отдых']
+        ]},
+        { name: 'Выпады', group: 'Ягодицы · квадрицепс', w: [
+          ['3×10', '3×12', '3×12', 'отдых', '3×15', '3×12', 'отдых'],
+          ['3×15', '3×15', '4×12', 'отдых', '4×12', '3×15', 'отдых'],
+          ['4×15', '4×15', '4×15', 'отдых', '4×15', '4×12 +до отказа', 'отдых']
+        ]},
+        { name: 'Подъём на носки', group: 'Икры', w: [
+          ['3×15', '3×20', '3×20', 'отдых', '3×25', '3×20', 'отдых'],
+          ['3×25', '3×25', '4×20', 'отдых', '4×20', '3×25', 'отдых'],
+          ['4×25', '4×25', '4×20', 'отдых', '4×25', '3×30 +до отказа', 'отдых']
+        ]}
+      ]
+    },
+    push:  { name: 'Отжимания',     target: '29 раз', current: '31 раз', empty: true },
+    bend:  { name: 'Наклон вперёд', target: '+6 см',  current: '+9 см',  empty: true },
+    run2k: { name: 'Бег 2 км',      target: '12.30',  current: '—',      empty: true }
+  };
+
+  var ORDER = ['pull', 'run100', 'push', 'bend', 'run2k'];
+  var DONE = {}; /* key: normId+week+exIdx+day -> true */
+
+  var state = { norm: 'pull', week: 0 };
+
+  function renderTabs() {
+    var box = $('gp-tabs');
+    box.innerHTML = '';
+    ORDER.forEach(function (id) {
+      var n = PLAN[id];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fchip' + (id === state.norm ? ' is-on' : '') + (n.empty ? ' is-off' : '');
+      btn.style.setProperty('--c', 'var(--accent)');
+      btn.setAttribute('data-od-id', 'gto-plan-tab-' + id);
+      btn.innerHTML = '<span class="dot" aria-hidden="true"></span>' + n.name;
+      btn.addEventListener('click', function () {
+        state.norm = id;
+        state.week = 0;
+        renderPanel();
+        renderTabs();
+      });
+      box.appendChild(btn);
+    });
+  }
+
+  function weekSummary() {
+    var n = PLAN[state.norm];
+    var ex = n.exercises;
+    var week = state.week;
+    var total = 0;
+    var done = 0;
+    for (var e = 0; e < ex.length; e++) {
+      var days = ex[e].w[week];
+      for (var d = 0; d < days.length; d++) {
+        if (days[d] === 'отдых') continue;
+        total++;
+        if (DONE[state.norm + '-' + week + '-' + e + '-' + d]) done++;
+      }
+    }
+    return { done: done, total: total };
+  }
+
+  function renderPanel() {
+    var box = $('gp-panel');
+    var n = PLAN[state.norm];
+
+    if (n.empty) {
+      box.innerHTML =
+        '<div class="gp-empty" data-od-id="gto-plan-empty-' + state.norm + '">' +
+          '<div class="gp-empty-ic" aria-hidden="true"><svg><use href="#ic-doc"></use></svg></div>' +
+          '<b>' + n.name + ' · норма ' + n.target + '</b>' +
+          'Упражнения на группы мышц для этого норматива ещё не составлены.<br>План появится после согласования структуры.' +
+        '</div>';
+      return;
+    }
+
+    var html = '';
+    html += '<section class="card gp-card gp-rise" data-od-id="gto-plan-card-' + state.norm + '">';
+    html += '<div class="gp-card-top"><h2>' + n.name + '</h2><span class="gp-key">норма ' + n.target + '</span></div>';
+    html += '<div class="gp-rows">';
+    html += '<div class="gp-row"><span class="rk">Ваш результат</span><b>' + n.current + '</b></div>';
+    html += '<div class="gp-row"><span class="rk">Тест-день</span><b>' + n.testDate + '</b></div>';
+    html += '<div class="gp-row"><span class="rk">Готовность</span><b>40%</b></div>';
+    html += '</div>';
+    html += '<div class="gp-groups">';
+    n.groups.forEach(function (g) { html += '<span class="gchip" style="--c: var(--accent)"><span class="dot" aria-hidden="true"></span>' + g + '</span>'; });
+    html += '</div>';
+    html += '</section>';
+
+    html += '<div class="gp-week">';
+    html += '<div class="seg">';
+    for (var w = 0; w < n.exercises[0].w.length; w++) {
+      html += '<button type="button" class="seg-btn' + (w === state.week ? ' is-active' : '') + '" data-week="' + w + '" data-od-id="gto-plan-week-' + (w + 1) + '">Неделя ' + (w + 1) + '</button>';
+    }
+    html += '</div>';
+    var sum = weekSummary();
+    html += '<span class="gp-wsum">' + sum.done + ' из ' + sum.total + ' сделано</span>';
+    html += '</div>';
+
+    html += '<div class="gp-wrap"><div class="gp-table">';
+    html += '<div class="gp-cell gp-head ex gp-row0 gp-col0">Упражнение</div>';
+    for (var d = 1; d <= 7; d++) {
+      var isRestDay = n.exercises[0].w[state.week][d - 1] === 'отдых';
+      html += '<div class="gp-cell gp-head gp-day gp-row0' + (isRestDay ? ' is-restday' : '') + '" data-day="' + d + '" role="button" tabindex="' + (isRestDay ? '-1' : '0') + '" aria-label="День ' + d + (isRestDay ? ', отдых' : '') + '">День ' + d + '</div>';
+    }
+    var exs = n.exercises;
+    for (var e = 0; e < exs.length; e++) {
+      var days = exs[e].w[state.week];
+      html += '<div class="gp-cell gp-ex"><span class="gp-ex-name">' + exs[e].name + '</span><span class="gp-ex-group">' + exs[e].group + '</span></div>';
+      for (var dd = 0; dd < 7; dd++) {
+        var v = days[dd];
+        var key = state.norm + '-' + state.week + '-' + e + '-' + dd;
+        if (v === 'отдых') {
+          html += '<div class="gp-cell is-rest">отдых</div>';
+        } else {
+          html += '<div class="gp-cell is-day' + (DONE[key] ? ' is-done' : '') + '" data-cell="' + e + '-' + dd + '" role="button" tabindex="0" aria-label="День ' + (dd + 1) + ', ' + exs[e].name + ': ' + v + '">' + v + '</div>';
+        }
+      }
+    }
+    html += '</div></div>';
+    html += '<p class="gp-legend"><b>Обозначения</b> · × — подходы × повторения; «до отказа» — последний подход до предела; с/мин — секунды и минуты; «отдых» — восстановление. Заголовок дня открывает тренировку этого дня.</p>';
+
+    box.innerHTML = html;
+    bindPanel();
+  }
+
+  function bindPanel() {
+    var panel = $('gp-panel');
+    panel.querySelectorAll('[data-week]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.week = Number(btn.getAttribute('data-week'));
+        renderPanel();
+      });
+    });
+    panel.querySelectorAll('[data-cell]').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        var parts = cell.getAttribute('data-cell').split('-');
+        var key = state.norm + '-' + state.week + '-' + parts[0] + '-' + parts[1];
+        if (DONE[key]) { delete DONE[key]; }
+        else { DONE[key] = true; }
+        renderPanel();
+      });
+    });
+    panel.querySelectorAll('[data-day]').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        if (cell.classList.contains('is-restday')) {
+          toast('Это день отдыха — тренировок по плану нет');
+          return;
+        }
+        startWorkout(Number(cell.getAttribute('data-day')));
+      });
+    });
+  }
+
+  function startWorkout(day) {
+    location.href = '24-gto-workout.html?norm=' + state.norm + '&week=' + (state.week + 1) + '&day=' + day;
+  }
+
+  $('gp-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = 'goal.html';
+  });
+  $('gp-workout').addEventListener('click', function () { startWorkout(1); });
+  var added = false;
+  $('gp-calendar').addEventListener('click', function () {
+    added = true;
+    $('gp-cal-link').hidden = false;
+    toast('9 тренировок и тест-день добавлены в расписание');
+  });
+
+  renderTabs();
+  renderPanel();
+})();
+</script>
+</body>
+</html>

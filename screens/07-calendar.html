@@ -9,6 +9,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Прототип марафона (§4.20): карточка-ссылка на 15-event-marathon.html */
+  .ev-card.is-link { cursor: pointer; }
+  .ev-card.is-link:hover { border-color: var(--border-strong); }
+  .ev-card.is-link .ev-go { flex: none; width: 16px; height: 16px; color: var(--meta); margin-left: 8px; vertical-align: -2px; }
+</style>
 </head>
 <body data-od-id="schedule-v2">
 <svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -68,8 +74,8 @@
 
 <nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Разделы">
   <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
-  <a class="tab is-on" href="#" aria-label="События"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
-  <a class="tab" href="#" aria-label="Тренировки"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+  <a class="tab is-on" href="#" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
   <a class="tab" href="#" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
   <a class="tab" href="#" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></a>
 </nav>
@@ -112,7 +118,9 @@
     confirmed: ['Подтв.', 'var(--st-confirmed)'],
     open: ['Запись', 'var(--st-open)'],
     pending: ['Ожид.', 'var(--st-pending)'],
-    done: ['Готово', 'var(--st-done)']
+    ongoing: ['Идёт', 'var(--st-ongoing)'],
+    done: ['Готово', 'var(--st-done)'],
+    cancelled: ['Отменено', 'var(--st-cancelled)']
   };
   var FILTERS = [
     { id: 'all', label: 'Все', token: null },
@@ -145,8 +153,24 @@
     { d: '2026-08-23', t: '10:00', title: 'Волейбольный турнир', place: 'волейбольная площадка', type: 'event', sub: 'event', fmt: 'турнир', st: 'open' },
     { d: '2026-08-26', t: '18:00', title: 'Клуб настольного тенниса', place: 'клуб тенниса', type: 'club', sub: 'club', fmt: 'клуб', st: 'confirmed' },
     { d: '2026-08-28', t: '16:00', title: 'Аренда корта', place: 'теннисный корт', type: 'rental', sub: 'rental', fmt: 'аренда', st: 'pending' },
-    { d: '2026-08-30', t: '08:00', title: 'Осенний полумарафон', place: 'центр поселения', type: 'event', sub: 'event', fmt: 'марафон', st: 'open' }
+    { d: '2026-08-30', t: '08:00', title: 'Осенний полумарафон', place: 'центр поселения', type: 'event', sub: 'event', fmt: 'марафон', st: 'pending', id: 'marathon' }
   ];
+
+  /* Прототип марафона (§4.20): статус карточки приходит из машины состояний
+     экрана 15-event-marathon.html (localStorage 'evt:marathon'). Старт забега —
+     глобальное событие: авто-флип confirmed → ongoing в момент старта. */
+  try {
+    var evtRaw = localStorage.getItem('evt:marathon');
+    if (evtRaw) {
+      var evtState = JSON.parse(evtRaw);
+      if (evtState && evtState.status) {
+        if (evtState.status === 'confirmed' && Date.now() >= Date.UTC(2026, 7, 30, 8, 0)) {
+          evtState.status = 'ongoing';
+        }
+        EVENTS.forEach(function (e) { if (e.id === 'marathon') e.st = evtState.status; });
+      }
+    }
+  } catch (e) { /* ignore */ }
   var WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   var WD_FULL = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
   var MONTH_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -357,6 +381,20 @@
       card.querySelector('.ev-title').appendChild(fmtEl);
       card.querySelector('.ev-place').textContent = e.place;
       card.querySelector('.ev-status').textContent = st[0];
+      if (e.id === 'marathon') {
+        card.classList.add('is-link');
+        var go = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        go.setAttribute('class', 'ev-go');
+        go.setAttribute('aria-hidden', 'true');
+        var use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '#ic-chev');
+        go.appendChild(use);
+        card.querySelector('.ev-body').appendChild(go);
+        card.addEventListener('click', function (ev2) {
+          if (ev2.target.closest('.ev-menu')) return;
+          location.href = '15-event-marathon.html';
+        });
+      }
       dayList.appendChild(card);
     });
   }

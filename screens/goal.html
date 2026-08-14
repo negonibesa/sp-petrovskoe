@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Моя цель · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Моя цель» — модель цели: product-spec §4.19.
+     Компоненты из ДС v2: топбар .topbar, карточка цели .goal-card,
+     секции .sec/.sec-head, плашки .card/.card-link, строки .row,
+     лист .sheet, выбор .pick-card, чипы .pick-chip, тосты .toast. */
+  .gl-app { background: var(--surface); padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+  .gl-body { padding-top: 4px; }
+
+  .gl-hero { cursor: default; }
+  .gl-hero:hover, .gl-hero:active { transform: none; background: var(--surface); }
+
+  .gl-metric { display: grid; gap: var(--space-2); }
+  .gl-metric-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-warm);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+  }
+  .gl-metric-name { flex: 1; min-width: 0; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .gl-metric-name small { display: block; margin-top: 1px; font-size: var(--fs-meta); font-weight: 500; color: var(--meta); }
+  .gl-chip {
+    flex: none; display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: var(--fs-meta); font-weight: 600; color: var(--c, var(--success));
+    background: color-mix(in srgb, var(--c, var(--success)) 12%, var(--surface));
+    border-radius: var(--radius-pill); padding: var(--space-1) 10px;
+  }
+  .gl-chip svg { width: 12px; height: 12px; }
+  .gl-chip.is-pend { --c: var(--amber); }
+  .gl-chip.is-next { --c: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+
+  .gl-hist { display: grid; gap: var(--space-2); }
+  .gl-hist-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .gl-hist-name { flex: 1; min-width: 0; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .gl-hist-name small { display: block; margin-top: 1px; font-size: var(--fs-meta); font-weight: 500; color: var(--meta); }
+
+  .gl-card-label { margin: 0 0 var(--space-3); font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--meta); }
+
+  .gl-bar {
+    position: fixed; left: 50%; bottom: 0; z-index: 40;
+    transform: translateX(-50%);
+    width: 100%; max-width: var(--container-max);
+    box-sizing: border-box;
+    display: flex; gap: 10px;
+    background: var(--surface);
+    border-top: 1px solid var(--border-soft);
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
+  .gl-bar .btn { flex: 1; }
+  @media (min-width: 560px) {
+    .gl-bar {
+      bottom: 24px; width: calc(100% - 48px);
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      box-shadow: var(--elev-raised);
+      padding: var(--space-3) var(--space-4);
+    }
+  }
+
+  /* Лист цели: пресеты → конфиг → сохранить */
+  .gl-sheet { display: flex; flex-direction: column; max-height: 88vh; }
+  .gl-sheet-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; padding-right: 2px; }
+  .gl-sheet-scroll::-webkit-scrollbar { width: 6px; }
+  .gl-sheet-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-pill); }
+  .gl-preset { display: grid; gap: var(--space-2); }
+  .gl-config { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-soft); }
+  .gl-config .field-label { margin: var(--space-4) 0 var(--space-2); }
+  .gl-config .field-label:first-child { margin-top: 0; }
+  .gl-config .field { margin: var(--space-4) 0 0; }
+  .gl-config .field .field-label { margin: 0 0 var(--space-2); }
+  .gl-date-row { margin-top: var(--space-4); }
+
+  .gl-rise { animation: gl-rise 340ms var(--ease-out) both; }
+  .gl-rise + .gl-rise { animation-delay: 60ms; }
+  @keyframes gl-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .gl-rise { animation: none; } }
+</style>
+</head>
+<body data-od-id="goal-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M4 20l1.2-4.5L16.9 3.8a2.1 2.1 0 0 1 3 3L8.2 18.5 4 20z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M14.8 5.9l3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-trend-up" viewBox="0 0 24 24"><path d="M3.5 17l6-6 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.5 7.5h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app gl-app">
+  <header class="topbar" data-od-id="goal-header">
+    <button type="button" class="topbar-ic is-back" id="btn-goal-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx is-center">Моя цель</h4>
+    <button type="button" class="topbar-ic" id="btn-goal-more" aria-label="Действия с целью"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>
+  </header>
+
+  <main class="body gl-body" data-od-id="goal-body">
+    <div class="cv cv-a goal-card gl-hero gl-rise" data-od-id="goal-active">
+      <span class="cv-a-cat" id="goal-cat">Моя цель</span>
+      <div class="cv-a-head">
+        <span class="cv-a-title" id="goal-title">Сдать нормы ГТО</span>
+        <span class="gchip is-sign goal-head-sign" id="goal-sign" style="--c: var(--gto-silver)"><span class="dot" aria-hidden="true"></span>Знак ГТО · Серебро</span>
+      </div>
+      <div class="goal-progress" aria-hidden="true">
+        <span class="goal-progress-fill" style="width: 85%"><span class="goal-progress-pct">85%</span></span>
+      </div>
+      <div class="goal-meta">
+        <span class="goal-meta-note" id="goal-deadline">До дедлайна 59 дн. · 12 октября</span>
+        <span class="goal-count" id="goal-count" aria-hidden="true"><span class="goal-count-n">4</span>/ 5 нормативов</span>
+      </div>
+    </div>
+
+    <section class="sec" data-od-id="goal-metric">
+      <div class="sec-head"><h2>Прогресс нормативов</h2></div>
+      <div class="gl-metric">
+        <div class="gl-metric-row">
+          <span class="gl-metric-name">Подтягивания<small>ГТО VIII · не менее 15</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>20 · сдано</span>
+        </div>
+        <div class="gl-metric-row">
+          <span class="gl-metric-name">Бег 100 м<small>ГТО VIII · не более 15,4 с</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>14,6 с · сдано</span>
+        </div>
+        <div class="gl-metric-row">
+          <span class="gl-metric-name">Наклон вперёд<small>ГТО VIII · не менее +6 см</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>+9 см · сдано</span>
+        </div>
+        <div class="gl-metric-row">
+          <span class="gl-metric-name">Отжимания<small>ГТО VIII · не менее 29</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>31 · сдано</span>
+        </div>
+        <div class="gl-metric-row">
+          <span class="gl-metric-name">Бег 2 км<small>ГТО VIII · не более 12.30</small></span>
+          <span class="gl-chip is-next">к сдаче · 12 авг</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" data-od-id="goal-prep">
+      <div class="sec-head"><h2>Подготовка</h2></div>
+      <a class="card card-link gl-rise" href="23-gto-plan.html" data-od-id="goal-plan">
+        <span class="mrow-media is-next"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
+        <span class="mrow-tx"><span class="mrow-t">План подготовки</span><span class="mrow-s">9 тренировок · 3 недели · добавлены в календарь</span></span>
+        <span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
+      </a>
+      <a class="card card-link gl-rise" href="25-gto-test.html" data-od-id="goal-test">
+        <span class="mrow-media is-next"><svg aria-hidden="true"><use href="#ic-target"></use></svg></span>
+        <span class="mrow-tx"><span class="mrow-t">Тест-день · сдать норматив</span><span class="mrow-s">Событие-тест · 12 августа · зал №2</span></span>
+        <span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
+      </a>
+    </section>
+
+    <section class="sec" id="history" data-od-id="goal-history">
+      <div class="sec-head">
+        <h2>История целей</h2>
+        <a class="sec-all" href="06-home.html">На главную<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+      </div>
+      <div class="gl-hist">
+        <div class="gl-hist-row">
+          <span class="gl-metric-name">Тренироваться регулярно<small>февраль – июль 2026 · 3 занятия в неделю</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>Выполнено</span>
+        </div>
+        <div class="gl-hist-row">
+          <span class="gl-metric-name">Пробежать 10 км<small>апрель 2026 · без остановок</small></span>
+          <span class="gl-chip"><svg aria-hidden="true"><use href="#ic-check"></use></svg>Выполнено</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="gl-bar" data-od-id="goal-bar">
+  <button type="button" class="btn btn-secondary" id="btn-goal-history">История</button>
+  <button type="button" class="btn btn-accent" id="btn-goal-edit"><svg aria-hidden="true"><use href="#ic-target"></use></svg>Изменить цель</button>
+</div>
+
+<div class="scrim" id="goal-scrim" aria-hidden="true"></div>
+
+<div class="sheet" id="goal-menu-sheet" role="dialog" aria-modal="true" aria-label="Действия с целью">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Действия с целью</h3>
+    <button type="button" class="sheet-close js-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <button type="button" class="sheet-item js-goal-edit"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-target"></use></svg></span><span class="sheet-it"><span class="sheet-il">Изменить цель</span><span class="sheet-ih">Пресет, метрика, дедлайн</span></span></button>
+    <button type="button" class="sheet-item js-goal-history js-close"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-clock"></use></svg></span><span class="sheet-it"><span class="sheet-il">История целей</span><span class="sheet-ih">Прошлые цели и их результат</span></span></button>
+    <button type="button" class="sheet-item is-off"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-edit"></use></svg></span><span class="sheet-it"><span class="sheet-il">Сбросить прогресс</span><span class="sheet-ih">Доступно в настройках</span></span></button>
+  </div>
+  <button type="button" class="sheet-cancel js-close">Отмена</button>
+</div>
+
+<div class="sheet gl-sheet" id="goal-edit-sheet" role="dialog" aria-modal="true" aria-labelledby="goal-sheet-title">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title" id="goal-sheet-title">Цель</h3>
+    <button type="button" class="sheet-close js-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="gl-sheet-scroll">
+    <div class="gl-preset" role="radiogroup" aria-label="Пресеты цели">
+      <label class="pick-card" style="--c: var(--gto-gold)">
+        <input type="radio" name="goal-preset" value="gto" checked>
+        <span class="pick-media" aria-hidden="true"><svg><use href="#ic-target"></use></svg></span>
+        <span class="pick-tx"><span class="pick-name">Сдать нормы ГТО</span><span class="pick-desc">Подготовиться и сдать нормативы на знак</span></span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+      <label class="pick-card" style="--c: var(--type-training)">
+        <input type="radio" name="goal-preset" value="regular">
+        <span class="pick-media" aria-hidden="true"><svg><use href="#ic-trend-up"></use></svg></span>
+        <span class="pick-tx"><span class="pick-name">Тренироваться регулярно</span><span class="pick-desc">Выработать привычку без пропусков</span></span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+      <label class="pick-card" style="--c: var(--accent-purple)">
+        <input type="radio" name="goal-preset" value="custom">
+        <span class="pick-media" aria-hidden="true"><svg><use href="#ic-edit"></use></svg></span>
+        <span class="pick-tx"><span class="pick-name">Своя цель</span><span class="pick-desc">Сформулируйте свою цель</span></span>
+        <span class="pick-mark" aria-hidden="true"></span>
+      </label>
+    </div>
+
+    <div class="gl-config">
+      <div id="cfg-gto">
+        <span class="field-label">Ступень</span>
+        <div class="chips is-wrap">
+          <label class="pick-chip"><input type="radio" name="gto-level" value="VII" aria-label="VII ступень"><span>VII · 16–17 лет</span></label>
+          <label class="pick-chip is-on"><input type="radio" name="gto-level" value="VIII" checked aria-label="VIII ступень"><span>VIII · 18–24</span></label>
+          <label class="pick-chip"><input type="radio" name="gto-level" value="IX" aria-label="IX ступень"><span>IX · 25–29</span></label>
+        </div>
+        <span class="field-label">Цель по знаку</span>
+        <div class="chips is-wrap">
+          <label class="pick-chip"><input type="radio" name="gto-sign" value="bronze" aria-label="Бронза"><span>Бронза</span></label>
+          <label class="pick-chip is-on"><input type="radio" name="gto-sign" value="silver" checked aria-label="Серебро"><span>Серебро</span></label>
+          <label class="pick-chip"><input type="radio" name="gto-sign" value="gold" aria-label="Золото"><span>Золото</span></label>
+        </div>
+      </div>
+
+      <div id="cfg-regular" hidden>
+        <span class="field-label">Занятий в неделю</span>
+        <div class="chips is-wrap">
+          <label class="pick-chip"><input type="radio" name="reg-count" value="2" aria-label="2 занятия"><span>2</span></label>
+          <label class="pick-chip is-on"><input type="radio" name="reg-count" value="3" checked aria-label="3 занятия"><span>3</span></label>
+          <label class="pick-chip"><input type="radio" name="reg-count" value="4" aria-label="4 занятия"><span>4</span></label>
+          <label class="pick-chip"><input type="radio" name="reg-count" value="5" aria-label="5 занятий"><span>5</span></label>
+        </div>
+        <span class="field-label">Период</span>
+        <div class="seg">
+          <button type="button" class="seg-btn is-active" data-seg="month">Месяц</button>
+          <button type="button" class="seg-btn" data-seg="quarter">Квартал</button>
+        </div>
+      </div>
+
+      <div id="cfg-custom" hidden>
+        <label class="field">
+          <span class="field-label">Ваша цель</span>
+          <span class="field-inner">
+            <input id="goal-custom" type="text" maxlength="120" autocomplete="off" placeholder="Например: пробежать 10 км">
+          </span>
+        </label>
+      </div>
+
+      <button type="button" class="row evd-row gl-date-row js-date" id="goal-deadline-row" data-od-id="goal-deadline-row">
+        <span class="row-ic"><svg aria-hidden="true"><use href="#ic-clock"></use></svg></span>
+        <span class="row-tx"><b>Дедлайн</b><span id="goal-deadline-val">12 октября 2026</span></span>
+        <span class="row-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-accent btn-block sheet-btn" id="btn-goal-save">Сохранить цель</button>
+  <button type="button" class="btn btn-ghost btn-block sheet-btn ghost js-close">Отмена</button>
+</div>
+
+<div class="scrim" id="goal-date-scrim" aria-hidden="true"></div>
+<div class="sheet" id="goal-date-sheet" role="dialog" aria-modal="true" aria-label="Выбор дедлайна">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Дедлайн</h3>
+    <button type="button" class="sheet-close js-date-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="wheel" role="group" aria-label="Выбор дедлайна">
+    <div class="wheel-head">
+      <span class="wheel-label">Число</span>
+      <span class="wheel-label">Месяц</span>
+    </div>
+    <div class="wheel-body">
+      <div class="wheel-col" id="gl-w-day"></div>
+      <div class="wheel-col" id="gl-w-month"></div>
+      <span class="wheel-mask" aria-hidden="true"></span>
+    </div>
+  </div>
+  <button type="button" class="sheet-primary" id="gl-date-ok">Выбрать · 12 октября 2026</button>
+  <button type="button" class="sheet-cancel js-date-close">Отмена</button>
+</div>
+
+<div class="evd-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Цель обновлена</span></div>
+    <div class="toast toast-warn"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span id="toast-pts">+100 баллов</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var toastTimer = null;
+  function toast(showPoints) {
+    $('toast').classList.add('open');
+    $('toast-pts').style.display = showPoints ? '' : 'none';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').classList.remove('open'); }, 2600);
+  }
+
+  function openSheet(sheet) { $('goal-scrim').classList.add('open'); sheet.classList.add('open'); }
+  function closeSheets() {
+    $('goal-scrim').classList.remove('open');
+    ['goal-menu-sheet', 'goal-edit-sheet'].forEach(function (id) { $(id).classList.remove('open'); });
+  }
+
+  function openDateSheet() {
+    $('goal-date-scrim').classList.add('open');
+    $('goal-date-sheet').classList.add('open');
+    wDay.setIdx(dateSel.d - 1);
+    wMonth.setIdx(dateSel.m);
+  }
+  function closeDateSheet() {
+    $('goal-date-scrim').classList.remove('open');
+    $('goal-date-sheet').classList.remove('open');
+  }
+
+  var SIGN_CHIP = { bronze: { label: 'Бронза', token: 'var(--gto-bronze)' }, silver: { label: 'Серебро', token: 'var(--gto-silver)' }, gold: { label: 'Золото', token: 'var(--gto-gold)' } };
+
+  function applyGoal() {
+    var preset = document.querySelector('input[name="goal-preset"]:checked');
+    var title = 'Своя цель';
+    if (preset.value === 'gto') title = 'Сдать нормы ГТО';
+    else if (preset.value === 'regular') title = 'Тренироваться регулярно';
+    else {
+      var custom = $('goal-custom').value.trim();
+      if (custom) title = custom;
+    }
+    $('goal-title').textContent = title;
+
+    var sign = document.querySelector('input[name="gto-sign"]:checked');
+    if (preset.value === 'gto' && sign) {
+      var s = SIGN_CHIP[sign.value];
+      var chip = $('goal-sign');
+      chip.style.setProperty('--c', s.token);
+      chip.childNodes[1].textContent = 'Знак ГТО · ' + s.label;
+    }
+  }
+
+  function syncPreset() {
+    var preset = document.querySelector('input[name="goal-preset"]:checked');
+    ['cfg-gto', 'cfg-regular', 'cfg-custom'].forEach(function (id) {
+      $(id).hidden = true;
+    });
+    if (preset) {
+      if (preset.value === 'gto') $('cfg-gto').hidden = false;
+      if (preset.value === 'regular') $('cfg-regular').hidden = false;
+      if (preset.value === 'custom') $('cfg-custom').hidden = false;
+    }
+  }
+
+  $('btn-goal-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = '06-home.html';
+  });
+  $('btn-goal-more').addEventListener('click', function () { openSheet($('goal-menu-sheet')); });
+  $('btn-goal-edit').addEventListener('click', function () { openSheet($('goal-edit-sheet')); });
+  document.querySelectorAll('.js-goal-edit').forEach(function (b) { b.addEventListener('click', function () { closeSheets(); openSheet($('goal-edit-sheet')); }); });
+  document.querySelectorAll('.js-goal-history').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var h = $('history');
+      if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  $('btn-goal-history').addEventListener('click', function () {
+    var h = $('history');
+    if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.querySelectorAll('.js-close').forEach(function (b) { b.addEventListener('click', closeSheets); });
+  document.querySelectorAll('.js-date-close').forEach(function (b) { b.addEventListener('click', closeDateSheet); });
+  $('goal-scrim').addEventListener('click', closeSheets);
+  $('goal-date-scrim').addEventListener('click', closeDateSheet);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeDateSheet(); closeSheets(); } });
+
+  document.querySelectorAll('input[name="goal-preset"]').forEach(function (r) { r.addEventListener('change', syncPreset); });
+  document.querySelectorAll('.seg-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var seg = b.parentElement;
+      seg.querySelectorAll('.seg-btn').forEach(function (x) { x.classList.remove('is-active'); });
+      b.classList.add('is-active');
+    });
+  });
+
+  document.querySelectorAll('.js-date').forEach(function (b) {
+    b.addEventListener('click', openDateSheet);
+  });
+
+  $('btn-goal-save').addEventListener('click', function () {
+    applyGoal();
+    var preset = document.querySelector('input[name="goal-preset"]:checked');
+    var sign = preset && preset.value === 'gto' ? document.querySelector('input[name="gto-sign"]:checked') : null;
+    try {
+      localStorage.setItem('goal:active', JSON.stringify({
+        title: $('goal-title').textContent,
+        sign: sign ? SIGN_CHIP[sign.value].label : null,
+        deadline: $('goal-deadline-val').textContent
+      }));
+    } catch (e) { /* noop */ }
+    closeSheets();
+    $('toast-tx').textContent = 'Цель обновлена';
+    toast(true);
+  });
+
+  /* ── Барабан дедлайна ────────────────────── */
+  var MONTHS = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  var MONTHS_G = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+  function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function dayItems(n) {
+    var a = [];
+    for (var i = 1; i <= n; i++) a.push({ label: String(i), value: i });
+    return a;
+  }
+
+  var dateSel = { d: 12, m: 9 }; /* 12 октября */
+  var wDay, wMonth;
+  function paintDateOk() {
+    $('gl-date-ok').textContent = 'Выбрать · ' + dateSel.d + ' ' + MONTHS_G[dateSel.m] + ' 2026';
+  }
+  function rebuildDayWheel() {
+    var n = daysIn(2026, dateSel.m);
+    if (dateSel.d > n) dateSel.d = n;
+    wDay.rebuild(dayItems(n), dateSel.d - 1);
+    paintDateOk();
+  }
+  $('gl-date-ok').addEventListener('click', function () {
+    var label = dateSel.d + ' ' + MONTHS_G[dateSel.m] + ' 2026';
+    $('goal-deadline-val').textContent = label;
+    var deadline = new Date(2026, dateSel.m, dateSel.d);
+    var days = Math.max(1, Math.ceil((deadline - new Date(2026, 7, 14)) / 86400000));
+    $('goal-deadline').textContent = 'До дедлайна ' + days + ' дн. · ' + dateSel.d + ' ' + MONTHS_G[dateSel.m];
+    closeDateSheet();
+  });
+
+  function buildWheel(colId, items, selIdx, onChange) {
+    var col = $(colId);
+    col.style.justifyContent = "flex-start";
+    col.style.overflowY = "auto";
+    col.style.scrollSnapType = "y mandatory";
+    col.style.paddingTop = "96px";
+    col.style.paddingBottom = "96px";
+    var cards = [];
+    var ITEM_H = 32, CENTER = 112;
+    function paint(top) {
+      cards.forEach(function (c) {
+        var cy = 96 + c.i * ITEM_H + ITEM_H / 2 - top;
+        var t = Math.min(1, Math.abs(cy - CENTER) / (ITEM_H * 2.2));
+        c.el.style.transform = "scale(" + (1.12 - 0.18 * t).toFixed(3) + ")";
+        c.el.style.opacity = (1 - 0.5 * t).toFixed(3);
+        c.el.classList.toggle("is-sel", Math.abs(cy - CENTER) < ITEM_H / 2);
+      });
+    }
+    function rebuild(list, idx) {
+      col.innerHTML = "";
+      cards = [];
+      list.forEach(function (it, i) {
+        var d = document.createElement("div");
+        d.className = "wheel-item";
+        d.style.scrollSnapAlign = "center";
+        d.style.flex = "none";
+        d.textContent = it.label;
+        d.addEventListener("click", function () { setIdx(i); });
+        col.appendChild(d);
+        cards.push({ el: d, i: i, v: it.value });
+      });
+      last = -1;
+      setIdx(idx === undefined ? 0 : idx);
+    }
+    var last = -1;
+    function setIdx(i) {
+      i = Math.max(0, Math.min(cards.length - 1, i));
+      col.scrollTop = i * ITEM_H;
+      paint(col.scrollTop);
+      last = i;
+      if (onChange && cards.length) onChange(cards[i].v);
+    }
+    var raf = null;
+    col.addEventListener("scroll", function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = null;
+        if (!cards.length) return;
+        var top = col.scrollTop;
+        paint(top);
+        var i = Math.max(0, Math.min(cards.length - 1, Math.round(top / ITEM_H)));
+        if (i !== last) { last = i; if (onChange) onChange(cards[i].v); }
+      });
+    });
+    rebuild(items, selIdx);
+    return { rebuild: rebuild, setIdx: setIdx };
+  }
+
+  wDay = buildWheel("gl-w-day", dayItems(daysIn(2026, dateSel.m)), dateSel.d - 1, function (v) { dateSel.d = v; paintDateOk(); });
+  wMonth = buildWheel("gl-w-month", MONTHS.map(function (m, i) { return { label: m, value: i }; }), dateSel.m, function (v) { dateSel.m = v; rebuildDayWheel(); });
+
+  syncPreset();
+})();
+</script>
+</body>
+</html>

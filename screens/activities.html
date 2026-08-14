@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Активности · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Активности» — модель: product-spec §4.16 (план = часть цели),
+     §4.19 (таб «Активности») и §4.20 (день = набор фактов; начало события —
+     глобальное, запускает админ либо время старта). Композиция сверху вниз:
+     1) «План на сегодня» — кап активной цели (goal:active из goal.html,
+        цель = часть плана) + стопка ev-card, как «Ближ. События» на главной:
+        та же карточка события для всех категорий, тап ведёт в деталку;
+        в шапке рядом — ссылка «Расписание»,
+     2) «Журнал» — лента строк .al-row: когда (день · время) · что делал
+        (название) · что дало (результат + баллы), сумма баллов в шапке
+        (.sec-count). Единая хронология без групп по неделям; тап — деталка
+        тренировки: нижний лист .sheet с осью упражнений из факта (gpw:last)
+        и кнопкой «Повторить»; ивент ведёт на экран события (итог сам).
+     Цвет кодирует КАТЕГОРИЮ события (SRS §4.3: training/event/rental/club,
+     токены --type-*), а не формат: формат — чип .ev-fmt без цвета (демо).
+     Челленджи/марафоны — категория «Ивент», отдельная от «Тренировка».
+     Тёплый фон --surface-warm (не повторяет референс). Типографика — Inter,
+     цифры — tabular-nums (канон ДС v2). */
+  .trn-app { background: var(--surface-warm); padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+  .trn-body { padding-top: 4px; }
+
+  /* ── Кап активной цели: часть «Плана на сегодня» (goal:active из goal.html) ── */
+  .trn-goal {
+    display: flex; align-items: center; gap: var(--space-2);
+    margin: 0 0 var(--space-3); padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--accent);
+    font-size: var(--fs-meta); font-weight: 600; text-decoration: none;
+  }
+  .trn-goal:hover { border-color: var(--border-strong); }
+  .trn-goal > svg:first-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); }
+  .trn-goal > svg:last-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); color: var(--meta); }
+  .trn-goal .tg-tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); }
+
+  /* ── «План на сегодня»: стопка ev-card (как «Ближ. События» на главной) ── */
+  .trn-today-meta { margin: 0 0 var(--space-3); font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+  .trn-today .ev-card { cursor: pointer; transition: transform var(--motion-fast) var(--ease-standard); }
+  .trn-today .ev-card:active { transform: scale(0.985); }
+  .trn-today .ev-card:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  /* Ожидаемые баллы на карточке (§4.20): формула «категория × статус + всегда
+     баллы». Баллы — акцентной звездой `ic-star`. Связь с целью — не подписью,
+     а маркером `ic-target` в левом верхнем углу карточки: виден, только если
+     карточка объявлена шагом к АКТИВНОЙ цели (t.goal === goal:active.title);
+     тап по маркеру ведёт на экран цели (goal.html). */
+  .ev-pts { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1) var(--space-2); margin-top: var(--space-2); font-size: var(--fs-caption); font-weight: 600; color: var(--accent); }
+  .ev-pts svg { flex: none; width: 12px; height: 12px; }
+  .trn-today .ev-goal { position: absolute; top: var(--space-2); left: var(--space-4); z-index: 1; display: grid; place-items: center; width: 20px; height: 20px; color: var(--accent); text-decoration: none; border-radius: 50%; transition: background var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard); }
+  .trn-today .ev-goal svg { width: 20px; height: 20px; }
+  .trn-today .ev-goal:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .trn-today .ev-goal:active { transform: scale(0.9); }
+  .trn-today .ev-goal:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  /* ── Журнал-лента: хронология «что делал · когда · что дало». Каждая строка —
+     компактный факт: день, время, название, результат, баллы. Без групп по
+     неделям (лента = одна история), без статуса «Завершено» (он очевиден). */
+  .al-list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .al-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid color-mix(in srgb, var(--c, var(--border)) 42%, var(--surface));
+    border-radius: var(--radius-md);
+    background: var(--surface); cursor: pointer; text-align: left;
+    transition: transform var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+  }
+  .al-row:hover { border-color: var(--border-strong); }
+  .al-row:active { transform: scale(0.985); }
+  .trn-log .seg { margin: 0 0 var(--space-3); }
+  .al-when { flex: none; display: flex; flex-direction: column; gap: 2px; width: 64px; }
+  .al-day { font-size: var(--fs-caption); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .al-time { font-size: var(--fs-caption); color: var(--meta); font-variant-numeric: tabular-nums; }
+  .al-body { flex: 1; min-width: 0; }
+  .al-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .al-sub { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-caption); color: var(--meta); }
+  .al-pts { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .al-pts svg { flex: none; width: 12px; height: 12px; }
+  .al-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .al-row { animation: trn-rise 340ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
+  @keyframes trn-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .al-row { animation: none; } }
+
+  /* ── Деталка тренировки: нижний лист .sheet (канон ДС v2) ── */
+  .td-body { padding-top: var(--space-1); }
+  .td-sub { font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+  .td-marker { display: inline-flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); font-size: var(--fs-caption); font-weight: 600; color: var(--meta); }
+  .td-marker .dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--st-done); }
+  .td-ex { margin-top: var(--space-3); }
+  .td-ex-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) 0 var(--space-1); }
+  .td-ex-head h4 { margin: 0; font-family: var(--font-body); font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--meta); }
+  .td-ex-count { font-size: var(--fs-caption); font-weight: 600; color: var(--meta); font-variant-numeric: tabular-nums; }
+  .td-ex-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; }
+  .td-ex-row + .td-ex-row { border-top: 1px solid var(--border-soft); }
+  .td-ex-mark { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--border-strong); color: transparent; }
+  .td-ex-row.is-done .td-ex-mark { border-color: transparent; background: var(--st-done); color: #fff; }
+  .td-ex-mark svg { width: 12px; height: 12px; }
+  .td-ex-name { flex: 1; min-width: 0; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .td-ex-group { display: block; font-size: var(--fs-caption); font-weight: 500; color: var(--meta); }
+  .td-ex-vol { flex: none; font-size: var(--fs-caption); font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .td-ex-done { flex: none; width: 32px; text-align: right; font-size: var(--fs-caption); font-weight: 700; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+  .td-ex-done.is-part { color: var(--amber); }
+
+  /* Подсказка-ссылка после «Повторить» (разовый шаблон → календарь) */
+  .trn-cal-hint { margin-top: var(--space-2); }
+  .trn-cal-hint a { display: flex; align-items: center; gap: var(--space-2); color: var(--accent); font-size: var(--fs-meta); font-weight: 600; text-decoration: none; }
+  .trn-cal-hint a:hover { text-decoration: underline; }
+  .trn-cal-hint svg { width: var(--icon-sm); height: var(--icon-sm); }
+</style>
+</head>
+<body data-od-id="trainings-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 10.3353 4 17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M3.5 18.5c0-2.9 2.4-4.5 5.5-4.5s5.5 1.6 5.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="17" cy="9.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M17.5 14.6c2 .5 3.5 1.8 3.5 3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app trn-app">
+  <header class="topbar" data-od-id="trn-header">
+    <button type="button" class="topbar-ic is-back" id="btn-trn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Активности</h4>
+    <span class="hd-acts">
+      <a class="icon-btn" href="#" aria-label="Уведомления"><svg aria-hidden="true"><use href="#ic-bell"></use></svg><span class="notif" aria-hidden="true">3</span></a>
+    </span>
+  </header>
+
+  <main class="body trn-body" data-od-id="trn-body">
+    <section class="sec trn-today" data-od-id="trn-today">
+      <div class="sec-head">
+        <h2>План на сегодня</h2>
+        <a class="sec-all" href="07-calendar.html" data-od-id="trn-today-sched">Расписание<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+      </div>
+      <a class="trn-goal" id="trn-goal" href="goal.html" data-od-id="trn-goal">
+        <svg aria-hidden="true"><use href="#ic-target"></use></svg>
+        <span class="tg-tx" id="trn-goal-tx"></span>
+        <svg aria-hidden="true"><use href="#ic-chev"></use></svg>
+      </a>
+      <p class="trn-today-meta" id="today-meta">3 активности · уже в расписании</p>
+      <div class="cards" id="today-body"></div>
+    </section>
+
+    <section class="sec trn-log" data-od-id="trn-logs">
+      <div class="sec-head">
+        <h2>Журнал</h2>
+        <span class="sec-count" id="log-sum">—</span>
+      </div>
+      <div class="seg" id="log-period" data-od-id="log-period" aria-label="Период журнала">
+        <button type="button" class="seg-btn is-active" data-period="week" data-od-id="log-period-week">Неделя</button>
+        <button type="button" class="seg-btn" data-period="month" data-od-id="log-period-month">Месяц</button>
+        <button type="button" class="seg-btn" data-period="all" data-od-id="log-period-all">Всё</button>
+      </div>
+      <div class="al-list" id="trn-logs" data-od-id="trn-log-list"></div>
+      <div class="trn-cal-hint" id="trn-cal-hint" hidden>
+        <a href="07-calendar.html">Открыть расписание — тренировка добавлена<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Разделы">
+  <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+  <a class="tab" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <button class="tab is-on" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></button>
+  <button class="tab" data-toast="Сообщество — в следующей итерации" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></button>
+  <button class="tab" data-toast="Профиль — в следующей итерации" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></button>
+</nav>
+
+<div class="scrim" id="trn-scrim" aria-hidden="true"></div>
+<div class="sheet" id="trn-detail" role="dialog" aria-modal="true" aria-label="Детали тренировки" data-od-id="trn-detail">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title" id="td-title"></h3>
+    <button type="button" class="sheet-close" id="td-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="td-body" id="td-body"></div>
+  <button type="button" class="sheet-primary" id="td-action"></button>
+</div>
+
+<div class="evd-toast" id="trn-toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="trn-toast-tx">Готово</span></div>
+    <div class="toast toast-warn"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span>+40 баллов</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function $(id) { return document.getElementById(id); }
+  var toastTimer = null;
+  function toast(msg, points) {
+    $('trn-toast-tx').textContent = msg;
+    var pts = $('trn-toast').querySelector('.toast-warn');
+    if (points == null) {
+      pts.style.display = 'none';
+    } else {
+      pts.style.display = '';
+      pts.lastChild.textContent = ' +' + points + ' баллов';
+    }
+    $('trn-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('trn-toast').classList.remove('open'); }, 2400);
+  }
+
+  /* «Сегодня» = день = набор фактов (§4.20). Каждая активность — тот же
+     ev-card, что «Ближ. События» на главной: категория — цвет левого борта
+     и статус-пилюли (--c), формат — .ev-fmt. Тап по карточке — деталка. */
+  var TODAY = [
+    {
+      id: 't-gto', cat: 'var(--type-training)', st: 'var(--st-confirmed)',
+      day: 'Сегодня', time: '07:00',
+      title: 'Тренировка ГТО · Подтягивания', fmt: 'личная',
+      place: 'тренажёрный зал', status: 'Подтв.',
+      pts: 40, goal: 'Сдать нормы ГТО',
+      href: '24-gto-workout.html?norm=pull&week=1&day=2'
+    },
+    {
+      id: 't-marathon', cat: 'var(--type-event)', st: 'var(--st-confirmed)',
+      day: 'Сегодня', time: '08:00',
+      title: 'Осенний полумарафон', fmt: 'событие',
+      place: 'центр поселения', status: 'Участвую',
+      pts: 50, goal: null,
+      href: '15-event-marathon.html'
+    },
+    {
+      id: 't-rental', cat: 'var(--type-rental)', st: 'var(--st-pending)',
+      day: 'Сегодня', time: '18:00',
+      title: 'Аренда зала · с друзьями', fmt: 'аренда',
+      place: 'зал · до 12 человек', status: 'Ожид.',
+      pts: 30, goal: null,
+      href: '07-calendar.html'
+    }
+  ];
+
+  /* Журнал-лента: хронология «что делал · когда · что дало» (дельты 1–2).
+     Каждая запись — компактная строка .al-row: день+время, название,
+     результат, баллы. Тап по строке — деталка тренировки; ивент ведёт на
+     экран события. Порядок — от свежих к старым, единая история без групп.
+     Фильтр по периоду (сегмент .seg): неделя / месяц / всё — по временно́й
+     метке `at`. Цвет строки — бледная полоса категории слева (--c). */
+  var NOW = Date.now(), DAY_MS = 86400000;
+  var PERIODS = {
+    week: { name: 'неделю', ms: 7 * DAY_MS },
+    month: { name: 'месяц', ms: 30 * DAY_MS },
+    all: { name: 'всё время', ms: Infinity }
+  };
+  var period = 'week';
+  var LOGS = [
+    {
+      id: 'l1', title: 'Тренировка ГТО · Подтягивания', day: 'Чт, 7 авг', time: '07:00',
+      result: '4/4 подходов · 55 мин', pts: 40, token: 'var(--gto-silver)', at: NOW - 1 * DAY_MS,
+      kind: 'gto', gto: 'norm=pull&week=1&day=2',
+      ex: [
+        { name: 'Отжимания', group: 'Грудь · трицепс', vol: '3×15', done: 3, sets: 3 },
+        { name: 'Планка', group: 'Кор · стабилизация', vol: '45 с', done: 3, sets: 3 },
+        { name: 'Подтягивания с резинкой', group: 'Широчайшие · бицепс', vol: '3×8', done: 2, sets: 3 },
+        { name: 'Вис на перекладине', group: 'Хват · предплечья', vol: '3×30 с', done: 3, sets: 3 }
+      ]
+    },
+    {
+      id: 'l2', title: 'Плавание · клуб «Волна»', day: 'Вт, 5 авг', time: '07:00',
+      result: '3/4 подходов · 50 мин', pts: 30, token: 'var(--type-club)', at: NOW - 3 * DAY_MS,
+      kind: 'club'
+    },
+    {
+      id: 'l3', title: 'Вечерняя пробежка клуба', day: 'Сб, 2 авг', time: '19:00',
+      result: '60 мин', pts: 30, token: 'var(--type-club)', at: NOW - 5 * DAY_MS,
+      kind: 'club'
+    },
+    {
+      id: 'l4', title: 'Аренда зала · с друзьями', day: 'Пн, 28 июл', time: '18:00',
+      result: '45 мин', pts: 30, token: 'var(--type-rental)', at: NOW - 12 * DAY_MS,
+      kind: 'rental'
+    }
+  ];
+
+  /* Приводим факт из localStorage к форме записи журнала. */
+  function normLog(f) {
+    var parts = String(f.when || '').split(' · ');
+    var kinds = { gto: 'личная', club: 'клуб', rental: 'аренда', event: 'событие' };
+    var defaultPts = { gto: 40, club: 30, rental: 30, event: 50 };
+    var defaultTok = { gto: 'var(--gto-silver)', club: 'var(--type-club)', rental: 'var(--type-rental)', event: 'var(--type-event)', training: 'var(--type-training)' };
+    var summary;
+    if (f.kind === 'event') {
+      summary = f.result || 'участие подтверждено';
+    } else {
+      summary = f.done + ' из ' + f.total + (f.dur ? ' · ' + f.dur + ' мин' : '');
+    }
+    return {
+      id: f.id, title: f.title, day: parts[0] || '', time: parts[1] || '',
+      fmt: kinds[f.kind] || 'личная', done: f.done, total: f.total, dur: f.dur,
+      pts: f.pts != null ? f.pts : (defaultPts[f.kind] || 30),
+      token: f.token || defaultTok[f.kind] || 'var(--type-training)',
+      at: f.at != null ? f.at : NOW,
+      kind: f.kind, gto: f.gto, marker: f.marker,
+      result: f.result, ex: f.ex || null
+    };
+  }
+
+  /* Факт завершённой тренировки (gpw:last) — от 24-gto-workout: попадает
+     в журнал первой записью с реальной длительностью из таймера сессии и
+     списком упражнений из факта (деталка показывает их в нижнем листе). */
+  try {
+    var gpwRaw = localStorage.getItem('gpw:last');
+    if (gpwRaw) {
+      var gpwParsed = JSON.parse(gpwRaw);
+      LOGS = [normLog(gpwParsed)].concat(LOGS);
+    }
+  } catch (e) { /* ignore */ }
+
+  /* Факт участия в марафоне (evt:marathon, статус done) — от прототипа
+     15-event-marathon.html (§4.20): журнал хранит подтверждённое участие,
+     маркер «как подтверждено» (судья · протокол) и результат. */
+  try {
+    var evtRaw = localStorage.getItem('evt:marathon');
+    if (evtRaw) {
+      var evtParsed = JSON.parse(evtRaw);
+      if (evtParsed && evtParsed.status === 'done' && evtParsed.fact) {
+        var evtLog = normLog(evtParsed.fact);
+        LOGS = [evtLog].concat(LOGS);
+      }
+    }
+  } catch (e) { /* ignore */ }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* Строка ленты: когда (день · время) · что делал (название) · что дало
+     (результат + баллы). Акцент — баллы, остальное вторично. */
+  function logRow(log, i) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'al-row';
+    row.style.setProperty('--i', i);
+    row.style.setProperty('--c', log.token || 'var(--type-training)');
+    row.setAttribute('data-log-id', log.id);
+    row.setAttribute('data-od-id', 'log-' + log.id);
+    var sub = log.summary || log.result ||
+      (log.done != null ? log.done + ' из ' + log.total + (log.dur ? ' · ' + log.dur + ' мин' : '') : '');
+    row.innerHTML =
+      '<span class="al-when"><span class="al-day">' + esc(log.day) + '</span><span class="al-time">' + esc(log.time) + '</span></span>' +
+      '<span class="al-body"><span class="al-title">' + esc(log.title) + '</span>' +
+      (sub ? '<span class="al-sub">' + esc(sub) + '</span>' : '') +
+      '</span>' +
+      '<span class="al-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+' + (log.pts || 0) + '</span>';
+    return row;
+  }
+
+  function renderLogs() {
+    var wrap = $('trn-logs');
+    var cutoff = NOW - PERIODS[period].ms;
+    var visible = LOGS.filter(function (l) { return l.at >= cutoff; });
+    wrap.innerHTML = '';
+    if (!visible.length) {
+      wrap.innerHTML = '<div class="empty"><b>За период записей нет</b><span>Всё сделано — отдых засчитан</span></div>';
+      return;
+    }
+    visible.forEach(function (log, i) { wrap.appendChild(logRow(log, i)); });
+    var total = 0;
+    visible.forEach(function (l) { total += l.pts || 0; });
+    $('log-sum').textContent = '+' + total + ' баллов · за ' + PERIODS[period].name;
+  }
+
+  /* Деталка тренировки: нижний лист .sheet (канон ДС v2) — шапка (название,
+     когда · длительность), ось упражнений из факта (галочка = выполненные
+     подходы, янтарь — частично), кнопка действия («Повторить»). Ивент не
+     открывает лист — ведёт на экран события, тот сам показывает итог. */
+  function openDetail(log) {
+    if (log.kind === 'event') { location.href = '15-event-marathon.html'; return; }
+
+    $('td-title').textContent = log.title;
+    var detailSub = log.summary || log.result ||
+      (log.done != null ? log.done + ' из ' + log.total + (log.dur ? ' · ' + log.dur + ' мин' : '') : '');
+    var html = '<div class="td-sub">' + esc(log.day) + ' · ' + esc(log.time) +
+      (detailSub ? ' · ' + esc(detailSub) : '') + '</div>';
+    if (log.marker) {
+      html += '<div class="td-marker"><span class="dot" aria-hidden="true"></span>подтверждено: ' + esc(log.marker) + '</div>';
+    }
+    if (log.ex && log.ex.length) {
+      var total = 0, done = 0, rows = '';
+      log.ex.forEach(function (x) {
+        total += x.sets; done += x.done;
+        var isDone = x.done >= x.sets;
+        rows += '<div class="td-ex-row' + (isDone ? ' is-done' : '') + '">' +
+          '<span class="td-ex-mark" aria-hidden="true"><svg><use href="#ic-check"/></svg></span>' +
+          '<span class="td-ex-name">' + esc(x.name) + '<span class="td-ex-group">' + esc(x.group) + '</span></span>' +
+          '<span class="td-ex-vol">' + esc(x.vol) + '</span>' +
+          '<span class="td-ex-done' + (isDone ? '' : ' is-part') + '">' + x.done + '/' + x.sets + '</span>' +
+        '</div>';
+      });
+      html += '<div class="td-ex">' +
+        '<div class="td-ex-head"><h4>Упражнения</h4><span class="td-ex-count">' + done + ' из ' + total + ' подходов</span></div>' +
+        rows + '</div>';
+    }
+    $('td-body').innerHTML = html;
+
+    var action = $('td-action');
+    if (log.kind === 'gto' && log.gto) {
+      action.textContent = 'Повторить тренировку';
+      action.onclick = function () { location.href = '24-gto-workout.html?' + log.gto; };
+    } else {
+      action.textContent = 'Повторить';
+      action.onclick = function () {
+        $('trn-cal-hint').hidden = false;
+        closeDetail();
+        toast('«' + log.title + '» добавлена в календарь · разовый шаблон');
+      };
+    }
+    $('trn-scrim').classList.add('open');
+    $('trn-detail').classList.add('open');
+  }
+
+  function closeDetail() {
+    $('trn-scrim').classList.remove('open');
+    $('trn-detail').classList.remove('open');
+  }
+  $('td-close').addEventListener('click', closeDetail);
+  $('trn-scrim').addEventListener('click', closeDetail);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDetail(); });
+
+  /* Активная цель (goal:active, пишет goal.html). Возвращает {title, sign}. */
+  function activeGoal() {
+    var g = null;
+    try {
+      var raw = localStorage.getItem('goal:active');
+      if (raw) g = JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    return (g && g.title) ? g : null;
+  }
+  function goalTitle() {
+    var g = activeGoal();
+    return g ? g.title : 'Сдать нормы ГТО';
+  }
+  function goalName() {
+    var g = activeGoal();
+    return g ? g.title + (g.sign ? ' · ' + g.sign : '') : 'Сдать нормы ГТО · Серебро';
+  }
+  /* Карточка — шаг к активной цели, если объявила её (t.goal) и она совпадает
+     с goal:active.title. Смена цели наверху убирает маркер с чужих карточек. */
+  function isGoalStep(t) {
+    return !!(t.goal && t.goal === goalTitle());
+  }
+
+  /* Кап активной цели в «Плане на сегодня» — читает goal:active (пишет goal.html). */
+  function renderGoal() {
+    $('trn-goal-tx').textContent = 'Цель: ' + goalName();
+  }
+
+  /* «Сегодня»: стопка ev-card, как «Ближ. События» на главной (§6.4).
+     Тап по карточке — деталка события; «⋯» — меню контекстных действий. */
+  function renderToday() {
+    $('today-meta').textContent = TODAY.length + ' активности · уже в расписании';
+    var body = $('today-body');
+    body.innerHTML = '';
+    TODAY.forEach(function (t) {
+      var card = document.createElement('article');
+      card.className = 'ev-card';
+      card.style.setProperty('--c', t.cat);
+      card.setAttribute('data-href', t.href);
+      card.setAttribute('data-od-id', 'ev-today-' + t.id);
+      card.innerHTML =
+        '<div class="ev-when"><span class="ev-day">' + esc(t.day) + '</span><span class="ev-time">' + esc(t.time) + '</span></div>' +
+        '<div class="ev-body"><h3 class="ev-title">' + esc(t.title) + '<span class="ev-fmt">' + esc(t.fmt) + '</span></h3>' +
+        '<div class="ev-place">' + esc(t.place) + '</div>' +
+        '<div class="ev-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+' + t.pts + ' баллов' +
+        '</div></div>' +
+        '<span class="ev-status' + (t.status === 'Ожид.' ? ' is-pending' : '') + '" style="--c:' + t.st + '">' + esc(t.status) + '</span>' +
+        (isGoalStep(t) ? '<a class="ev-goal" href="goal.html" aria-label="Шаг к цели: ' + esc(goalName()) + '"><svg aria-hidden="true"><use href="#ic-target"></use></svg></a>' : '') +
+        '<button class="ev-menu" type="button" aria-label="Ещё"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>';
+      body.appendChild(card);
+    });
+  }
+
+  $('btn-trn-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = '06-home.html';
+  });
+
+  /* Тап по ev-card «Сегодня» → деталка события; «⋯» — меню действий;
+     маркер цели (ev-goal) — ссылка на экран цели, не уходит в деталку */
+  $('today-body').addEventListener('click', function (e) {
+    var goal = e.target.closest ? e.target.closest('.ev-goal') : null;
+    if (goal) return;
+    var menu = e.target.closest ? e.target.closest('.ev-menu') : null;
+    var card = e.target.closest ? e.target.closest('.ev-card') : null;
+    if (!card) return;
+    if (menu) { toast('Меню события — контекстные действия', null); return; }
+    location.href = card.getAttribute('data-href');
+  });
+
+  /* Тап по строке журнала-ленты → деталка тренировки (нижний лист); ивент —
+     на экран события */
+  $('trn-logs').addEventListener('click', function (e) {
+    var row = e.target.closest ? e.target.closest('.al-row') : null;
+    if (!row) return;
+    var id = row.getAttribute('data-log-id');
+    var log = null;
+    LOGS.forEach(function (l) { if (l.id === id) log = l; });
+    if (log) openDetail(log);
+  });
+
+  /* Фильтр периода журнала (сегмент .seg): неделя / месяц / всё */
+  $('log-period').addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.seg-btn') : null;
+    if (!btn) return;
+    period = btn.getAttribute('data-period');
+    document.querySelectorAll('#log-period .seg-btn').forEach(function (b) {
+      b.classList.toggle('is-active', b === btn);
+    });
+    renderLogs();
+  });
+
+  document.querySelectorAll('.tabbar [data-toast]').forEach(function (b) {
+    b.addEventListener('click', function () { toast(b.getAttribute('data-toast'), null); });
+  });
+
+  renderLogs();
+  renderToday();
+  renderGoal();
+})();
+</script>
+</body>
+</html>

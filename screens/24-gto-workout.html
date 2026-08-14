@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Тренировка ГТО · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Тренировка ГТО» — модель: product-spec §4.14 (тренировка → отчёт),
+     логика блоков: referens/gto-workout.html. Компоненты из ДС v2: топбар .topbar,
+     плашка .card, фикс-бар .evd-bar, подтверждение .sheet, тосты .toast.
+     Прогресс дня и строки подходов — экранная специфика. */
+  .gpw-app { background: var(--surface); padding-bottom: calc(152px + env(safe-area-inset-bottom, 0px)); }
+  .gpw-body { padding-top: 4px; }
+
+  .gpw-top { display: flex; flex-direction: column; padding: var(--space-1) var(--space-1) 0; }
+  .gpw-top .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .gpw-top h1 { margin: 8px 0 0; font-size: var(--fs-title); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .gpw-top .gpw-sub { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+
+  .gpw-prog { margin-top: var(--space-4); }
+  .gpw-prog-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); font-size: var(--fs-meta); color: var(--muted); }
+  .gpw-prog-top b { font-size: var(--fs-body); font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .gpw-track { margin-top: var(--space-3); height: 8px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+  .gpw-fill { height: 100%; width: 0; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--gto-bronze), var(--gto-gold)); transition: width 0.5s var(--ease-standard); }
+
+  .gpw-prog-foot { margin-top: var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+  .gpw-time-ic { flex: none; width: 16px; height: 16px; color: var(--muted); }
+  .gpw-sess-cap { font-size: var(--fs-meta); color: var(--muted); }
+  .gpw-sess { margin-left: auto; font-size: var(--fs-body); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .gpw-sess-pause {
+    flex: none; display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--fg-2); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .gpw-sess-pause:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .gpw-sess-pause svg { width: 15px; height: 15px; }
+  .gpw-sess-pause.is-paused { color: var(--danger); border-color: var(--danger); }
+
+  .gpw-ex { margin-top: var(--space-3); animation: gpw-rise 340ms var(--ease-out) both; }
+  .gpw-ex:nth-child(2) { animation-delay: 60ms; }
+  .gpw-ex:nth-child(3) { animation-delay: 120ms; }
+  .gpw-ex-top { display: flex; align-items: baseline; gap: var(--space-2); }
+  .gpw-ex-top h2 { margin: 0; flex: 1; font-size: var(--fs-title-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .gpw-ex-group { flex: none; font-size: var(--fs-meta); font-weight: 600; color: var(--meta); }
+  .gpw-ex-note { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+
+  .gpw-sets { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .set-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    background: var(--surface-warm);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-3);
+    transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+  }
+  .set-row.is-done { background: color-mix(in srgb, var(--success) 9%, var(--surface)); border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
+  .set-label { flex: 1; min-width: 0; font-size: var(--fs-body); font-weight: 600; }
+  .set-label small { display: block; margin-top: 1px; font-size: var(--fs-meta); font-weight: 500; color: var(--meta); }
+  .set-done {
+    flex: none; display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: transparent; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .set-done:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .set-done svg { width: var(--icon-sm); height: var(--icon-sm); }
+  .set-row.is-done .set-done { background: var(--success); border-color: var(--success); color: #fff; }
+
+  .timer-btn {
+    flex: none; display: grid; place-items: center;
+    min-width: 96px; height: var(--h-md); padding: 0 var(--space-3);
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--fg); font-size: var(--fs-body); font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .timer-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .timer-btn.is-running { border-color: var(--danger); color: var(--danger); animation: gpw-pulse 1s ease-in-out infinite; }
+  .timer-btn.is-finished { background: var(--success); border-color: var(--success); color: #fff; animation: none; }
+  @keyframes gpw-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 35%, transparent); }
+    50%      { box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 0%, transparent); }
+  }
+
+  .gpw-rest { margin-top: var(--space-4); background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: var(--space-8) var(--space-5); text-align: center; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+  .gpw-rest b { display: block; color: var(--fg-2); font-size: var(--fs-body); margin-bottom: var(--space-1); }
+  .gpw-rest .gpw-rest-ic { width: 46px; height: 46px; margin: 0 auto var(--space-3); border-radius: 50%; display: grid; place-items: center; color: var(--success); background: color-mix(in srgb, var(--success) 12%, var(--surface)); }
+  .gpw-rest .gpw-rest-ic svg { width: var(--icon-lg); height: var(--icon-lg); }
+
+  .gpw-hint { margin-top: var(--space-2); text-align: center; font-size: var(--fs-meta); color: var(--meta); }
+  .gpw-confirm-sub { margin: var(--space-2) var(--space-1) 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+
+  @keyframes gpw-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .gpw-ex, .gpw-fill { animation: none; transition: none; } }
+</style>
+</head>
+<body data-od-id="gto-workout-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-sleep" viewBox="0 0 24 24"><path d="M17 9.5c1.8.3 3 1.6 3 3.6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4c0-2 1.2-3.3 3-3.6M12 3.5c0 1-.6 1.7-1.4 1.7M12 3.5c0-1-.6-1.7-1.4-1.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><path d="M12 3.5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M6 20.5V4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><path d="M6 5.5h9.5L13 8.5l2.5 3H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app gpw-app">
+  <header class="topbar" data-od-id="gto-workout-header">
+    <button type="button" class="topbar-ic is-back" id="gpw-back" aria-label="Назад к плану подготовки"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx" id="gpw-title">Тренировка</h4>
+  </header>
+
+  <main class="body gpw-body">
+    <div class="gpw-top">
+      <p class="eyebrow">Петровское СП · Дневник ГТО</p>
+      <h1 id="gpw-head">Тренировка</h1>
+      <p class="gpw-sub" id="gpw-sub"></p>
+    </div>
+
+    <section class="card gpw-prog" data-od-id="gto-workout-progress" aria-label="Прогресс тренировки">
+      <div class="gpw-prog-top"><span>Выполнено</span><b id="gpw-count">0 из 0</b></div>
+      <div class="gpw-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="gpw-fill" id="gpw-fill"></div>
+      </div>
+      <div class="gpw-prog-foot" id="gpw-sess-wrap">
+        <svg class="gpw-time-ic" aria-hidden="true"><use href="#ic-clock"></use></svg>
+        <span class="gpw-sess-cap">Время тренировки</span>
+        <span class="gpw-sess" id="gpw-sess" aria-live="off">00:00</span>
+        <button type="button" class="gpw-sess-pause" id="gpw-sess-pause" aria-label="Пауза тренировки"><svg aria-hidden="true"><use href="#ic-pause"></use></svg></button>
+      </div>
+    </section>
+
+    <div id="gpw-body" data-od-id="gto-workout-body"></div>
+  </main>
+</div>
+
+<div class="evd-bar" data-od-id="gto-workout-finish-bar">
+  <button type="button" class="btn btn-accent" id="gpw-finish" data-od-id="gto-workout-finish" disabled>
+    <svg aria-hidden="true"><use href="#ic-flag"></use></svg>Завершить тренировку
+  </button>
+  <div class="gpw-hint" id="gpw-hint">Отметьте подходы и таймеры, чтобы завершить</div>
+</div>
+
+<div class="scrim" id="gpw-scrim" aria-hidden="true"></div>
+
+<div class="sheet" id="gpw-confirm" role="dialog" aria-modal="true" aria-label="Подтверждение">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Завершить тренировку?</h3>
+    <button type="button" class="sheet-close" id="gpw-confirm-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <p class="gpw-confirm-sub">Вы действительно хотите завершить тренировку? День будет отмечен выполненным в плане подготовки.</p>
+  <button type="button" class="sheet-primary" id="gpw-confirm-ok" data-od-id="gto-workout-confirm-ok">Завершить</button>
+  <button type="button" class="sheet-cancel" id="gpw-confirm-cancel">Отмена</button>
+</div>
+
+<div class="evd-toast" id="gpw-toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="gpw-toast-tx">Тренировка завершена</span></div>
+    <div class="toast toast-warn"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span>+100 баллов</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function qs(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function $(id) { return document.getElementById(id); }
+  var toastTimer = null;
+  function toast(msg) {
+    $('gpw-toast-tx').textContent = msg;
+    $('gpw-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('gpw-toast').classList.remove('open'); }, 2400);
+  }
+
+  var PLAN = {
+    pull: {
+      name: 'Подтягивания', target: '20 раз',
+      exercises: [
+        { name: 'Отжимания', group: 'Грудь · трицепс', note: 'До отказа — последний подход максимально', w: [
+          ['3×10', '3×10 +до отказа', '3×15', 'отдых', '3×15', '4×12', 'отдых'],
+          ['4×12', '4×12 +до отказа', '4×15', 'отдых', '4×15', '4×12 +до отказа', 'отдых'],
+          ['4×15', '4×15 +до отказа', '5×12', 'отдых', '5×12', '4×15 +до отказа', 'отдых']
+        ]},
+        { name: 'Планка', group: 'Кор · стабилизация', note: 'Держите корпус прямо, не прогибайтесь', w: [
+          ['30 с', '45 с', '30 с', 'отдых', '45 с', '60 с', 'отдых'],
+          ['45 с', '60 с', '45 с', 'отдых', '60 с', '75 с', 'отдых'],
+          ['60 с', '75 с', '60 с', 'отдых', '75 с', '90 с', 'отдых']
+        ]},
+        { name: 'Подтягивания с резинкой', group: 'Широчайшие · бицепс', note: 'Резинка помогает на 40%', w: [
+          ['3×5', '3×6', '3×7', 'отдых', '3×8', '3×6', 'отдых'],
+          ['3×8', '3×9', '3×10', 'отдых', '3×10', '3×8', 'отдых'],
+          ['4×8', '4×9', '4×10', 'отдых', '4×10', '4×8', 'отдых']
+        ]},
+        { name: 'Вис на перекладине', group: 'Хват · предплечья', note: 'Не раскачивайтесь', w: [
+          ['3×15 с', '3×20 с', '3×25 с', 'отдых', '3×30 с', '3×20 с', 'отдых'],
+          ['3×30 с', '3×35 с', '3×40 с', 'отдых', '3×45 с', '3×30 с', 'отдых'],
+          ['4×30 с', '4×40 с', '4×45 с', 'отдых', '4×50 с', '4×40 с', 'отдых']
+        ]}
+      ]
+    },
+    run100: {
+      name: 'Бег 100 м', target: '14,6 с',
+      exercises: [
+        { name: 'Интервалы 100 м · темп 80%', group: 'Беговая техника', note: 'Между повторениями — отдых 2 мин', w: [
+          ['4×100 м', '4×100 м', '5×100 м', 'отдых', '5×100 м', '4×100 м', 'отдых'],
+          ['5×100 м', '5×100 м', '6×100 м', 'отдых', '6×100 м', '5×100 м', 'отдых'],
+          ['6×100 м', '6×100 м', '7×100 м', 'отдых', '7×100 м', '6×100 м', 'отдых']
+        ]},
+        { name: 'Лёгкий бег · пульс ~140', group: 'Аэробная база', note: 'Бегите разговорно', w: [
+          ['15 мин', '20 мин', '15 мин', 'отдых', '20 мин', '25 мин', 'отдых'],
+          ['20 мин', '25 мин', '20 мин', 'отдых', '25 мин', '30 мин', 'отдых'],
+          ['25 мин', '30 мин', '25 мин', 'отдых', '30 мин', '35 мин', 'отдых']
+        ]},
+        { name: 'Выпады', group: 'Ягодицы · квадрицепс', note: 'Шаг шире, колено не вперёд носка', w: [
+          ['3×10', '3×12', '3×12', 'отдых', '3×15', '3×12', 'отдых'],
+          ['3×15', '3×15', '4×12', 'отдых', '4×12', '3×15', 'отдых'],
+          ['4×15', '4×15', '4×15', 'отдых', '4×15', '4×12 +до отказа', 'отдых']
+        ]},
+        { name: 'Подъём на носки', group: 'Икры', note: 'В верхней точке — пауза 1 сек', w: [
+          ['3×15', '3×20', '3×20', 'отдых', '3×25', '3×20', 'отдых'],
+          ['3×25', '3×25', '4×20', 'отдых', '4×20', '3×25', 'отдых'],
+          ['4×25', '4×25', '4×20', 'отдых', '4×25', '3×30 +до отказа', 'отдых']
+        ]}
+      ]
+    }
+  };
+
+  var norm = PLAN[qs('norm')] ? qs('norm') : 'pull';
+  var week = Math.min(Math.max(parseInt(qs('week') || '1', 10), 1), 3);
+  var day = Math.min(Math.max(parseInt(qs('day') || '1', 10), 1), 7);
+  var n = PLAN[norm];
+
+  $('gpw-title').textContent = 'Тренировка · ' + n.name;
+  $('gpw-head').textContent = 'Тренировка · ' + n.name;
+  $('gpw-sub').textContent = 'Неделя ' + week + ' · День ' + day + ' · цель ' + n.target;
+
+  var state = [];
+  function parseVolume(v) {
+    if (!v) return null;
+    var toFail = v.indexOf('+до отказа') !== -1;
+    var base = v.replace('+до отказа', '').trim();
+    var mt = base.match(/^(\d+)×(\d+)\s*(с|мин)$/);
+    if (mt) return { kind: 'time', sets: parseInt(mt[1], 10), secs: parseInt(mt[2], 10) * (mt[3] === 'мин' ? 60 : 1) };
+    var ms = base.match(/^(\d+)\s*(с|мин)$/);
+    if (ms) return { kind: 'time', sets: 1, secs: parseInt(ms[1], 10) * (ms[2] === 'мин' ? 60 : 1) };
+    var m = base.match(/^(\d+)×(.+)$/);
+    if (!m) return null;
+    var sets = parseInt(m[1], 10);
+    var target = m[2];
+    return { kind: 'reps', sets: sets, target: target, lastFail: toFail };
+  }
+
+  var timers = {}; /* key -> {left, timerId, running} */
+
+  /* Таймер сессии (общее время тренировки): модель referens/training-active.html
+     (elapsed = now - startTs, пауза копит elapsedMs). Факт времени сохраняется
+     при завершении в «gpw:last» — его читает журнал «Активности». */
+  var sessStart = Date.now();
+  var sessPaused = false;
+  var sessElapsed = 0;
+  var sessTimer = null;
+  function sessNow() { return sessPaused ? sessElapsed : Date.now() - sessStart; }
+  function fmtSess(ms) {
+    var s = Math.floor(Math.max(0, ms) / 1000);
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    var mm = (m < 10 ? '0' + m : m);
+    var ss = (sec < 10 ? '0' + sec : sec);
+    return h > 0 ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+  }
+  function renderSess() { $('gpw-sess').textContent = fmtSess(sessNow()); }
+  function startSess() {
+    if (sessTimer) clearInterval(sessTimer);
+    sessTimer = setInterval(renderSess, 1000);
+    renderSess();
+  }
+  function sessMin() { return Math.max(1, Math.round(sessNow() / 60000)); }
+
+  function build() {
+    var body = $('gpw-body');
+    var vol = n.exercises[0].w[week - 1][day - 1];
+
+    if (!vol || vol === 'отдых') {
+      body.innerHTML =
+        '<div class="gpw-rest" data-od-id="gto-workout-rest">' +
+          '<div class="gpw-rest-ic" aria-hidden="true"><svg><use href="#ic-sleep"></use></svg></div>' +
+          '<b>День отдыха</b>' +
+          'Восстановление — часть плана. Следующая тренировка по плану в расписании.' +
+        '</div>';
+      $('gpw-count').textContent = '—';
+      $('gpw-finish').disabled = true;
+      $('gpw-sess-wrap').style.display = 'none';
+      if (sessTimer) clearInterval(sessTimer);
+      return;
+    }
+
+    var totalSets = 0;
+    n.exercises.forEach(function (ex) {
+      var p = parseVolume(ex.w[week - 1][day - 1]);
+      if (!p) return;
+      totalSets += p.sets;
+      state.push({ ex: ex, p: p, done: [] });
+    });
+
+    var html = '';
+    var si = 0;
+    n.exercises.forEach(function (ex, ei) {
+      var p = parseVolume(ex.w[week - 1][day - 1]);
+      if (!p) return;
+      var st = state[si];
+
+      var rows = '';
+      if (p.kind === 'time') {
+        for (var t = 0; t < p.sets; t++) {
+          var key = norm + '-' + week + '-' + day + '-' + si + '-' + t;
+          timers[key] = { left: p.secs, running: false, finished: !!st.done[t] };
+          rows += '<div class="set-row' + (st.done[t] ? ' is-done' : '') + '" data-timer-row="' + key + '">' +
+            '<span class="set-label">' + (p.sets > 1 ? 'Подход ' + (t + 1) : 'Одна попытка на время') + '<small>Удерживайте ' + fmt(p.secs) + '</small></span>' +
+            '<button type="button" class="timer-btn' + (st.done[t] ? ' is-finished' : '') + '" data-timer="' + key + '" aria-label="Таймер подхода ' + (t + 1) + '">' + (st.done[t] ? 'Готово' : fmt(p.secs)) + '</button>' +
+          '</div>';
+        }
+      } else {
+        for (var s = 0; s < p.sets; s++) {
+          var label = p.lastFail && s === p.sets - 1 ? 'До отказа' : 'Подход ' + (s + 1);
+          var meta = (p.lastFail && s === p.sets - 1) ? ('цель: как можно больше, не ниже ' + p.target) : ('цель: ' + p.target);
+          rows += '<div class="set-row' + (st.done[s] ? ' is-done' : '') + '" data-od-id="gto-workout-set-' + ei + '-' + s + '">' +
+            '<span class="set-label">' + label + '<small>' + meta + '</small></span>' +
+            '<button type="button" class="set-done" data-set="' + si + '-' + s + '" aria-label="Подход ' + (s + 1) + ' выполнен"><svg aria-hidden="true"><use href="#ic-check"></use></svg></button>' +
+          '</div>';
+        }
+      }
+      html += '<section class="card gpw-ex" data-od-id="gto-workout-ex-' + ei + '">' +
+        '<div class="gpw-ex-top"><h2>' + ex.name + '</h2><span class="gpw-ex-group">' + ex.group + '</span></div>' +
+        '<p class="gpw-ex-note">' + ex.note + '</p>' +
+        '<div class="gpw-sets">' + rows + '</div>' +
+      '</section>';
+      si++;
+    });
+
+    body.innerHTML = html;
+    bind();
+    update();
+    startSess();
+  }
+
+  function fmt(secs) {
+    if (secs >= 60) {
+      var m = Math.floor(secs / 60);
+      var s = secs % 60;
+      return (s ? m + ' мин ' + s + ' с' : m + ' мин');
+    }
+    return secs + ' с';
+  }
+
+  function bind() {
+    document.querySelectorAll('[data-set]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var parts = btn.getAttribute('data-set').split('-');
+        var st = state[+parts[0]];
+        st.done[+parts[1]] = !st.done[+parts[1]];
+        btn.closest('.set-row').classList.toggle('is-done', !!st.done[+parts[1]]);
+        update();
+      });
+    });
+    document.querySelectorAll('[data-timer]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var parts = btn.getAttribute('data-timer').split('-');
+        var st = state[+parts[3]];
+        var tIdx = +parts[4];
+        var row = btn.closest('[data-timer-row]');
+        var key = btn.getAttribute('data-timer');
+        var t = timers[key];
+        if (t.finished) {
+          t.finished = false;
+          st.done[tIdx] = false;
+          btn.classList.remove('is-finished');
+          btn.textContent = fmt(t.left);
+          row.classList.remove('is-done');
+          update();
+          return;
+        }
+        if (t.running) { stopTimer(key, btn); return; }
+        t.running = true;
+        btn.classList.add('is-running');
+        t.timerId = setInterval(function () {
+          t.left--;
+          btn.textContent = fmt(t.left);
+          if (t.left <= 0) {
+            clearInterval(t.timerId);
+            t.running = false;
+            t.finished = true;
+            btn.classList.remove('is-running');
+            btn.classList.add('is-finished');
+            btn.textContent = 'Готово';
+            st.done[tIdx] = true;
+            row.classList.add('is-done');
+            update();
+          }
+        }, 1000);
+      });
+    });
+  }
+
+  function stopTimer(key, btn) {
+    var t = timers[key];
+    if (t.timerId) clearInterval(t.timerId);
+    t.running = false;
+    btn.classList.remove('is-running');
+    btn.textContent = fmt(t.left);
+  }
+
+  function doneSets() {
+    var c = 0;
+    state.forEach(function (s) { c += s.done.filter(Boolean).length; });
+    return c;
+  }
+  function totalSets() {
+    var c = 0;
+    state.forEach(function (s) { c += s.p.sets; });
+    return c;
+  }
+
+  function update() {
+    var done = doneSets();
+    var total = totalSets();
+    $('gpw-count').textContent = done + ' из ' + total;
+    var pct = total ? Math.round(done / total * 100) : 0;
+    $('gpw-fill').style.width = pct + '%';
+    var bar = document.querySelector('.gpw-track');
+    bar.setAttribute('aria-valuenow', String(pct));
+    $('gpw-finish').disabled = done !== total;
+    $('gpw-hint').textContent = done === total ? 'Отлично, всё выполнено!' : 'Отметьте подходы и таймеры, чтобы завершить';
+  }
+
+  /* Подтверждение через нижний лист */
+  var confirmCb = null;
+  function openConfirm(cb) {
+    confirmCb = cb;
+    $('gpw-scrim').classList.add('open');
+    $('gpw-confirm').classList.add('open');
+  }
+  function closeConfirm() {
+    confirmCb = null;
+    $('gpw-scrim').classList.remove('open');
+    $('gpw-confirm').classList.remove('open');
+  }
+
+  $('gpw-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = '23-gto-plan.html';
+  });
+  $('gpw-sess-pause').addEventListener('click', function () {
+    if (sessPaused) {
+      sessStart = Date.now() - sessElapsed;
+      sessPaused = false;
+      $('gpw-sess-pause').classList.remove('is-paused');
+      $('gpw-sess-pause').innerHTML = '<svg aria-hidden="true"><use href="#ic-pause"></use></svg>';
+      $('gpw-sess-pause').setAttribute('aria-label', 'Пауза тренировки');
+    } else {
+      sessElapsed = sessNow();
+      sessPaused = true;
+      $('gpw-sess-pause').classList.add('is-paused');
+      $('gpw-sess-pause').innerHTML = '<svg aria-hidden="true"><use href="#ic-play"></use></svg>';
+      $('gpw-sess-pause').setAttribute('aria-label', 'Продолжить тренировку');
+    }
+    renderSess();
+  });
+  $('gpw-finish').addEventListener('click', function () {
+    openConfirm(function () {
+      var dur = sessMin();
+      try {
+        localStorage.setItem('gpw:last', JSON.stringify({
+          id: 'gpw-' + Date.now(),
+          title: 'Тренировка ГТО · ' + n.name,
+          when: 'Сегодня · 07:00–08:00',
+          done: totalSets(), total: totalSets(),
+          dur: dur, token: 'var(--gto-silver)', icon: 'ic-medal', kind: 'gto',
+          gto: 'norm=' + norm + '&week=' + week + '&day=' + day,
+          ex: state.map(function (s) {
+            return {
+              name: s.ex.name, group: s.ex.group, vol: s.ex.w[week - 1][day - 1],
+              sets: s.p.sets, done: s.done.filter(Boolean).length
+            };
+          })
+        }));
+      } catch (e) { /* noop */ }
+      toast('Тренировка завершена · ' + dur + ' мин · день отмечен в плане');
+      setTimeout(function () { location.href = '23-gto-plan.html'; }, 1200);
+    });
+  });
+  $('gpw-confirm-ok').addEventListener('click', function () {
+    var cb = confirmCb;
+    closeConfirm();
+    if (cb) cb();
+  });
+  $('gpw-confirm-cancel').addEventListener('click', closeConfirm);
+  $('gpw-confirm-close').addEventListener('click', closeConfirm);
+  $('gpw-scrim').addEventListener('click', closeConfirm);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeConfirm(); });
+
+  build();
+})();
+</script>
+</body>
+</html>

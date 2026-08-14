@@ -112,6 +112,12 @@
     color: color-mix(in srgb, var(--success) 50%, black);
   }
   .tag.is-done::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .tag.is-new {
+    background: color-mix(in srgb, var(--amber) 16%, var(--surface));
+    border-color: color-mix(in srgb, var(--amber) 55%, var(--surface));
+    color: var(--amber);
+  }
+  .tag.is-new::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 </style>
 </head>
 <body>
@@ -119,10 +125,11 @@
   <div class="hero" data-od-id="index-header">
     <p class="kicker">Петровское СП · карта макетов</p>
     <h1>Экраны приложения</h1>
-    <p class="lead">Оглавление будущих макетов под iOS и Android. Зелёная метка — экран готов. Логика, роли и механики — в <code>product-spec.md</code>, компоненты — в дизайн-системе v2.</p>
+    <p class="lead">Оглавление будущих макетов под iOS и Android. Зелёная метка — экран готов, жёлтая — новый, ждёт вашего апрува. Логика, роли и механики — в <code>product-spec.md</code>, компоненты — в дизайн-системе v2.</p>
     <div class="legend">
       <span class="lbl">Статус:</span>
       <span class="tag is-done">Готово</span>
+      <span class="tag is-new">Новое</span>
       <span class="lbl">— остальное в плане</span>
     </div>
     <p class="note">Дизайн-система v2 — <a href="design-system-v2.html">каталог компонентов</a> (17/17 перенесено).</p>
@@ -147,9 +154,10 @@
     <h2 id="home-title"><span class="n">02</span>Главная</h2>
     <ul>
       <li><a href="screens/06-home.html"><span class="code">06</span><span class="meta"><span class="name">Главная · дашборд</span><span class="desc">рейтинг · лента · ближайшие записи · события клуба · сообщества</span></span><span class="tag is-done">Готово</span></a></li>
+      <li><a href="screens/goal.html"><span class="code">Ц</span><span class="meta"><span class="name">Моя цель</span><span class="desc">активная цель · прогресс нормативов · подготовка · история целей</span></span><span class="tag is-new">Новое</span></a></li>
       <li><a href="screens/07-calendar.html"><span class="code">07</span><span class="meta"><span class="name">Календарь тренировок</span><span class="desc">день/месяц · фильтр Все/Мои/Приглашения · события и записи</span></span><span class="tag is-done">Готово</span></a></li>
       <li><a href="screens/07-notifications.html"><span class="code">07</span><span class="meta"><span class="name">Уведомления</span></span></a></li>
-      <li><a href="screens/07-add-event.html"><span class="code">07</span><span class="meta"><span class="name">Создание события</span><span class="desc">мастер: тип → детали · аренда → 3 шага · из FAB календаря</span></span><span class="tag is-done">Готово</span></a></li>
+      <li><a href="screens/07-add-event.html"><span class="code">07</span><span class="meta"><span class="name">Создание события</span><span class="desc">мастер: тип → детали · аренда → 3 шага · из FAB календаря</span></span><span class="tag is-new">Новое</span></a></li>
     </ul>
   </section>
 
@@ -169,6 +177,7 @@
       <li><a href="screens/12-bookings-list.html"><span class="code">12</span><span class="meta"><span class="name">Все записи</span><span class="desc">статусы: посетил / не прибыл</span></span></a></li>
       <li><a href="screens/13-training-constructor.html"><span class="code">13</span><span class="meta"><span class="name">Конструктор тренировки</span><span class="desc">произвольная + ГТО-заготовка + рекомендации из опросов</span></span></a></li>
       <li><a href="screens/14-post-training-survey.html"><span class="code">14</span><span class="meta"><span class="name">Опрос после тренировки</span></span></a></li>
+      <li><a href="screens/15-event-marathon.html"><span class="code">М</span><span class="meta"><span class="name">Марафон · прототип</span><span class="desc">приглашение → подтверждение → QR → опрос → журнал (§4.20)</span></span><span class="tag is-new">Новое</span></a></li>
     </ul>
   </section>
 
@@ -195,9 +204,10 @@
   <section data-od-id="list-gto" aria-labelledby="gto-title">
     <h2 id="gto-title"><span class="n">07</span>ГТО и тренировки · перенос</h2>
     <ul>
-      <li><a href="screens/23-gto-plan.html"><span class="code">23</span><span class="meta"><span class="name">ГТО · план подготовки</span><span class="desc">норматив → группы мышц → сетка «упражнение × 7 дней × 3 недели»</span></span></a></li>
-      <li><a href="screens/24-gto-workout.html"><span class="code">24</span><span class="meta"><span class="name">ГТО · тренировка по плану</span></span></a></li>
-      <li><a href="screens/25-gto-test.html"><span class="code">25</span><span class="meta"><span class="name">ГТО · сдача норматива</span><span class="desc">событие-тест, не тренировка</span></span></a></li>
+      <li><a href="screens/activities.html"><span class="code">Т</span><span class="meta"><span class="name">Активности</span><span class="desc">таб приложения · статы недели · сегодня · журнал · «Повторить»</span></span><span class="tag is-new">Новое</span></a></li>
+      <li><a href="screens/23-gto-plan.html"><span class="code">23</span><span class="meta"><span class="name">ГТО · план подготовки</span><span class="desc">норматив → группы мышц → сетка «упражнение × 7 дней × 3 недели»</span></span><span class="tag is-new">Новое</span></a></li>
+      <li><a href="screens/24-gto-workout.html"><span class="code">24</span><span class="meta"><span class="name">ГТО · тренировка по плану</span></span><span class="tag is-new">Новое</span></a></li>
+      <li><a href="screens/25-gto-test.html"><span class="code">25</span><span class="meta"><span class="name">ГТО · сдача норматива</span><span class="desc">событие-тест, не тренировка</span></span><span class="tag is-new">Новое</span></a></li>
       <li><a href="screens/26-gto-result.html"><span class="code">26</span><span class="meta"><span class="name">ГТО · результат теста</span><span class="desc">плашка «знак получен» · шеврон у профиля · результаты · следующий шаг · поделиться</span></span><span class="tag is-done">Готово</span></a></li>
       <li><a href="screens/27-training-active.html"><span class="code">27</span><span class="meta"><span class="name">Тренировка · активная</span></span></a></li>
       <li><a href="screens/28-training-report.html"><span class="code">28</span><span class="meta"><span class="name">Отчёт по тренировке</span></span></a></li>

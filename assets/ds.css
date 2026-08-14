@@ -314,9 +314,8 @@ a { color: inherit; }
   color: var(--accent-on);
   box-shadow: 0 4px 20px var(--accent-glow);
 }
-.btn-accent:hover { box-shadow: 0 8px 32px var(--accent-glow); }
 @media (hover: hover) and (pointer: fine) {
-  .btn-accent:hover { transform: translateY(-2px); }
+  .btn-accent:hover { box-shadow: 0 8px 32px var(--accent-glow); transform: translateY(-2px); }
 }
 .btn-accent:active { transform: scale(0.97) translateY(0); }
 .btn-ghost { background: var(--surface); color: var(--fg-2); border: 1px solid var(--border-strong); }
@@ -329,9 +328,8 @@ a { color: inherit; }
   color: var(--accent-on);
   box-shadow: 0 4px 20px var(--accent-coral-glow);
 }
-.btn-danger:hover { box-shadow: 0 8px 32px var(--accent-coral-glow); }
 @media (hover: hover) and (pointer: fine) {
-  .btn-danger:hover { transform: translateY(-2px); }
+  .btn-danger:hover { box-shadow: 0 8px 32px var(--accent-coral-glow); transform: translateY(-2px); }
 }
 .btn-danger:active { transform: scale(0.97) translateY(0); }
 
@@ -340,9 +338,8 @@ a { color: inherit; }
   color: var(--accent-on);
   box-shadow: 0 4px 20px var(--accent-mint-glow);
 }
-.btn-success:hover { box-shadow: 0 8px 32px var(--accent-mint-glow); }
 @media (hover: hover) and (pointer: fine) {
-  .btn-success:hover { transform: translateY(-2px); }
+  .btn-success:hover { box-shadow: 0 8px 32px var(--accent-mint-glow); transform: translateY(-2px); }
 }
 .btn-success:active { transform: scale(0.97) translateY(0); }
 
@@ -449,7 +446,7 @@ a { color: inherit; }
    не переносим — реальные фото/ролевые PNG вместо них.
    ──────────────────────────────────────────────── */
 
-.avatar, .avatar-sm, .ava-72 {
+.avatar, .avatar-sm, .ava-72, .mrow-ava {
   flex: none; border-radius: 50%;
   display: grid; place-items: center;
   font-family: var(--font-body); font-weight: 700;
@@ -460,8 +457,9 @@ a { color: inherit; }
 .avatar { width: 48px; height: 48px; font-size: var(--fs-title); }
 .avatar-sm { width: var(--h-sm); height: var(--h-sm); font-size: var(--fs-body); }
 .ava-72 { width: 72px; height: 72px; font-size: var(--fs-title); }
-.avatar img, .avatar-sm img, .ava-72 img { width: 100%; height: 100%; object-fit: cover; }
-.avatar.is-photo, .avatar-sm.is-photo, .ava-72.is-photo {
+.mrow-ava { width: 44px; height: 44px; font-size: var(--fs-title-sm); }
+.avatar img, .avatar-sm img, .ava-72 img, .mrow-ava img { width: 100%; height: 100%; object-fit: cover; }
+.avatar.is-photo, .avatar-sm.is-photo, .ava-72.is-photo, .mrow-ava.is-photo {
   background: var(--surface);
   padding: 3px;
   box-shadow: 0 0 0 2px var(--border-strong);
@@ -982,34 +980,16 @@ a { color: inherit; }
 .sheet-il { display: block; font-size: var(--fs-body); font-weight: 500; color: var(--fg); }
 .sheet-ih { display: block; font-size: var(--fs-meta); line-height: 1.35; color: var(--meta); margin-top: 1px; }
 
-/* Строка пользователя — круглый аватар + имя/подпись (+ трейлинг).
-   Скелет — .sheet-item, но аватар-плашка круглая (.user-row-ava), а не
-   квадратная иконка .sheet-ic. Кнопка; выбранная — .is-on. */
-.user-row {
-  display: flex; align-items: center; gap: var(--space-3);
-  width: 100%; text-align: left; border: 0; background: none;
-  border-radius: var(--radius-md); padding: var(--space-3) var(--space-2);
-  cursor: pointer;
-  transition: background var(--motion-fast) var(--ease-standard);
-}
-.user-row:hover { background: var(--surface-2); }
-.user-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.user-row.is-off { cursor: default; opacity: 0.45; }
-.user-row.is-off:hover { background: none; }
-.user-row.is-on .user-row-il { color: var(--accent); font-weight: 700; }
-.user-row-ava {
-  flex: none; width: 40px; height: 40px; border-radius: 50%;
-  display: grid; place-items: center; overflow: hidden;
-  background: var(--accent); color: #fff;
-  font-family: var(--font-body); font-size: var(--fs-body); font-weight: 700;
-}
-.user-row-ava img { width: 100%; height: 100%; object-fit: cover; }
-.user-row-tx { flex: 1; min-width: 0; }
-.user-row-il { display: block; font-size: var(--fs-body); font-weight: 500; color: var(--fg); }
-.user-row-ih { display: block; font-size: var(--fs-meta); line-height: 1.35; color: var(--meta); margin-top: 1px; }
-.user-row-check { flex: none; margin-left: auto; color: var(--accent); opacity: 0; transition: opacity var(--motion-fast) var(--ease-standard); }
-.user-row.is-on .user-row-check { opacity: 1; }
-.user-row-check svg { width: 18px; height: 18px; }
+/* Строка пользователя — единый ряд `.mrow` с круглым аватаром
+   `.mrow-ava` (общая база `.avatar`). Селекция (выбор из списка):
+   `.is-on` — чек `.mrow-check` + акцентное имя; `.is-off` — недоступен.
+   Неинтерактивный просмотр — `.is-static` (выше). */
+.mrow.is-on .mrow-t { color: var(--accent); font-weight: 700; }
+.mrow.is-off { cursor: default; opacity: 0.45; }
+.mrow.is-off:hover { background: none; }
+.mrow-check { flex: none; margin-left: auto; color: var(--accent); opacity: 0; transition: opacity var(--motion-fast) var(--ease-standard); }
+.mrow.is-on .mrow-check { opacity: 1; }
+.mrow-check svg { width: 18px; height: 18px; }
 
 /* Тост. Текст — всегда --fg (контраст 4.5+), цветовой акцент — только
    иконка через --c (затемнённый тон из токена). */
@@ -1285,13 +1265,8 @@ select.input:invalid { color: var(--muted); }
 
 .mrow-ava {
   flex: none; width: 44px; height: 44px;
-  display: grid; place-items: center;
-  border-radius: 50%; overflow: hidden;
-  font-size: var(--fs-title-sm); font-weight: 700;
-  color: #fff; background: var(--accent);
+  font-size: var(--fs-title-sm);
 }
-.mrow-ava img { width: 100%; height: 100%; object-fit: cover; }
-.mrow-ava.is-photo { background: var(--surface); padding: 2px; box-shadow: 0 0 0 2px var(--border-strong); }
 
 .mrow-media {
   flex: none; width: 44px; height: 44px;
@@ -1538,6 +1513,18 @@ select.input:invalid { color: var(--muted); }
 }
 .evd-bar .btn { width: 100%; }
 .evd-bar[hidden] { display: none; }
+
+/* Плашка над таббаром приложения: экраны с нижней навигацией (.tabbar) —
+   уже не прижата к низу, а висит карточкой над навигацией. */
+.evd-bar.is-tabbed {
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  width: calc(100% - 32px); max-width: calc(var(--container-max) - 32px);
+  border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+  box-shadow: var(--elev-raised);
+}
+@media (min-width: 560px) {
+  .evd-bar.is-tabbed { bottom: 24px; width: calc(100% - 48px); }
+}
 
 /* Плашка-карточка: белый блок на фоне (канон референса аренды —
    каждый логический блок обёрнут в .card). */

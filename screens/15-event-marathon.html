@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Событие · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Универсальный `event_details` (product-spec §6.4): один экран, рендерится
+     по данным события. Состав табов — из данных, не из типа экрана:
+     - марафон (забег, сетки нет):      Обзор / Результаты / Участники
+     - турнир-пример «Летний Кубок»:    Обзор / Сетка / Результаты / Участники
+     (бракет + пьедестал из ДС v1). Переключение табов — JS с обновлением
+     aria-selected (в ДС — CSS :checked; в проде — JS). */
+  .ev-app { background: var(--surface-warm); padding-bottom: calc(196px + env(safe-area-inset-bottom, 0px)); }
+  .ev-body { padding-top: 4px; }
+
+  /* ── Шапка: чистая типографика (канон ГТО .r-head) —
+        eyebrow (категория) + display-заголовок + статус-пилюля. Без иконки. ── */
+  .evd-head { padding: var(--space-1) var(--space-1) var(--space-4); }
+  .evd-head .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .evd-title { margin: var(--space-2) 0 0; font-family: var(--font-display); font-size: var(--fs-display); font-weight: 700; line-height: 1.08; letter-spacing: 0.01em; color: var(--fg); }
+  .evd-badges { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-top: var(--space-3); }
+
+  /* ── Табы (JS: .is-on + aria-selected вместо :checked) ── */
+  .evd-tabbar { display: flex; padding: 0 var(--space-1); border-bottom: 1px solid var(--border-soft); }
+  .evd-tab {
+    flex: 1; height: var(--h-base); min-width: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-bottom: 2px solid transparent;
+    background: transparent; color: var(--fg-2);
+    font-family: inherit; font-size: var(--fs-meta); font-weight: 600;
+    white-space: nowrap; cursor: pointer; user-select: none;
+    transition: color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .evd-tab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
+  .evd-tab:active { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .evd-tab:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  .evd-pane { display: none; }
+  .evd-pane.is-on { display: block; animation: pane-in 0.15s var(--ease-out); }
+  @keyframes pane-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .evd-rows { display: grid; gap: var(--space-2); }
+  .evd-row { display: flex; gap: var(--space-3); align-items: center; }
+  .evd-ric { flex: none; width: 40px; height: 40px; border-radius: var(--radius-md); display: grid; place-items: center; color: color-mix(in oklab, var(--c), var(--fg) 30%); background: color-mix(in srgb, var(--c) 10%, transparent); }
+  .evd-ric svg { width: 20px; height: 20px; }
+  .evd-rtx { display: grid; gap: 2px; min-width: 0; }
+  .evd-rtx b { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .evd-rtx span { font-size: var(--fs-meta); color: var(--muted); }
+  .evd-note { margin: var(--space-3) 0 0; font-size: var(--fs-meta); color: var(--fg-2); line-height: 1.5; }
+  .evd-sec { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .evd-sec-t { margin: 0; font-size: var(--fs-meta); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .card .evd-sec-t { margin: 0 0 var(--space-3); }
+  .evd-pane .card .mrow.is-static { padding-left: 0; padding-right: 0; }
+  .evd-pane .card .ev-steps { margin-top: var(--space-2); }
+
+  .evd-org { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-4); padding: var(--space-3); background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-md); }
+  .evd-org-tx { min-width: 0; display: grid; gap: 1px; }
+  .evd-org-tx b { font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .evd-org-tx span { font-size: var(--fs-caption); color: var(--muted); }
+
+  .evd-rego { display: grid; gap: var(--space-2); }
+  .evd-rego-row { display: flex; gap: var(--space-3); align-items: baseline; font-size: var(--fs-meta); color: var(--fg-2); }
+  .evd-rego-time { flex: none; width: 52px; font-weight: 600; color: var(--fg); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .evd-rego-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--type-event); }
+  .evd-rego-dot.is-next { background: var(--muted); }
+
+  /* ── Сетка турнира: колонки, горизонтальный скролл внутри таба ── */
+  .evd-brk-hint { display: flex; align-items: center; gap: var(--space-1); margin: 0 0 var(--space-2); font-size: var(--fs-caption); color: var(--muted); }
+  .evd-brk-hint svg { width: 13px; height: 13px; }
+  .evd-brk { margin: 0 calc(-1 * var(--space-4)); padding: var(--space-2) var(--space-4) var(--space-3); display: flex; align-items: stretch; overflow-x: auto; overscroll-behavior-x: contain; }
+  .evd-brk-col { flex: none; min-width: 148px; display: grid; gap: var(--space-2); align-content: start; }
+  .evd-brk-col + .evd-brk-col { margin-left: var(--space-6); padding-left: var(--space-6); border-left: 1px solid var(--border-soft); }
+  .evd-brk-h { margin: 0; font-size: var(--fs-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .evd-m { display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3); background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .evd-m.is-final { border-color: color-mix(in srgb, var(--type-event) 50%, var(--border)); }
+  .evd-m.is-win { background: color-mix(in srgb, var(--type-event) 10%, var(--surface-warm)); border-color: color-mix(in srgb, var(--type-event) 35%, var(--border)); }
+  .evd-m-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-meta); }
+  .evd-m-row b { flex: 1; min-width: 0; font-weight: 500; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .evd-m-row.is-out b { color: var(--muted); }
+  .evd-m-row.is-win b { font-weight: 700; color: var(--fg); }
+  .evd-m-row .scr { flex: none; font-family: var(--font-mono); font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+  .evd-m-row.is-win .scr { color: var(--type-event); }
+  .evd-m-note { font-size: var(--fs-caption); color: var(--muted); }
+
+  /* ── Пьедестал ── */
+  .evd-podium { display: flex; align-items: flex-end; justify-content: center; gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
+  .evd-pod { flex: 1; display: grid; justify-items: center; gap: var(--space-1); }
+  .evd-pod-name { font-size: var(--fs-caption); font-weight: 600; color: var(--fg-2); }
+  .evd-pod-note { font-size: var(--fs-caption); color: var(--muted); }
+  .evd-pod-bar { width: 100%; max-width: 76px; height: 32px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--muted); }
+  .evd-pod.is-1 { order: 1; }
+  .evd-pod.is-2 { order: 0; }
+  .evd-pod.is-3 { order: 2; }
+  .evd-pod.is-1 .evd-pod-bar { height: 56px; background: var(--type-event); }
+  .evd-pod.is-2 .evd-pod-bar { height: 44px; background: var(--st-confirmed); }
+  .evd-pod.is-3 .evd-pod-bar { height: 34px; background: var(--muted); }
+
+  /* ── Участники / результаты: v2-канон .mrow (неинтерактивные строки) ── */
+  .mrow.is-me { background: color-mix(in srgb, var(--accent) 6%, transparent); border-radius: var(--radius-md); }
+  .evd-part-more { display: flex; margin: var(--space-3) auto 0; }
+
+  /* ── Протокол забега: место-тайл + имя + время ── */
+  .r-place {
+    flex: none; width: 32px; height: 32px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: var(--fs-meta); font-weight: 700; font-variant-numeric: tabular-nums;
+    color: var(--fg-2); background: var(--surface-2);
+  }
+  .mrow.is-p1 .r-place { color: var(--yellow-ink-strong); background: var(--gto-gold); }
+  .mrow.is-p2 .r-place { color: var(--accent-on); background: var(--gto-silver); }
+  .mrow.is-p3 .r-place { color: var(--accent-on); background: var(--gto-bronze); }
+
+  /* ── Ссылка на фотоотчёт: плашка-карточка → новость сообщества ── */
+  .evd-news {
+    display: flex; align-items: center; gap: var(--space-3);
+    width: 100%; margin-top: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-align: left; font: inherit; color: inherit; cursor: pointer;
+    transition: border-color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .evd-news:hover { border-color: var(--border-strong); background: var(--surface-warm); }
+  .evd-news:active { transform: scale(0.99); }
+  .evd-news:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .evd-news-ic { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--surface-2); color: var(--fg-2); }
+  .evd-news-ic svg { width: var(--icon-lg); height: var(--icon-lg); }
+  .evd-news-tx { flex: 1; min-width: 0; }
+  .evd-news-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .evd-news-tx span { display: block; margin-top: 1px; font-size: var(--fs-meta); color: var(--muted); }
+  .evd-news-chev { flex: none; color: var(--meta); }
+  .evd-news-chev svg { width: var(--icon-sm); height: var(--icon-sm); }
+
+  /* ── Плашка над таббаром — DS .evd-bar.is-tabbed (ds.css) + ряд .bar-actions;
+        локально только сдвиг тоста выше плашки ── */
+  .evd-toast { bottom: calc(172px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ── Стадия: контент под текущую фазу (в табе «Обзор») ── */
+  .ev-stage { padding-top: var(--space-4); }
+  .ev-stage .stage-title { margin: 0; font-size: var(--fs-body); font-weight: 700; color: var(--fg); }
+  .ev-stage .stage-sub { margin: var(--space-1) 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+  .ev-fact {
+    display: flex; align-items: flex-start; gap: var(--space-3);
+    margin-top: var(--space-4);
+    padding: var(--space-3);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    background: var(--surface-warm);
+  }
+  .ev-fact + .ev-fact { margin-top: var(--space-2); }
+  .ev-fact-ic {
+    flex: none; width: 40px; height: 40px; border-radius: var(--radius-md);
+    display: grid; place-items: center;
+    background: var(--surface); color: var(--fg-2);
+  }
+  .ev-fact-ic svg { width: 20px; height: 20px; }
+  .ev-fact-tx { min-width: 0; display: grid; gap: 1px; }
+  .ev-fact-tx b { font-size: var(--fs-body); font-weight: 600; line-height: 1.3; color: var(--fg); }
+  .ev-fact-tx span { font-size: var(--fs-meta); line-height: 1.35; color: var(--muted); }
+
+  /* ── QR-код участника (канон referens/qrscan.html: рамка, белый фон, грид) ── */
+  .ev-qr {
+    width: 188px; height: 188px; margin: var(--space-4) auto 0;
+    padding: 10px; border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    background: #fff;
+  }
+  .ev-qr svg { width: 100%; height: 100%; display: block; }
+  .ev-qr-cap { text-align: center; margin-top: var(--space-2); font-size: var(--fs-caption); line-height: 1.4; color: var(--meta); }
+
+  /* ── Результат: крупный моноширинный формат ── */
+  .ev-result { text-align: center; padding: var(--space-5) var(--space-4) var(--space-3); }
+  .ev-result-time { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .ev-result-sub { margin-top: var(--space-1); font-size: var(--fs-meta); font-weight: 600; color: var(--muted); }
+  .ev-result-badge { margin-top: var(--space-3); }
+
+  /* ── Дорожка участия: 4 шага, вертикальная ось ── */
+  .ev-steps { list-style: none; margin: 0; padding: 0; }
+  .ev-step { display: flex; align-items: center; gap: var(--space-3); min-height: 36px; }
+  .ev-node { position: relative; flex: none; width: 20px; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .ev-node::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 2px; transform: translateX(-50%); background: var(--border-soft);
+  }
+  .ev-step:first-child .ev-node::before { top: 50%; }
+  .ev-step:last-child .ev-node::before { bottom: 50%; }
+  .ev-dot {
+    position: relative; z-index: 1; flex: none; width: 20px; height: 20px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--surface); border: 2px solid var(--border-strong);
+  }
+  .ev-dot svg { width: 11px; height: 11px; color: #fff; animation: dot-pop 160ms var(--ease-out); }
+  .ev-step.is-done .ev-dot { background: var(--accent-purple); border-color: var(--accent-purple); animation: dot-done 240ms var(--ease-out); }
+  .ev-step.is-current .ev-dot { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .ev-step.is-cancel .ev-dot { border-color: var(--danger); color: var(--danger); font-size: 13px; font-weight: 700; }
+  @keyframes dot-done { from { background: var(--surface); border-color: var(--border-strong); } to { background: var(--accent-purple); border-color: var(--accent-purple); } }
+  @keyframes dot-pop { from { transform: scale(0.5); } to { transform: scale(1); } }
+  .ev-step:has(+ .ev-step.is-done) .ev-node::before { top: 50%; bottom: 0; background: var(--accent-purple); }
+  .ev-step.is-done + .ev-step .ev-node::before { top: 0; background: var(--accent-purple); }
+  .ev-step.is-cancel + .ev-step .ev-node::before { top: 0; background: var(--danger); }
+  .ev-step-name { font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--fg-2); }
+  .ev-step.is-done .ev-step-name { color: var(--fg); }
+  .ev-step.is-current .ev-step-name { color: var(--accent); }
+  .ev-step.is-cancel .ev-step-name { color: var(--danger); }
+
+  .ev-num {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--fs-meta); font-weight: 600; color: var(--meta);
+    background: var(--surface-warm); border: 1px solid var(--border-soft);
+    border-radius: var(--radius-pill); padding: var(--space-1) var(--space-4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Шиты: опрос (радио-чипы) ── */
+  .ev-q-group { margin-top: var(--space-4); }
+  .ev-q-label { display: block; margin: 0 var(--space-1) var(--space-2); font-size: var(--fs-meta); font-weight: 600; color: var(--muted); }
+  .ev-q-group:first-child { margin-top: 0; }
+  .ev-q-group .chips { margin-top: 0; }
+  .ev-q-note { margin-top: var(--space-2); font-size: var(--fs-caption); line-height: 1.45; color: var(--meta); text-align: center; }
+
+  .ev-reset { margin-top: var(--space-4); text-align: center; }
+  .ev-reset button {
+    font: inherit; font-size: var(--fs-caption); font-weight: 600; color: var(--meta);
+    background: none; border: none; padding: var(--space-1) var(--space-2);
+    cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .ev-reset button:hover { color: var(--fg); }
+
+  /* Меню «⋯» §4.17: цвет пунктов по намерению (в ДС v2 ещё не вынесено —
+     для прототипа локально; кандидаты is-ok / is-danger для .sheet-item) */
+  .sheet-item.is-ok .sheet-ic { color: var(--success); background: color-mix(in srgb, var(--success) 12%, var(--surface)); }
+  .sheet-item.is-ok .sheet-il { color: var(--success); font-weight: 700; }
+  .sheet-item.is-danger .sheet-ic { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+  .sheet-item.is-danger .sheet-il { color: var(--danger); font-weight: 700; }
+</style>
+</head>
+<body data-od-id="event-details">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M3.5 18.5c0-2.9 2.4-4.5 5.5-4.5s5.5 1.6 5.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="17" cy="9.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M17.5 14.6c2 .5 3.5 1.8 3.5 3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="14" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="4" y="14" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor"></path></symbol>
+  <symbol id="ic-map-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.2-6.5-10.2A6.5 6.5 0 0 1 12 4.3a6.5 6.5 0 0 1 6.5 6.5c0 5-6.5 10.2-6.5 10.2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><circle cx="12" cy="10.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M6 21V4m0 1c2.5-1.5 5-1.5 7 0s4.5 1.5 7 0v8c-2.5 1.5-5 1.5-7 0s-4.5-1.5-7 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-share" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 13v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 5.5H5v1.5A3 3 0 0 0 8 10M16 5.5h3V7a3 3 0 0 1-3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 13v3M8.5 20h7M9.5 16h5l.5 4h-6l.5-4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-photo" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></rect><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M8.5 7l1.5-2.5h4L15.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app ev-app">
+  <header class="topbar" data-od-id="event-details-header">
+    <a class="topbar-ic is-back" href="07-calendar.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h1 class="topbar-tx">Событие</h1>
+    <button type="button" class="icon-btn" id="btn-share" aria-label="Поделиться"><svg aria-hidden="true"><use href="#ic-share"></use></svg></button>
+    <button type="button" class="icon-btn" id="btn-more" aria-label="Действия"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>
+  </header>
+
+  <header class="evd-head" data-od-id="event-details-hero">
+    <p class="eyebrow" id="evd-chip-tx">Событие СП · марафон</p>
+    <h2 class="evd-title" id="evd-title">Осенний полумарафон</h2>
+    <div class="evd-badges">
+      <span class="ev-status" id="ev-pill" style="--c: var(--st-pending)"></span>
+    </div>
+  </header>
+
+  <div class="evd-tabbar" id="evd-tabbar" role="tablist" aria-label="Разделы события" data-od-id="evd-tabs">
+    <button type="button" class="evd-tab is-on" role="tab" aria-selected="true" data-tab="obzor">Обзор</button>
+    <button type="button" class="evd-tab" role="tab" aria-selected="false" data-tab="res">Результаты</button>
+    <button type="button" class="evd-tab" role="tab" aria-selected="false" data-tab="part">Участники</button>
+  </div>
+
+  <main class="body ev-body" data-od-id="event-details-body">
+    <div class="evd-pane is-on" data-pane="obzor" role="tabpanel">
+      <div class="card evd-facts">
+        <h5 class="evd-sec-t">О событии</h5>
+        <div class="evd-rows" id="evd-rows"></div>
+        <p class="evd-note" id="evd-note"></p>
+      </div>
+      <div class="evd-sec" id="evd-flow"></div>
+      <div class="ev-stage" id="ev-stage"></div>
+      <div class="ev-reset" id="ev-reset"><button type="button" id="btn-reset">Сбросить прототип</button></div>
+    </div>
+    <div class="evd-pane" data-pane="res" role="tabpanel">
+      <div id="res-body"></div>
+    </div>
+    <div class="evd-pane" data-pane="part" role="tabpanel">
+      <div id="part-body"></div>
+    </div>
+  </main>
+
+  <footer class="evd-bar is-tabbed" id="evd-bar" data-od-id="evd-cta"></footer>
+</div>
+
+<nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Разделы">
+  <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+  <a class="tab is-on" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+  <button class="tab" data-toast="Сообщество — в следующей итерации" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></button>
+  <button class="tab" data-toast="Профиль — в следующей итерации" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></button>
+</nav>
+
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+
+<div class="sheet" id="menu-sheet" role="dialog" aria-modal="true" aria-label="Действия с событием">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Действия с событием</h3>
+    <button type="button" class="sheet-close js-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list" id="menu-list"></div>
+  <button type="button" class="sheet-cancel js-close">Отмена</button>
+</div>
+
+<div class="sheet" id="survey-sheet" role="dialog" aria-modal="true" aria-label="Опрос после марафона">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Как прошёл марафон?</h3>
+    <button type="button" class="sheet-close js-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+      <div class="ev-q-group">
+        <span class="ev-q-label">Как самочувствие после финиша?</span>
+        <div class="chips is-wrap" id="q1" role="group">
+          <button type="button" class="pick-chip" data-v="Хорошее">Хорошее</button>
+          <button type="button" class="pick-chip is-on" data-v="Нормальное">Нормальное</button>
+          <button type="button" class="pick-chip" data-v="Усталость">Усталость</button>
+        </div>
+      </div>
+      <div class="ev-q-group">
+        <span class="ev-q-label">Как прошёл забег?</span>
+        <div class="chips is-wrap" id="q2" role="group">
+          <button type="button" class="pick-chip" data-v="Легко">Легко</button>
+          <button type="button" class="pick-chip is-on" data-v="В мою силу">В мою силу</button>
+          <button type="button" class="pick-chip" data-v="Тяжело">Тяжело</button>
+        </div>
+      </div>
+    <p class="ev-q-note">Ответы помогут подобрать нагрузку в конструкторе тренировок.</p>
+    <button type="button" class="btn btn-accent btn-block" id="btn-survey">Сохранить и завершить</button>
+  </div>
+</div>
+
+<div class="evd-toast" id="ev-toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="ev-toast-tx">Готово</span></div>
+    <div class="toast toast-warn"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span>+50 баллов</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'evt:marathon';
+  function $(id) { return document.getElementById(id); }
+  function qs(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function load() {
+    try { var s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; }
+    catch (e) { return null; }
+  }
+  function save(obj) {
+    try { localStorage.setItem(KEY, JSON.stringify(obj)); } catch (e) { /* noop */ }
+  }
+  function reset() {
+    try { localStorage.removeItem(KEY); } catch (e) { /* noop */ }
+    location.reload();
+  }
+
+  var saved = load();
+  var st = (saved && saved.status) || 'pending';
+  var IS_CUP = qs('ev') === 'cup';
+
+  /* ── Табы (JS: переключение .is-on + aria-selected) ── */
+  function setTab(name) {
+    document.querySelectorAll('.evd-tab').forEach(function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      t.classList.toggle('is-on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.evd-pane').forEach(function (p) {
+      p.classList.toggle('is-on', p.getAttribute('data-pane') === name);
+    });
+  }
+  document.querySelectorAll('.evd-tab').forEach(function (t) {
+    t.addEventListener('click', function () { setTab(t.getAttribute('data-tab')); });
+  });
+
+  /* ── Тост ── */
+  var toastTimer = null;
+  function toast(msg, points) {
+    $('ev-toast-tx').textContent = msg;
+    var pts = $('ev-toast').querySelector('.toast-warn');
+    if (points == null) { pts.style.display = 'none'; }
+    else { pts.style.display = ''; pts.lastChild.textContent = ' +' + points + ' баллов'; }
+    $('ev-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('ev-toast').classList.remove('open'); }, 2400);
+  }
+
+  /* ── Вход контента после пере-рендера (od-enter из ДС) ── */
+  function reveal(el) {
+    el.classList.remove('od-reveal');
+    void el.offsetWidth;
+    el.classList.add('od-reveal');
+  }
+
+  /* ── Шиты ── */
+  var scrim = $('scrim');
+  function openSheet(el) { scrim.classList.add('open'); el.classList.add('open'); }
+  function closeSheets() { scrim.classList.remove('open'); document.querySelectorAll('.sheet.open').forEach(function (s) { s.classList.remove('open'); }); }
+  scrim.addEventListener('click', closeSheets);
+  document.querySelectorAll('.js-close').forEach(function (b) { b.addEventListener('click', closeSheets); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheets(); });
+
+  function initials(name) {
+    return name.split(/\s+/).map(function (w) { return w.charAt(0); }).slice(0, 2).join('').toUpperCase();
+  }
+
+  function avatar(name, sm, cls) {
+    return '<span class="' + (sm ? 'avatar-sm' : 'avatar') + (cls ? ' ' + cls : '') + '">' + initials(name) + '</span>';
+  }
+
+  function factRow(ic, b, s) {
+    return '<div class="ev-fact"><span class="ev-fact-ic" aria-hidden="true"><svg><use href="#' + ic + '"></use></svg></span>' +
+      '<span class="ev-fact-tx"><b>' + b + '</b><span>' + s + '</span></span></div>';
+  }
+  function btn(label, cls, act) {
+    return '<button type="button" class="btn ' + cls + '" data-act="' + act + '">' + label + '</button>';
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     ТУРНИР-ПРИМЕР «Летний Кубок» (второй полюс event_details).
+     Только демо-данные: статус «Завершено» → фаза «после» (матрица).
+     Состав табов: Обзор / Сетка / Результаты / Участники.
+     ════════════════════════════════════════════════════════════════════ */
+  var CUP = {
+    title: 'Летний Кубок · финал',
+    chip: 'Событие СП · турнир',
+    dot: 'ic-trophy',
+    pill: ['Завершено', 'var(--st-done)', ''],
+    rows: [
+      ['ic-cal', 'Сб, 21 авг · 11:00–18:00', 'Регламент расписан на весь день'],
+      ['ic-map-pin', 'Стадион «Труд»', 'теннис · корты 1–4'],
+      ['ic-users', '24 участника', 'максимум 32 · жеребьёвка при 16+']
+    ],
+    note: 'Турнир по теннису среди жителей посёлка. Участие свободное, инвентарь предоставляется. Победитель получает переходящий кубок.',
+    org: ['Спорткомитет поселения', 'Организатор · на месте с 09:30'],
+    rego: [
+      ['11:00', 'Открытие и жеребьёвка'],
+      ['11:30', 'Групповой этап · корты 1–2'],
+      ['15:00', 'Плей-офф'],
+      ['17:30', 'Финал и награждение']
+    ],
+    podium: [
+      { place: 'is-2', name: 'Егор П.', note: '2 · серебро', c: 'var(--st-confirmed)' },
+      { place: 'is-1', name: 'Анна К.', note: '1 · кубок и медаль', c: 'var(--type-event)' },
+      { place: 'is-3', name: 'Дмитрий С.', note: '3 · бронза', c: 'var(--muted)' }
+    ],
+    parts: [
+      { n: 'Вы', f: 'записались сегодня в 09:12', tag: 'Записан', c: 'var(--st-confirmed)', you: true },
+      { n: 'Спорткомитет поселения', f: 'Организатор', tag: 'Организатор', c: 'var(--type-event)' },
+      { n: 'Анна К.', f: '1 место · кубок', tag: 'Победитель', c: 'var(--st-confirmed)' },
+      { n: 'Егор П.', f: '2 место · серебро', tag: 'Финалист', c: 'var(--st-confirmed)' },
+      { n: 'Дмитрий С.', f: '3 место · бронза', tag: 'Финалист', c: 'var(--muted)' },
+      { n: 'Мария В.', f: 'выбыла в 1/2 финала', tag: 'Участник', c: 'var(--muted)' }
+    ],
+    menu: [
+      { act: 'news', ic: 'ic-photo', il: 'Фотоотчёт в новости', ih: 'Как прошёл турнир — фото и итоги' },
+      { act: 'share', ic: 'ic-users', il: 'Поделиться', ih: 'Отправить участникам сообщества' },
+      { act: 'add-cal', ic: 'ic-cal', il: 'Добавить в календарь', ih: 'Событие появится в расписании' }
+    ]
+  };
+
+  function renderRows(rows) {
+    $('evd-rows').innerHTML = rows.map(function (r) {
+      return '<div class="evd-row"><span class="evd-ric" style="--c:var(--type-event)" aria-hidden="true"><svg><use href="#' + r[0] + '"></use></svg></span>' +
+        '<div class="evd-rtx"><b>' + r[1] + '</b><span>' + r[2] + '</span></div></div>';
+    }).join('');
+  }
+
+  function renderCup() {
+    $('evd-title').textContent = CUP.title;
+    $('evd-chip-tx').textContent = CUP.chip;
+
+    var pill = CUP.pill;
+    var p = $('ev-pill');
+    p.textContent = pill[0];
+    p.style.setProperty('--c', pill[1]);
+    p.className = 'ev-status' + (pill[2] ? ' ' + pill[2] : '');
+
+    /* табы: + Сетка */
+    var tb = $('evd-tabbar');
+    tb.innerHTML =
+      '<button type="button" class="evd-tab is-on" role="tab" aria-selected="true" data-tab="obzor">Обзор</button>' +
+      '<button type="button" class="evd-tab" role="tab" aria-selected="false" data-tab="setka">Сетка</button>' +
+      '<button type="button" class="evd-tab" role="tab" aria-selected="false" data-tab="res">Результаты</button>' +
+      '<button type="button" class="evd-tab" role="tab" aria-selected="false" data-tab="part">Участники</button>';
+    tb.querySelectorAll('.evd-tab').forEach(function (t) {
+      t.addEventListener('click', function () { setTab(t.getAttribute('data-tab')); });
+    });
+
+    var body = document.querySelector('.evd-pane[data-pane="part"]');
+    body.insertAdjacentHTML('afterend',
+      '<div class="evd-pane" data-pane="setka" role="tabpanel">' + bracketHTML() + '</div>');
+
+    renderRows(CUP.rows);
+    $('evd-note').textContent = CUP.note;
+    $('evd-flow').innerHTML =
+      '<div class="card"><h5 class="evd-sec-t">Регламент</h5>' +
+      '<div class="evd-rego">' + CUP.rego.map(function (r, i) {
+        return '<div class="evd-rego-row"><span class="evd-rego-time">' + r[0] + '</span><span class="evd-rego-dot' + (i ? ' is-next' : '') + '"></span><span>' + r[1] + '</span></div>';
+      }).join('') + '</div>' +
+      '<div class="evd-org">' + avatar(CUP.org[0], true) +
+        '<div class="evd-org-tx"><b>' + CUP.org[0] + '</b><span>' + CUP.org[1] + '</span></div></div></div>';
+
+    /* фаза «после»: фотоотчёт — ссылка на новость сообщества */
+    $('ev-stage').innerHTML =
+      '<div class="ev-fact"><span class="ev-fact-ic" aria-hidden="true"><svg><use href="#ic-photo"></use></svg></span>' +
+      '<span class="ev-fact-tx"><b>Как прошёл турнир</b><span>Фото и разбор — в новости сообщества</span></span></div>' +
+      '<div class="ev-fact"><span class="ev-fact-ic" aria-hidden="true"><svg><use href="#ic-star"></use></svg></span>' +
+      '<span class="ev-fact-tx"><b>+100 баллов · значок «Победитель»</b><span>начислены Анне К. · вам — участие +50</span></span></div>';
+
+    $('res-body').innerHTML =
+      '<div class="evd-podium">' + CUP.podium.map(function (pod) {
+        return '<div class="evd-pod ' + pod.place + '">' + avatar(pod.name) +
+          '<span class="evd-pod-name">' + pod.name + '</span>' +
+          '<span class="evd-pod-note">' + pod.note + '</span>' +
+          '<span class="evd-pod-bar"></span></div>';
+      }).join('') + '</div>' +
+      '<div class="evd-sec"><h5 class="evd-sec-t">Медальный зачёт · 8 участников</h5>' +
+      '<p class="evd-note">В плей-офф вышли 8 участников из 24. Полная таблица и статистика матчей — в новости сообщества.</p></div>';
+
+    renderParts(CUP.parts);
+
+    $('evd-bar').innerHTML =
+      '<div class="bar-actions">' +
+      btn('Читать новость', 'btn-accent', 'news') +
+      btn('Поделиться', 'btn-ghost', 'share') +
+      '</div>';
+    $('ev-reset').style.display = 'none';
+    $('btn-more').addEventListener('click', function () {
+      renderMenu(CUP.menu);
+      openSheet($('menu-sheet'));
+    });
+  }
+
+  function bracketHTML() {
+    var col = function (h, matches, note) {
+      return '<div class="evd-brk-col"><h6 class="evd-brk-h">' + h + '</h6>' +
+        matches.map(function (m) {
+          return '<div class="evd-m' + (m.final ? ' is-final' : '') + (m.win ? ' is-win' : '') + '">' +
+            m.rows.map(function (r) {
+              return '<div class="evd-m-row' + (r.out ? ' is-out' : '') + (r.win ? ' is-win' : '') + '"><b>' + r.n + '</b><span class="scr">' + r.s + '</span></div>';
+            }).join('') + '</div>';
+        }).join('') +
+        (note ? '<p class="evd-m-note">' + note + '</p>' : '') +
+        '</div>';
+    };
+    return '<p class="evd-brk-hint"><svg aria-hidden="true"><use href="#ic-chev"></use></svg>Сетка шире экрана — листайте вправо</p>' +
+      '<div class="evd-brk" data-od-id="evd-bracket">' +
+      col('1/4 финала', [
+        { rows: [{ n: 'Анна К.', s: '6:4' }, { n: 'Пётр Л.', s: '4:6', out: true }] },
+        { rows: [{ n: 'Дмитрий С.', s: '6:3' }, { n: 'Олег Р.', s: '3:6', out: true }] },
+        { rows: [{ n: 'Егор П.', s: '7:6' }, { n: 'Семён Т.', s: '6:7', out: true }] },
+        { rows: [{ n: 'Мария В.', s: '6:2' }, { n: 'Ирина К.', s: '2:6', out: true }] }
+      ]) +
+      col('1/2 финала', [
+        { rows: [{ n: 'Анна К.', s: '6:4' }, { n: 'Дмитрий С.', s: '4:6', out: true }] },
+        { rows: [{ n: 'Егор П.', s: '6:4' }, { n: 'Мария В.', s: '4:6', out: true }] }
+      ]) +
+      col('Финал', [
+        { final: true, rows: [{ n: 'Анна К.', s: '6:3' }, { n: 'Егор П.', s: '3:6', out: true }] }
+      ], 'Финал — 21 авг, 17:30') +
+      col('Победитель', [
+        { win: true, rows: [{ n: 'Анна К.', s: '1', win: true }] }
+      ], 'Переходящий кубок') +
+      '</div>';
+  }
+
+  function renderParts(parts) {
+    $('part-body').innerHTML =
+      '<div class="card"><h5 class="evd-sec-t">Участники</h5>' +
+      parts.map(function (w) {
+        return '<div class="mrow is-static' + (w.you ? ' is-me' : '') + '">' +
+          '<span class="mrow-ava">' + initials(w.n) + '</span>' +
+          '<div class="mrow-tx"><span class="mrow-t">' + w.n + '</span><span class="mrow-s">' + w.f + '</span></div>' +
+          '<span class="mrow-side"><span class="tag">' + w.tag + '</span></span></div>';
+      }).join('') +
+      '</div>' +
+      '<button type="button" class="btn btn-ghost btn-sm evd-part-more">Показать всех · 18</button>';
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     МАРАФОН (машина состояний: pending → confirmed → ongoing → done).
+     Состав табов: Обзор / Результаты / Участники (сетки нет — это забег).
+     ════════════════════════════════════════════════════════════════════ */
+  if (!IS_CUP) {
+    /* Старт забега — глобальное событие: запускает админ (веб-портал) либо
+       система сама в момент старта. Здесь: авто-флип confirmed → ongoing
+       при наступлении времени старта; демо-оверрайд старта через «?start=мс». */
+    var EVENT_START = Date.parse(qs('start')) || Date.UTC(2026, 7, 30, 8, 0);
+    var autoStarted = false;
+    if (st === 'confirmed' && Date.now() >= EVENT_START) {
+      st = 'ongoing';
+      save({ status: 'ongoing' });
+      autoStarted = true;
+    }
+
+    var MENU = {
+      pending: [
+        { act: 'accept', ic: 'ic-check', il: 'Принять', ih: 'Подтвердить участие', ok: true },
+        { act: 'decline', ic: 'ic-close', il: 'Отклонить', ih: 'Отказаться от приглашения', danger: true },
+        { act: 'who', ic: 'ic-users', il: 'Кто идёт', ih: 'Список участников' },
+        { act: 'share', ic: 'ic-users', il: 'Поделиться', ih: 'Отправить участникам сообщества' }
+      ],
+      confirmed: [
+        { act: 'decline', ic: 'ic-close', il: 'Отказаться', ih: 'Снять подтверждение участия', danger: true },
+        { act: 'who', ic: 'ic-users', il: 'Кто идёт', ih: 'Список участников' },
+        { act: 'share', ic: 'ic-users', il: 'Поделиться', ih: 'Отправить участникам сообщества' },
+        { act: 'add-cal', ic: 'ic-cal', il: 'Добавить в календарь', ih: 'Событие появится в расписании' }
+      ],
+      ongoing: [
+        { act: 'results', ic: 'ic-flag', il: 'Результаты', ih: 'Промежуточные результаты забега' },
+        { act: 'qr', ic: 'ic-qr', il: 'QR-код участника', ih: 'Показать код на входе в городок' },
+        { act: 'share', ic: 'ic-users', il: 'Поделиться', ih: 'Отправить участникам сообщества' }
+      ],
+      done: [],
+      cancelled: []
+    };
+
+    var WHO = [
+      { n: 'Иван Петров', f: 'вы' },
+      { n: 'Анна Смирнова', f: 'клуб «Волна»' },
+      { n: 'Дмитрий Козлов', f: 'клуб «Волна»' },
+      { n: 'Мария Иванова', f: 'секция лёгкой атлетики' },
+      { n: 'Пётр Сидоров', f: 'друг' },
+      { n: 'Ольга Новикова', f: 'друг' }
+    ];
+    var RESULTS = [
+      { p: 1, n: 'Алексей Морозов', f: 'клуб «Волна»', r: '1:14:52', pts: 100 },
+      { p: 2, n: 'Игорь Белов', f: 'клуб «Волна»', r: '1:17:31', pts: 85 },
+      { p: 3, n: 'Кирилл Романов', f: 'секция лёгкой атлетики', r: '1:18:04', pts: 75 },
+      { p: 124, n: 'Иван Петров', f: 'вы · запись в журнале', r: '3:42:11', me: true }
+    ];
+
+    var FACT_DONE = {
+      id: 'evt-marathon', title: 'Осенний полумарафон', when: 'Сб, 30 авг · 08:00–12:00',
+      done: 1, total: 1, token: 'var(--type-event)', icon: 'ic-flag',
+      kind: 'event', marker: 'судья · протокол', result: '3:42:11 · 124-е место из 487'
+    };
+
+    var ROWS_MAR = [
+      ['ic-cal', 'Сб, 30 августа · 08:00–12:00', 'регистрация до 25 августа'],
+      ['ic-map-pin', 'Старт в центре поселения', 'городок на площади'],
+      ['ic-users', 'Организатор · Спорткомплекс «СП Петровское»', 'до 500 участников · 2 пункта воды']
+    ];
+
+    var PILL = {
+      pending: ['Приглашение', 'var(--st-pending)', 'is-pending'],
+      confirmed: ['Подтверждено', 'var(--st-confirmed)', ''],
+      ongoing: ['Идёт', 'var(--st-ongoing)', ''],
+      done: ['Завершено', 'var(--st-done)', ''],
+      cancelled: ['Отменено', 'var(--st-cancelled)', '']
+    };
+
+    function renderMenu(items) {
+      var box = $('menu-list');
+      box.innerHTML = '';
+      items.forEach(function (it) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'sheet-item' + (it.danger ? ' is-danger' : '') + (it.ok ? ' is-ok' : '');
+        b.setAttribute('data-act', it.act);
+        b.innerHTML =
+          '<span class="sheet-ic"><svg aria-hidden="true"><use href="#' + it.ic + '"></use></svg></span>' +
+          '<span class="sheet-it"><span class="sheet-il">' + it.il + '</span><span class="sheet-ih">' + it.ih + '</span></span>';
+        box.appendChild(b);
+      });
+    }
+
+    function renderPartsMarathon() {
+      renderParts(WHO.map(function (w) {
+        var me = w.f === 'вы';
+        return { n: w.n + (me ? ' · вы' : ''), f: w.f, tag: me ? 'Записан' : 'Участник', c: me ? 'var(--st-confirmed)' : 'var(--type-event)', you: me };
+      }));
+    }
+
+    function renderResults() {
+      $('res-body').innerHTML =
+        '<div class="card"><h5 class="evd-sec-t">Финишный протокол</h5>' +
+        RESULTS.map(function (r) {
+          return '<div class="mrow is-static' + (r.me ? ' is-me' : '') + ' is-p' + r.p + '">' +
+            '<span class="r-place">' + r.p + '</span>' +
+            '<span class="mrow-tx"><span class="mrow-t">' + r.n + '</span><span class="mrow-s">' + r.f + '</span></span>' +
+            '<span class="mrow-side"><span class="tag">' + r.r + '</span></span></div>';
+        }).join('') +
+        '</div>';
+    }
+
+    function newsRow() {
+      return '<button type="button" class="evd-news" data-act="news">' +
+        '<span class="evd-news-ic" aria-hidden="true"><svg><use href="#ic-photo"></use></svg></span>' +
+        '<span class="evd-news-tx"><b>Фотоотчёт · как прошёл марафон</b><span>Фото и разбор — в новости сообщества</span></span>' +
+        '<span class="evd-news-chev" aria-hidden="true"><svg><use href="#ic-chev"></use></svg></span></button>';
+    }
+
+    function stageHTML() {
+      if (st === 'pending') {
+        return '<div class="card"><p class="stage-title">Вас пригласили на марафон</p>' +
+          '<p class="stage-sub">Администрация спорткомплекса приглашает вас участвовать в «Осеннем полумарафоне». Ответьте на приглашение — от него зависит количество мест.</p>' +
+          factRow('ic-cal', 'Сб, 30 августа · 08:00–12:00', 'Старт в центре поселения') +
+          factRow('ic-users', 'Уже идут 128 человек', '4 из них — ваши друзья') +
+          factRow('ic-star', 'Участие принесёт +50 баллов', 'значок «Участник марафона» · по итогу события') +
+          '</div>';
+      }
+      if (st === 'confirmed') {
+        return '<div class="card"><p class="stage-title">Участие подтверждено</p>' +
+          '<p class="stage-sub">Стартовый номер закреплён за вами. QR-код понадобится в день события для входа в стартовый городок.</p>' +
+          factRow('ic-qr', 'Стартовый номер 54', 'Иван Петров · участник марафона') +
+          factRow('ic-bell', 'Напоминание за 30 минут', 'Включено · 07:30, 30 августа') +
+          factRow('ic-star', 'За участие начислят +50 баллов', 'значок «Участник марафона» · после финиша') +
+          '<span class="ev-num"><span class="dot" style="background: var(--type-event)" aria-hidden="true"></span>Запись в журнал появится после марафона</span>' +
+          '</div>';
+      }
+      if (st === 'ongoing') {
+        return '<div class="card"><p class="stage-title">Марафон идёт</p>' +
+          '<p class="stage-sub">Покажите QR-код на входе в стартовый городок — так подтвердится ваше участие. После финиша заполните опрос.</p>' +
+          factRow('ic-flag', 'Дистанция открыта', '08:00–12:00 · два пункта воды') +
+          '</div>' +
+          '<div class="ev-qr" id="ev-qr"></div>' +
+          '<p class="ev-qr-cap">QR-код участника · обновляется каждые 3 минуты</p>' +
+          '<span class="ev-num"><span class="dot" style="background: var(--type-event)" aria-hidden="true"></span>Подтверждение по QR при входе</span>';
+      }
+      if (st === 'done') {
+        return '<div class="ev-result">' +
+          '<div class="ev-result-time">3:42:11</div>' +
+          '<div class="ev-result-sub">124-е место из 487</div>' +
+          '<span class="gchip is-sign ev-result-badge" style="--c: var(--type-event)"><span class="dot" aria-hidden="true"></span>Участие в соревновании</span>' +
+          '</div>' +
+          '<div class="card">' +
+          factRow('ic-qr', 'Подтверждено по QR при входе', 'вход в стартовый городок · 08:12') +
+          factRow('ic-check', 'Подтверждено судьёй · протокол', 'результат фиксируется по чипу на дистанции') +
+          factRow('ic-star', '+50 баллов · значок «Участник марафона»', 'начислено по итогу события') +
+          '</div>' +
+          newsRow();
+      }
+      /* cancelled */
+      return '<div class="card"><p class="stage-title">Участие отменено</p>' +
+        '<p class="stage-sub">Отказ зафиксирован, место не забронировано. Приглашение можно вернуть — если передумаете до 25 августа.</p>' +
+        factRow('ic-close', 'Отменено', 'место вернётся в общий список') +
+        '</div>';
+    }
+
+    function barHTML() {
+      if (st === 'pending') {
+        return '<div class="bar-actions">' +
+          btn('Принять', 'btn-accent', 'accept') +
+          btn('Отклонить', 'btn-ghost', 'decline') +
+          '</div>';
+      }
+      if (st === 'confirmed') {
+        return '<div class="bar-actions">' +
+          btn('Кто идёт', 'btn-ghost', 'who') +
+          btn('Добавить в календарь', 'btn-accent', 'add-cal') +
+          '</div>';
+      }
+      if (st === 'ongoing') {
+        return '<div class="bar-actions">' + btn('Я финишировал — опрос', 'btn-accent', 'survey') + '</div>';
+      }
+      if (st === 'done') {
+        return '<div class="bar-actions">' +
+          btn('Читать новость', 'btn-accent', 'news') +
+          btn('В журнал активностей', 'btn-ghost', 'open-log') +
+          '</div>';
+      }
+      /* cancelled */
+      return '<div class="bar-actions">' + btn('Вернуть приглашение', 'btn-ghost', 'reset') + '</div>';
+    }
+
+    function render() {
+      var pill = PILL[st];
+      var p = $('ev-pill');
+      p.textContent = pill[0];
+      p.style.setProperty('--c', pill[1]);
+      p.className = 'ev-status' + (pill[2] ? ' ' + pill[2] : '');
+      p.classList.remove('is-pending');
+      if (pill[2] === 'is-pending') p.classList.add('is-pending');
+
+      renderRows(ROWS_MAR);
+      $('evd-note').textContent = 'Забег на 21,1 км по центральным улицам посёлка. Для участников — пункты воды и награждение финишёров.';
+
+      var steps = [
+        { key: 'pending', label: 'Приглашение' },
+        { key: 'confirmed', label: 'Подтверждение' },
+        { key: 'ongoing', label: 'QR-вход' },
+        { key: 'done', label: 'Опрос и итог' }
+      ];
+      $('evd-flow').innerHTML =
+        '<div class="card"><h5 class="evd-sec-t">Дорожка участия</h5>' +
+        '<ul class="ev-steps" id="ev-steps">' + steps.map(function (s) {
+          return '<li class="ev-step" data-step="' + s.key + '"><span class="ev-node"><span class="ev-dot"></span></span><span class="ev-step-name">' + s.label + '</span></li>';
+        }).join('') + '</ul></div>';
+
+      var rank = { pending: 0, confirmed: 1, ongoing: 2, done: 3, cancelled: 0 };
+      var cur = rank[st];
+      var list = $('ev-steps');
+      list.querySelectorAll('.ev-step').forEach(function (li, i) {
+        li.className = 'ev-step';
+        if (st === 'cancelled') {
+          if (i === 0) li.classList.add('is-cancel');
+          return;
+        }
+        if (i < cur) li.classList.add('is-done');
+        if (i === cur) li.classList.add('is-current');
+        var dot = li.querySelector('.ev-dot');
+        if (i < cur) dot.innerHTML = '<svg aria-hidden="true"><use href="#ic-check"></use></svg>';
+        else if (st === 'cancelled' && i === 0) dot.textContent = '!';
+        else dot.textContent = '';
+      });
+
+      $('ev-stage').innerHTML = stageHTML();
+      if (st === 'ongoing') buildQR();
+
+      renderResults();
+      renderPartsMarathon();
+
+      $('evd-bar').innerHTML = barHTML();
+      reveal($('ev-stage'));
+      reveal($('evd-bar'));
+    }
+
+    /* ── QR (канон referens/qrscan.html: сидированный грид 21×21) ── */
+    var qrBuilt = false;
+    function buildQR() {
+      if (qrBuilt) return;
+      qrBuilt = true;
+      var cells = '';
+      var seed = 42;
+      function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed; }
+      var n = 21;
+      for (var y = 0; y < n; y++) {
+        for (var x = 0; x < n; x++) {
+          var finder = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+          var on = finder ? ((x % 4 === 0 || y % 4 === 0)) : (rnd() % 3 !== 0);
+          if (on) cells += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="#12213b"/>';
+        }
+      }
+      $('ev-qr').innerHTML =
+        '<svg viewBox="0 0 21 21" shape-rendering="crispEdges" role="img" aria-label="QR-код участника марафона">' + cells + '</svg>';
+    }
+
+    /* ── Опрос ── */
+    var q1v = 'Нормальное', q2v = 'В мою силу';
+    document.querySelectorAll('#q1 .pick-chip, #q2 .pick-chip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        var group = c.parentNode;
+        group.querySelectorAll('.pick-chip').forEach(function (x) { x.classList.remove('is-on'); });
+        c.classList.add('is-on');
+        if (group.id === 'q1') q1v = c.getAttribute('data-v');
+        else q2v = c.getAttribute('data-v');
+      });
+    });
+    $('btn-survey').addEventListener('click', function () {
+      closeSheets();
+      save({
+        status: 'done',
+        q1: q1v, q2: q2v,
+        fact: FACT_DONE
+      });
+      st = 'done';
+      render();
+      toast('Участие в марафоне зафиксировано · запись в журнале', 50);
+    });
+
+    function handle(act) {
+      switch (act) {
+        case 'accept':
+          save({ status: 'confirmed' });
+          st = 'confirmed';
+          render();
+          toast('Участие подтверждено · стартовый номер 54');
+          break;
+        case 'decline':
+          save({ status: 'cancelled' });
+          st = 'cancelled';
+          render();
+          toast('Участие отменено');
+          break;
+        case 'who':
+          setTab('part');
+          break;
+        case 'results':
+          setTab('res');
+          break;
+        case 'share':
+          toast('Ссылка на событие скопирована');
+          break;
+        case 'add-cal':
+          toast('Событие добавлено в календарь');
+          break;
+        case 'qr':
+          setTab('obzor');
+          render();
+          toast('QR-код участника показан');
+          break;
+        case 'survey':
+          openSheet($('survey-sheet'));
+          break;
+        case 'open-log':
+          location.href = 'activities.html';
+          break;
+        case 'news':
+          toast('Открываем новость сообщества');
+          break;
+        case 'reset':
+          reset();
+          break;
+      }
+    }
+
+    $('btn-more').addEventListener('click', function () {
+      var items = MENU[st] || [];
+      if (!items.length) { toast('Для этого статуса действий нет'); return; }
+      renderMenu(items);
+      openSheet($('menu-sheet'));
+    });
+    $('menu-list').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-act]') : null;
+      if (!b) return;
+      closeSheets();
+      handle(b.getAttribute('data-act'));
+    });
+    $('evd-bar').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-act]') : null;
+      if (b) handle(b.getAttribute('data-act'));
+    });
+    $('ev-stage').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-act]') : null;
+      if (b) handle(b.getAttribute('data-act'));
+    });
+    $('btn-reset').addEventListener('click', reset);
+    document.querySelectorAll('.tabbar [data-toast]').forEach(function (b) {
+      b.addEventListener('click', function () { toast(b.getAttribute('data-toast'), null); });
+    });
+
+    render();
+    if (autoStarted) toast('Забег стартовал · QR-вход открыт');
+    return;
+  }
+
+  /* ── Куп: обработчики действий ── */
+  $('menu-list').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!b) return;
+    closeSheets();
+    var act = b.getAttribute('data-act');
+    if (act === 'news') toast('Открываем новость сообщества');
+    else if (act === 'share') toast('Ссылка на событие скопирована');
+    else if (act === 'add-cal') toast('Событие добавлено в календарь');
+  });
+  $('evd-bar').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'news') toast('Открываем новость сообщества');
+    else if (act === 'share') toast('Ссылка на событие скопирована');
+  });
+  $('btn-share').addEventListener('click', function () { toast('Ссылка на событие скопирована'); });
+  document.querySelectorAll('.tabbar [data-toast]').forEach(function (b) {
+    b.addEventListener('click', function () { toast(b.getAttribute('data-toast'), null); });
+  });
+
+  renderCup();
+})();
+</script>
+</body>
+</html>
