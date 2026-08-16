@@ -262,7 +262,7 @@
   $('btn-gto-back').addEventListener('click', function () {
     history.length > 1 ? history.back() : location.href = '07-calendar.html';
   });
-  $('r-profile-btn').addEventListener('click', function () { location.href = '18-profile.html'; });
+  $('r-profile-btn').addEventListener('click', function () { location.href = 'profile.html'; });
 
   $('r-share').addEventListener('click', function () {
     var resTxt = rows.map(function (r) { return r.name + ' — ' + r.val + ' ' + r.unit; }).join('; ');

@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Редактирование профиля · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Редактирование профиля» (свой) — под-экран профиля, вход —
+     иконка «Редактировать» в шапке profile.html. Модель: 05-questionnaire
+     (поля, валидация, барабан даты) + 07-add-event (topbar, evd-bar).
+     Хранит профиль в localStorage «user:profile». */
+  .pe-body { padding-bottom: 120px; }
+
+  /* Блок фото — по образцу hero-аватара profile.html, но кликабельный */
+  .pe-photo {
+    display: grid; place-items: center; gap: var(--space-3);
+    padding: var(--space-5) 0 var(--space-4);
+  }
+  .pe-photo .cam-btn {
+    position: relative; flex: none; width: 88px; height: 88px;
+    border-radius: 50%; border: 0; padding: 0; background: var(--surface-2);
+    overflow: hidden; cursor: pointer; display: grid; place-items: center;
+  }
+  .pe-photo .cam-btn .cam {
+    position: absolute; right: -2px; bottom: -2px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--bg);
+    display: grid; place-items: center; color: var(--fg-2);
+  }
+  .pe-photo .cam svg { width: 14px; height: 14px; }
+  .pe-photo .ph-img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;
+  }
+  .pe-photo .ph-init {
+    width: 100%; height: 100%; border-radius: 50%;
+    display: none; place-items: center;
+    font-family: var(--font-display); font-size: var(--fs-title);
+    font-weight: 600; color: var(--fg-2); background: var(--surface-2);
+  }
+  .pe-photo .cam-hint { font-size: var(--fs-caption); color: var(--meta); }
+
+  /* Выбор фото из готовых аватаров */
+  .pe-photo-list { display: flex; gap: var(--space-3); padding: var(--space-4); flex-wrap: wrap; }
+  .pe-photo-item {
+    position: relative; flex: none; width: 72px; height: 72px;
+    border-radius: 50%; border: 2px solid transparent; padding: 0;
+    background: none; overflow: hidden; cursor: pointer;
+  }
+  .pe-photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+  .pe-photo-item.is-on { border-color: var(--accent); }
+  .pe-photo-item.is-clear {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--surface-2); color: var(--fg-2);
+    display: grid; place-items: center; font-size: var(--fs-title-sm);
+    font-weight: 600; border: 2px dashed var(--border-strong);
+  }
+  .pe-photo-item.is-clear.is-on { border-color: var(--accent); }
+
+  /* Дата рождения — кнопка-поле, открывает барабан (как анкета) */
+  .field-inner.is-picker {
+    width: 100%; font-family: var(--font-body); font-size: var(--fs-body); color: var(--fg);
+    text-align: left; cursor: pointer;
+  }
+  .field-inner.is-picker .picker-val {
+    flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .field-inner.is-picker .picker-val.is-empty { color: var(--placeholder); }
+  .field-inner.is-picker .chev { flex: 0 0 auto; color: var(--meta); }
+  .field-inner.is-picker .ok { flex: 0 0 auto; }
+
+  /* Чипы на этом экране не скроллятся, переносятся */
+  .pe-body .chips { margin: 0; padding: 0; overflow: visible; flex-wrap: wrap; }
+
+  .form-alert {
+    display: none;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--danger);
+    background: color-mix(in oklab, var(--danger), transparent 92%);
+    color: var(--danger);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .form-alert.is-show { display: block; }
+
+  /* Пара полей в ряд (дата рождения + стаж) */
+  .q-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; }
+
+  /* Блок «Родитель или доверительное лицо» — как в анкете */
+  .q-contact {
+    margin-bottom: 18px; padding: 16px;
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    background: var(--surface-warm);
+  }
+  .q-contact-head { margin-bottom: 14px; }
+  .q-contact-title { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .q-contact-hint { display: block; margin-top: 3px; font-size: var(--fs-caption); line-height: 1.4; color: var(--meta); }
+  .q-contact .field { margin-bottom: 14px; }
+  .q-contact .field:last-child { margin-bottom: 0; }
+
+  .field-inner input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  .field-inner input[type="number"]::-webkit-outer-spin-button,
+  .field-inner input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .pe-note {
+    margin: var(--space-4) 0 0;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    color: var(--meta);
+    font-size: var(--fs-meta);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body data-od-id="profile-edit-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8h2.6l1.4-2.2A1 1 0 0 1 8.9 5.4h6.2a1 1 0 0 1 .9.6L17.4 8H20a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><circle cx="12" cy="13.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app">
+  <header class="topbar" data-od-id="pe-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h1 class="topbar-tx">Редактирование профиля</h1>
+  </header>
+
+  <main class="body pe-body" data-od-id="pe-body">
+
+    <div class="pe-photo" data-od-id="pe-photo">
+      <button type="button" class="cam-btn" id="btn-photo" aria-haspopup="dialog" aria-label="Сменить фото">
+        <img class="ph-img" id="photo-img" src="../assets/avatars/athlete.png" alt="">
+        <span class="ph-init" id="photo-init" aria-hidden="true"></span>
+        <span class="cam"><svg aria-hidden="true"><use href="#ic-camera"></use></svg></span>
+      </button>
+      <span class="cam-hint">Фото по умолчанию из каталога</span>
+    </div>
+
+    <form id="form-profile" novalidate>
+      <p class="form-alert" id="alert-pe" role="alert"></p>
+
+      <label class="field" id="field-pe-fio">
+        <span class="field-label">ФИО</span>
+        <span class="field-inner">
+          <input id="pe-fio" name="pe-fio" type="text" autocomplete="name" placeholder="Иванов Иван Иванович">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <div class="q-row">
+        <label class="field" id="field-pe-birth">
+          <span class="field-label">Дата рождения <span class="opt">(для нормативов ГТО)</span></span>
+          <button type="button" class="field-inner is-picker" id="btn-pe-birth" aria-haspopup="dialog">
+            <svg class="field-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+            </svg>
+            <span class="picker-val is-empty" id="val-pe-birth">Выберите дату</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+            <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+          <input id="pe-birth" name="pe-birth" type="hidden" autocomplete="bday">
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-pe-exp">
+          <span class="field-label">Стаж, лет <span class="opt">(необязательно)</span></span>
+          <span class="field-inner">
+            <input id="pe-exp" name="pe-exp" type="number" inputmode="numeric" min="0" max="50" placeholder="0">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+      </div>
+
+      <div class="field" id="field-pe-sex">
+        <span class="field-label">Пол</span>
+        <div class="chips" role="radiogroup" aria-label="Пол">
+          <label class="pick-chip">
+            <input type="radio" name="pe-sex" value="Мужской">
+            <span>Мужской</span>
+          </label>
+          <label class="pick-chip">
+            <input type="radio" name="pe-sex" value="Женский">
+            <span>Женский</span>
+          </label>
+        </div>
+        <span class="field-msg" id="sex-msg"></span>
+      </div>
+
+      <div class="field" id="field-pe-sport">
+        <span class="field-label">Виды спорта</span>
+        <div class="chips" role="group" aria-label="Виды спорта">
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Плавание"><span>Плавание</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Футбол"><span>Футбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Волейбол"><span>Волейбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Баскетбол"><span>Баскетбол</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Лёгкая атлетика"><span>Лёгкая атлетика</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Единоборства"><span>Единоборства</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Теннис"><span>Теннис</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Лыжные гонки"><span>Лыжные гонки</span></label>
+          <label class="pick-chip"><input type="checkbox" name="pe-sport" value="Другое"><span>Другое</span></label>
+        </div>
+        <span class="field-msg"></span>
+      </div>
+
+      <label class="field" id="field-pe-city">
+        <span class="field-label">Город <span class="opt">(необязательно)</span></span>
+        <span class="field-inner">
+          <input id="pe-city" name="pe-city" type="text" autocomplete="address-level2" placeholder="Петровск">
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <label class="field" id="field-pe-phone">
+        <span class="field-label">Телефон</span>
+        <span class="field-inner">
+          <input id="pe-phone" name="pe-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <label class="field" id="field-pe-email">
+        <span class="field-label">Email</span>
+        <span class="field-inner">
+          <input id="pe-email" name="pe-email" type="email" autocomplete="email" placeholder="email@example.com">
+          <svg class="ok" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5 7.5 13 14.5 5" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+
+      <div class="q-contact" id="field-pe-parent">
+        <div class="q-contact-head">
+          <span class="q-contact-title">Родитель или доверительное лицо</span>
+          <span class="q-contact-hint">Для участников младше 18 лет. Доверительное лицо — взрослый (18+).</span>
+        </div>
+        <label class="field" id="field-pe-parent-name">
+          <span class="field-label">ФИО родителя или доверительного лица</span>
+          <span class="field-inner">
+            <input id="pe-parent-name" name="pe-parent-name" type="text" autocomplete="name" placeholder="Иванова Мария Петровна">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-pe-parent-role">
+          <span class="field-label">Кем приходится</span>
+          <span class="field-inner select-wrap">
+            <select id="pe-parent-role" name="pe-parent-role">
+              <option value="" selected>Выберите</option>
+              <option value="Родитель">Родитель</option>
+              <option value="Доверительное лицо">Доверительное лицо</option>
+              <option value="Другое">Другое</option>
+            </select>
+          </span>
+          <span class="field-msg"></span>
+        </label>
+        <label class="field" id="field-pe-parent-phone">
+          <span class="field-label">Телефон</span>
+          <span class="field-inner">
+            <input id="pe-parent-phone" name="pe-parent-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__">
+          </span>
+          <span class="field-msg"></span>
+        </label>
+      </div>
+
+      <label class="field" id="field-pe-about">
+        <span class="field-label">О себе <span class="opt">(необязательно)</span></span>
+        <span class="field-inner is-area">
+          <textarea id="pe-about" name="pe-about" rows="3" placeholder="Разряды, медицинские особенности..."></textarea>
+        </span>
+        <span class="field-msg"></span>
+      </label>
+    </form>
+
+    <p class="pe-note">Баллы, серия, знак ГТО и QR-код менять нельзя — они начисляются за активности.</p>
+  </main>
+
+  <footer class="evd-bar" data-od-id="pe-bar">
+    <div class="bar-actions">
+      <button type="submit" form="form-profile" class="btn btn-accent btn-lg btn-block" id="btn-save" disabled><span class="spinner" aria-hidden="true"></span>Сохранить</button>
+    </div>
+  </footer>
+</div>
+
+<div class="scrim" id="birth-scrim" aria-hidden="true"></div>
+<div class="sheet" id="birth-sheet" role="dialog" aria-modal="true" aria-label="Дата рождения">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Дата рождения</h3>
+    <button type="button" class="sheet-close js-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="wheel" role="group" aria-label="Выбор даты рождения">
+    <div class="wheel-head">
+      <span class="wheel-label">День</span>
+      <span class="wheel-label">Месяц</span>
+      <span class="wheel-label">Год</span>
+    </div>
+    <div class="wheel-body">
+      <div class="wheel-col" id="wb-day"></div>
+      <div class="wheel-col" id="wb-month"></div>
+      <div class="wheel-col" id="wb-year"></div>
+      <span class="wheel-mask" aria-hidden="true"></span>
+    </div>
+  </div>
+  <button type="button" class="sheet-primary" id="birth-ok">Выбрать</button>
+  <button type="button" class="sheet-cancel js-sheet-close">Отмена</button>
+</div>
+
+<div class="scrim" id="photo-scrim" aria-hidden="true"></div>
+<div class="sheet" id="photo-sheet" role="dialog" aria-modal="true" aria-label="Выбор фото">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Фото профиля</h3>
+    <button type="button" class="sheet-close js-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="pe-photo-list" role="radiogroup" aria-label="Фото профиля">
+    <button type="button" class="pe-photo-item" data-photo="athlete.png" aria-label="Спортсмен"><img src="../assets/avatars/athlete.png" alt=""></button>
+    <button type="button" class="pe-photo-item" data-photo="athlete-f.png" aria-label="Спортсменка"><img src="../assets/avatars/athlete-f.png" alt=""></button>
+    <button type="button" class="pe-photo-item" data-photo="coach.png" aria-label="Тренер"><img src="../assets/avatars/coach.png" alt=""></button>
+    <button type="button" class="pe-photo-item" data-photo="referee.png" aria-label="Судья"><img src="../assets/avatars/referee.png" alt=""></button>
+    <button type="button" class="pe-photo-item" data-photo="sportsmen.png" aria-label="Спортсмен"><img src="../assets/avatars/sportsmen.png" alt=""></button>
+    <button type="button" class="pe-photo-item is-clear" data-photo="" aria-label="Без фото"><span>Без фото</span></button>
+  </div>
+</div>
+
+<div class="evd-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Профиль сохранён</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var LS_KEY = 'user:profile';
+
+  var PHOTOS = ['athlete.png', 'athlete-f.png', 'coach.png', 'referee.png', 'sportsmen.png', ''];
+  var DEFAULT = {
+    fio: 'Андрей Соколов', birth: '', exp: '', sex: 'Мужской', sports: [],
+    city: '', phone: '', email: '', about: '',
+    parentName: '', parentRole: '', parentPhone: '',
+    photo: 'athlete.png'
+  };
+
+  var current = Object.assign({}, DEFAULT);
+  try {
+    var stored = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (stored) current = Object.assign(current, stored);
+  } catch (err) {}
+
+  function fmtBirthShort(d) { return d.getDate() + ' ' + MONTHS_G[d.getMonth()] + ' ' + d.getFullYear(); }
+  function fmtBirthISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+  var toastTimer;
+
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function isPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    return /^7\d{10}$/.test(d);
+  }
+  function fieldOf(input) { return input.closest('.field'); }
+  function setState(field, state, msg) {
+    field.classList.toggle('is-error', state === 'error');
+    field.classList.toggle('is-success', state === 'success');
+    var m = field.querySelector('.field-msg');
+    if (m) m.textContent = msg || '';
+    var input = field.querySelector('input, select, textarea');
+    if (input) input.setAttribute('aria-invalid', String(state === 'error'));
+  }
+  function maskPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.charAt(0) === '8') d = '7' + d.slice(1);
+    if (d.charAt(0) !== '7') d = '7' + d;
+    d = d.slice(0, 11);
+    var out = '+7';
+    if (d.length > 1) out += ' (' + d.slice(1, 4);
+    if (d.length >= 4) out += ') ' + d.slice(4, 7);
+    if (d.length >= 7) out += '-' + d.slice(7, 9);
+    if (d.length >= 9) out += '-' + d.slice(9, 11);
+    return out;
+  }
+  function showFormAlert(msg) {
+    var el = $('alert-pe');
+    el.textContent = msg;
+    el.classList.add('is-show');
+  }
+  function hideFormAlert() { $('alert-pe').classList.remove('is-show'); }
+  function countWords(v) { return v.trim().split(/\s+/).filter(Boolean).length; }
+
+  var peFio = $('pe-fio'), peBirth = $('pe-birth'), peExp = $('pe-exp'),
+      pePhone = $('pe-phone'), peEmail = $('pe-email'),
+      peCity = $('pe-city'), peAbout = $('pe-about'),
+      peParentName = $('pe-parent-name'), peParentRole = $('pe-parent-role'), peParentPhone = $('pe-parent-phone');
+  var sexInputs = document.querySelectorAll('input[name="pe-sex"]');
+  var sportInputs = document.querySelectorAll('input[name="pe-sport"]');
+
+  function applyCurrent() {
+    peFio.value = current.fio;
+    peExp.value = current.exp;
+    peCity.value = current.city;
+    pePhone.value = current.phone;
+    peEmail.value = current.email;
+    peAbout.value = current.about;
+    peParentName.value = current.parentName;
+    peParentRole.value = current.parentRole;
+    peParentPhone.value = current.parentPhone;
+
+    sexInputs.forEach(function (i) { i.checked = (i.value === current.sex); });
+    sportInputs.forEach(function (i) { i.checked = current.sports.indexOf(i.value) !== -1; });
+
+    var d = peBirth.value.trim() ? new Date(peBirth.value + 'T00:00:00') : null;
+    if (d && !isNaN(d.getTime())) {
+      $('val-pe-birth').textContent = fmtBirthShort(d);
+      $('val-pe-birth').classList.remove('is-empty');
+    } else {
+      peBirth.value = '';
+      $('val-pe-birth').textContent = 'Выберите дату';
+      $('val-pe-birth').classList.add('is-empty');
+    }
+
+    document.querySelectorAll('.pick-chip').forEach(function (label) {
+      var input = label.querySelector('input');
+      label.classList.toggle('is-on', input.checked);
+    });
+
+    applyPhoto();
+  }
+
+  function applyPhoto() {
+    var img = $('photo-img');
+    var init = $('photo-init');
+    if (current.photo) {
+      img.src = '../assets/avatars/' + current.photo;
+      img.style.display = '';
+      init.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      init.textContent = initials();
+      init.style.display = 'grid';
+    }
+    var btn = document.querySelector('#photo-sheet .pe-photo-item.is-on');
+    if (btn) btn.classList.remove('is-on');
+    var cur = document.querySelector('#photo-sheet .pe-photo-item[data-photo="' + (current.photo || '') + '"]');
+    if (cur) cur.classList.add('is-on');
+  }
+  function initials() {
+    var parts = current.fio.trim().split(/\s+/).filter(Boolean);
+    return ((parts[0] || 'А').charAt(0) + (parts[1] ? parts[1].charAt(0) : '')).toUpperCase();
+  }
+
+  function birthDate() {
+    var v = peBirth.value.trim();
+    if (!v) return null;
+    var d = new Date(v + 'T00:00:00');
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function ageYears() {
+    var d = birthDate();
+    if (!d) return NaN;
+    var now = new Date();
+    var y = now.getFullYear() - d.getFullYear();
+    if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) y--;
+    return y;
+  }
+  function parentVisible() {
+    var n = ageYears();
+    return !isNaN(n) && n < 18;
+  }
+  function updateParent() {
+    var box = $('field-pe-parent');
+    var show = parentVisible();
+    box.style.display = show ? 'block' : 'none';
+    box.setAttribute('aria-hidden', String(!show));
+  }
+  function sexValue() {
+    var c = document.querySelector('input[name="pe-sex"]:checked');
+    return c ? c.value : '';
+  }
+  function sportSelected() {
+    return Array.prototype.some.call(sportInputs, function (i) { return i.checked; });
+  }
+
+  /* ── Дата рождения: барабаны (как 05-questionnaire) ── */
+  var MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  var MONTHS_G = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  var WB_MIN_AGE = 6, WB_MAX_AGE = 99;
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
+
+  function buildWheel(colId, items, selIdx, onChange) {
+    var col = $(colId);
+    col.style.justifyContent = 'flex-start';
+    col.style.overflowY = 'auto';
+    col.style.scrollSnapType = 'y mandatory';
+    col.style.paddingTop = '96px';
+    col.style.paddingBottom = '96px';
+    var cards = [];
+    var ITEM_H = 32, CENTER = 112;
+    function paint(top) {
+      cards.forEach(function (c) {
+        var cy = 96 + c.i * ITEM_H + ITEM_H / 2 - top;
+        var t = Math.min(1, Math.abs(cy - CENTER) / (ITEM_H * 2.2));
+        c.el.style.transform = 'scale(' + (1.12 - 0.18 * t).toFixed(3) + ')';
+        c.el.style.opacity = (1 - 0.5 * t).toFixed(3);
+        c.el.classList.toggle('is-sel', Math.abs(cy - CENTER) < ITEM_H / 2);
+      });
+    }
+    function rebuild(list, idx) {
+      col.innerHTML = '';
+      cards = [];
+      list.forEach(function (it, i) {
+        var d = document.createElement('div');
+        d.className = 'wheel-item';
+        d.style.scrollSnapAlign = 'center';
+        d.style.flex = 'none';
+        d.textContent = it.label;
+        d.addEventListener('click', function () { setIdx(i); });
+        col.appendChild(d);
+        cards.push({ el: d, i: i, v: it.value });
+      });
+      last = -1;
+      setIdx(idx === undefined ? 0 : idx);
+    }
+    var last = -1;
+    function setIdx(i) {
+      i = Math.max(0, Math.min(cards.length - 1, i));
+      col.scrollTop = i * ITEM_H;
+      paint(col.scrollTop);
+      last = i;
+      if (onChange && cards.length) onChange(cards[i].v);
+    }
+    var raf = null;
+    col.addEventListener('scroll', function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = null;
+        if (!cards.length) return;
+        var top = col.scrollTop;
+        paint(top);
+        var i = Math.max(0, Math.min(cards.length - 1, Math.round(top / ITEM_H)));
+        if (i !== last) { last = i; if (onChange) onChange(cards[i].v); }
+      });
+    });
+    rebuild(items, selIdx);
+    return { rebuild: rebuild, setIdx: setIdx };
+  }
+
+  var birthSel = { y: 2006, m: 0, d: 1 };
+  var wbDay, wbMonth, wbYear;
+
+  function dayItems(n) {
+    var a = [];
+    for (var i = 1; i <= n; i++) a.push({ label: String(i), value: i });
+    return a;
+  }
+  function yearItems() {
+    var nowY = new Date().getFullYear();
+    var a = [];
+    for (var y = nowY - WB_MIN_AGE; y >= nowY - WB_MAX_AGE; y--) a.push({ label: String(y), value: y });
+    return a;
+  }
+  function rebuildDayWheel() {
+    if (!birthSel) return;
+    var n = daysIn(birthSel.y, birthSel.m);
+    if (birthSel.d > n) birthSel.d = n;
+    wbDay.rebuild(dayItems(n), birthSel.d - 1);
+    paintBirthPick();
+  }
+  function paintBirthPick() {
+    if (!birthSel) return;
+    $('birth-ok').textContent = 'Выбрать · ' + fmtBirthShort(new Date(birthSel.y, birthSel.m, birthSel.d));
+  }
+  function openBirthSheet() {
+    var cur = birthDate();
+    var nowY = new Date().getFullYear();
+    if (cur && cur.getFullYear() >= nowY - WB_MAX_AGE) {
+      birthSel = { y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate() };
+    } else {
+      birthSel = { y: nowY - 20, m: new Date().getMonth(), d: 1 };
+    }
+    wbDay.setIdx(birthSel.d - 1);
+    wbMonth.setIdx(birthSel.m);
+    wbYear.setIdx(nowY - WB_MIN_AGE - birthSel.y);
+    paintBirthPick();
+    $('birth-scrim').classList.add('open');
+    $('birth-sheet').classList.add('open');
+  }
+  function closeBirthSheet() {
+    $('birth-scrim').classList.remove('open');
+    $('birth-sheet').classList.remove('open');
+  }
+  function confirmBirth() {
+    var d = new Date(birthSel.y, birthSel.m, birthSel.d);
+    peBirth.value = fmtBirthISO(d);
+    var val = $('val-pe-birth');
+    val.textContent = fmtBirthShort(d);
+    val.classList.remove('is-empty');
+    closeBirthSheet();
+    updateParent();
+    updateForm();
+    checkPBirth(false);
+  }
+
+  var nowY0 = new Date().getFullYear();
+  wbDay = buildWheel('wb-day', dayItems(daysIn(nowY0 - 20, 0)), 0, function (v) { birthSel.d = v; paintBirthPick(); });
+  wbMonth = buildWheel('wb-month', MONTHS.map(function (m, i) { return { label: m, value: i }; }), 0, function (v) { birthSel.m = v; rebuildDayWheel(); });
+  wbYear = buildWheel('wb-year', yearItems(), 0, function (v) { birthSel.y = v; rebuildDayWheel(); });
+
+  $('btn-pe-birth').addEventListener('click', openBirthSheet);
+  $('birth-ok').addEventListener('click', confirmBirth);
+  $('birth-scrim').addEventListener('click', closeBirthSheet);
+  document.querySelectorAll('#birth-sheet .js-sheet-close').forEach(function (b) {
+    b.addEventListener('click', closeBirthSheet);
+  });
+
+  /* ── Фото ── */
+  function openPhotoSheet() {
+    $('photo-scrim').classList.add('open');
+    $('photo-sheet').classList.add('open');
+  }
+  function closePhotoSheet() {
+    $('photo-scrim').classList.remove('open');
+    $('photo-sheet').classList.remove('open');
+  }
+  $('btn-photo').addEventListener('click', openPhotoSheet);
+  $('photo-scrim').addEventListener('click', closePhotoSheet);
+  document.querySelectorAll('#photo-sheet .js-sheet-close').forEach(function (b) {
+    b.addEventListener('click', closePhotoSheet);
+  });
+  document.querySelectorAll('#photo-sheet .pe-photo-item').forEach(function (b) {
+    b.addEventListener('click', function () {
+      current.photo = b.getAttribute('data-photo');
+      applyPhoto();
+      closePhotoSheet();
+    });
+  });
+
+  /* ── Валидация ── */
+  function checkPFio(force) {
+    var v = peFio.value.trim();
+    if (!v) { if (force) setState(fieldOf(peFio), 'error', 'Введите ФИО'); else setState(fieldOf(peFio), ''); return false; }
+    if (countWords(v) < 2) { if (force) setState(fieldOf(peFio), 'error', 'Укажите имя и фамилию'); else setState(fieldOf(peFio), ''); return false; }
+    setState(fieldOf(peFio), 'success');
+    return true;
+  }
+  function checkPBirth(force) {
+    var a = ageYears();
+    if (isNaN(a)) { if (force) setState(fieldOf(peBirth), 'error', 'Укажите дату рождения'); else setState(fieldOf(peBirth), ''); return false; }
+    if (a < 6 || a > 99) { if (force) setState(fieldOf(peBirth), 'error', 'Возраст от 6 до 99 лет'); else setState(fieldOf(peBirth), ''); return false; }
+    setState(fieldOf(peBirth), 'success');
+    return true;
+  }
+  function checkPExp(force) {
+    var v = peExp.value.trim();
+    if (!v) { setState(fieldOf(peExp), ''); return true; }
+    var n = Number(v);
+    if (!Number.isInteger(n) || n < 0 || n > 50) { if (force) setState(fieldOf(peExp), 'error', 'Стаж до 50 лет'); else setState(fieldOf(peExp), ''); return false; }
+    setState(fieldOf(peExp), 'success');
+    return true;
+  }
+  function checkPSex(force) {
+    var v = sexValue();
+    $('field-pe-sex').classList.toggle('is-error', !v && !!force);
+    $('sex-msg').textContent = (!v && !!force) ? 'Укажите пол' : '';
+    sexInputs.forEach(function (i) { i.setAttribute('aria-invalid', String(!v && !!force)); });
+    return !!v;
+  }
+  function checkPSport(force) {
+    var ok = sportSelected();
+    if (!ok) { if (force) setState($('field-pe-sport'), 'error', 'Выберите хотя бы один вид спорта'); else setState($('field-pe-sport'), ''); return false; }
+    setState($('field-pe-sport'), 'success');
+    return true;
+  }
+  function checkPPhone(force) {
+    if (!isPhone(pePhone.value)) {
+      if (force) setState(fieldOf(pePhone), 'error', pePhone.value.replace(/\D/g, '') ? 'Неполный номер' : 'Введите телефон');
+      else setState(fieldOf(pePhone), '');
+      return false;
+    }
+    setState(fieldOf(pePhone), 'success');
+    return true;
+  }
+  function checkPEmail(force) {
+    var v = peEmail.value.trim();
+    if (!v) { if (force) setState(fieldOf(peEmail), 'error', 'Введите email'); else setState(fieldOf(peEmail), ''); return false; }
+    if (!RE_EMAIL.test(v)) { if (force) setState(fieldOf(peEmail), 'error', 'Неверный формат email'); else setState(fieldOf(peEmail), ''); return false; }
+    setState(fieldOf(peEmail), 'success');
+    return true;
+  }
+  function checkPParent(force) {
+    var box = $('field-pe-parent');
+    if (box.style.display === 'none') {
+      setState($('field-pe-parent-name'), '');
+      setState($('field-pe-parent-role'), '');
+      setState($('field-pe-parent-phone'), '');
+      return true;
+    }
+    var okName = countWords(peParentName.value) >= 2;
+    var okRole = peParentRole.value !== '';
+    var okPhone = isPhone(peParentPhone.value);
+    if (!okName) { if (force) setState($('field-pe-parent-name'), 'error', 'Укажите ФИО'); else setState($('field-pe-parent-name'), ''); }
+    else setState($('field-pe-parent-name'), 'success');
+    if (!okRole) { if (force) setState($('field-pe-parent-role'), 'error', 'Укажите, кем приходится'); else setState($('field-pe-parent-role'), ''); }
+    else setState($('field-pe-parent-role'), 'success');
+    if (!okPhone) { if (force) setState($('field-pe-parent-phone'), 'error', 'Укажите телефон'); else setState($('field-pe-parent-phone'), ''); }
+    else setState($('field-pe-parent-phone'), 'success');
+    return okName && okRole && okPhone;
+  }
+
+  function updateForm() {
+    hideFormAlert();
+    checkPFio(false); checkPBirth(false); checkPExp(false); checkPSport(false); checkPPhone(false); checkPEmail(false); checkPParent(false);
+    var a = ageYears();
+    var ok = countWords(peFio.value) >= 2 &&
+      !isNaN(a) && a >= 6 && a <= 99 &&
+      sexValue() !== '' &&
+      sportSelected() &&
+      isPhone(pePhone.value) &&
+      RE_EMAIL.test(peEmail.value.trim()) &&
+      checkPParent(false);
+    $('btn-save').disabled = !ok;
+  }
+
+  peFio.addEventListener('input', updateForm);
+  peExp.addEventListener('input', updateForm);
+  peEmail.addEventListener('input', updateForm);
+  sportInputs.forEach(function (i) { i.addEventListener('change', updateForm); });
+  sexInputs.forEach(function (i) { i.addEventListener('change', updateForm); });
+  pePhone.addEventListener('input', function () {
+    var next = maskPhone(pePhone.value);
+    if (next !== pePhone.value) {
+      pePhone.value = next;
+      try { pePhone.setSelectionRange(next.length, next.length); } catch (err) {}
+    }
+    updateForm();
+  });
+  peParentName.addEventListener('input', updateForm);
+  peParentRole.addEventListener('change', updateForm);
+  peParentPhone.addEventListener('input', function () {
+    var next = maskPhone(peParentPhone.value);
+    if (next !== peParentPhone.value) {
+      peParentPhone.value = next;
+      try { peParentPhone.setSelectionRange(next.length, next.length); } catch (err) {}
+    }
+    updateForm();
+  });
+  [peFio, peExp, peEmail, pePhone, peParentName, peParentRole, peParentPhone].forEach(function (el) {
+    el.addEventListener('blur', function () {
+      if (el === peFio) checkPFio(true);
+      else if (el === peExp) checkPExp(true);
+      else if (el === peEmail) checkPEmail(true);
+      else if (el === pePhone) checkPPhone(true);
+      else if (el === peParentName || el === peParentRole || el === peParentPhone) checkPParent(true);
+    });
+  });
+
+  document.querySelectorAll('.pick-chip').forEach(function (label) {
+    var input = label.querySelector('input');
+    input.addEventListener('change', function () {
+      if (input.name === 'pe-sex') {
+        document.querySelectorAll('input[name="pe-sex"]').forEach(function (i) {
+          i.closest('.pick-chip').classList.toggle('is-on', i.checked);
+        });
+      } else {
+        label.classList.toggle('is-on', input.checked);
+      }
+      updateForm();
+    });
+  });
+
+  /* ── Сохранение ── */
+  $('form-profile').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = checkPFio(true) & checkPBirth(true) & checkPExp(true) & checkPSex(true) &
+      checkPSport(true) & checkPPhone(true) & checkPEmail(true) & checkPParent(true);
+    if (!ok) { showFormAlert('Проверьте выделенные поля'); return; }
+    var btn = $('btn-save');
+    btn.classList.add('is-busy');
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+    setTimeout(function () {
+      current.fio = peFio.value.trim();
+      current.birth = peBirth.value;
+      current.exp = peExp.value.trim();
+      current.sex = sexValue();
+      current.sports = Array.prototype.map.call(document.querySelectorAll('input[name="pe-sport"]:checked'), function (i) { return i.value; });
+      current.city = peCity.value.trim();
+      current.phone = pePhone.value;
+      current.email = peEmail.value.trim();
+      current.about = peAbout.value.trim();
+      current.parentName = peParentName.value.trim();
+      current.parentRole = peParentRole.value;
+      current.parentPhone = peParentPhone.value;
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(current));
+      } catch (err) {}
+      var row = document.getElementById('toast').querySelector('.toast');
+      row.className = 'toast toast-success';
+      document.getElementById('toast-tx').textContent = 'Профиль сохранён';
+      document.getElementById('toast').classList.add('open');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        location.href = 'profile.html';
+      }, 900);
+    }, 600);
+  });
+
+  function toast(tx) {
+    document.getElementById('toast-tx').textContent = tx;
+    var row = document.getElementById('toast').querySelector('.toast');
+    row.className = 'toast toast-info';
+    document.getElementById('toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { document.getElementById('toast').classList.remove('open'); }, 2400);
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-toast]') : null;
+    if (btn) toast(btn.getAttribute('data-toast'));
+  });
+
+  $('btn-back').addEventListener('click', function () { location.href = 'profile.html'; });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') location.href = 'profile.html';
+  });
+
+  applyCurrent();
+  updateParent();
+  updateForm();
+})();
+</script>
+</body>
+</html>

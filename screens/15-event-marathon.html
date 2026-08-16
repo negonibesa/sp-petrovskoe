@@ -17,11 +17,12 @@
      (бракет + пьедестал из ДС v1). Переключение табов — JS с обновлением
      aria-selected (в ДС — CSS :checked; в проде — JS). */
   .ev-app { background: var(--surface-warm); padding-bottom: calc(196px + env(safe-area-inset-bottom, 0px)); }
-  .ev-body { padding-top: 4px; }
+  .ev-body { padding-top: var(--space-1); }
+  .ev-body > .evd-pane + .evd-pane { margin-top: 0; }
 
   /* ── Шапка: чистая типографика (канон ГТО .r-head) —
         eyebrow (категория) + display-заголовок + статус-пилюля. Без иконки. ── */
-  .evd-head { padding: var(--space-1) var(--space-1) var(--space-4); }
+  .evd-head { padding: var(--space-1) var(--space-4) var(--space-4); }
   .evd-head .eyebrow {
     margin: 0;
     font-size: var(--fs-caption);
@@ -30,13 +31,17 @@
     text-transform: uppercase;
     color: var(--muted);
   }
-  .evd-title { margin: var(--space-2) 0 0; font-family: var(--font-display); font-size: var(--fs-display); font-weight: 700; line-height: 1.08; letter-spacing: 0.01em; color: var(--fg); }
+  .evd-title { margin: 10px 0 0; font-family: var(--font-display); font-size: var(--fs-display); font-weight: 700; line-height: 1.08; letter-spacing: 0.01em; color: var(--fg); }
   .evd-badges { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-top: var(--space-3); }
 
-  /* ── Табы (JS: .is-on + aria-selected вместо :checked) ── */
-  .evd-tabbar { display: flex; padding: 0 var(--space-1); border-bottom: 1px solid var(--border-soft); }
+  /* ── Табы (JS: .is-on + aria-selected вместо :checked). Колонки автоширины,
+        межтабовый зазор ЕДИНЫЙ var(--space-3) — расстояния между подписями
+        равные при любой их ширине (не flex:1 — тот даёт разный визуальный
+        зазор из-за центрирования в равных колонках). ── */
+  .evd-tabbar { display: flex; justify-content: center; gap: var(--space-3); padding: 0 var(--space-4); border-bottom: 1px solid var(--border-soft); }
   .evd-tab {
-    flex: 1; height: var(--h-base); min-width: 0;
+    flex: 0 0 auto; height: var(--h-base); min-width: 0;
+    padding: 0 var(--space-2);
     display: inline-flex; align-items: center; justify-content: center;
     border: 0; border-bottom: 2px solid transparent;
     background: transparent; color: var(--fg-2);
@@ -60,7 +65,7 @@
   .evd-rtx b { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
   .evd-rtx span { font-size: var(--fs-meta); color: var(--muted); }
   .evd-note { margin: var(--space-3) 0 0; font-size: var(--fs-meta); color: var(--fg-2); line-height: 1.5; }
-  .evd-sec { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .evd-sec { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
   .evd-sec-t { margin: 0; font-size: var(--fs-meta); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
   .card .evd-sec-t { margin: 0 0 var(--space-3); }
   .evd-pane .card .mrow.is-static { padding-left: 0; padding-right: 0; }
@@ -96,7 +101,7 @@
   .evd-m-note { font-size: var(--fs-caption); color: var(--muted); }
 
   /* ── Пьедестал ── */
-  .evd-podium { display: flex; align-items: flex-end; justify-content: center; gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
+  .evd-podium { display: flex; align-items: flex-end; justify-content: center; gap: var(--space-3); margin: 0 0 var(--space-3); }
   .evd-pod { flex: 1; display: grid; justify-items: center; gap: var(--space-1); }
   .evd-pod-name { font-size: var(--fs-caption); font-weight: 600; color: var(--fg-2); }
   .evd-pod-note { font-size: var(--fs-caption); color: var(--muted); }
@@ -126,7 +131,7 @@
   /* ── Ссылка на фотоотчёт: плашка-карточка → новость сообщества ── */
   .evd-news {
     display: flex; align-items: center; gap: var(--space-3);
-    width: 100%; margin-top: var(--space-2);
+    width: 100%; margin-top: var(--space-3);
     padding: var(--space-3) var(--space-4);
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -149,7 +154,7 @@
   .evd-toast { bottom: calc(172px + env(safe-area-inset-bottom, 0px)); }
 
   /* ── Стадия: контент под текущую фазу (в табе «Обзор») ── */
-  .ev-stage { padding-top: var(--space-4); }
+  .ev-stage { padding-top: var(--space-3); }
   .ev-stage .stage-title { margin: 0; font-size: var(--fs-body); font-weight: 700; color: var(--fg); }
   .ev-stage .stage-sub { margin: var(--space-1) 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
   .ev-fact {
@@ -180,7 +185,7 @@
   .ev-qr-cap { text-align: center; margin-top: var(--space-2); font-size: var(--fs-caption); line-height: 1.4; color: var(--meta); }
 
   /* ── Результат: крупный моноширинный формат ── */
-  .ev-result { text-align: center; padding: var(--space-5) var(--space-4) var(--space-3); }
+  .ev-result { text-align: center; padding: var(--space-5) var(--space-4) var(--space-3); margin-bottom: var(--space-3); }
   .ev-result-time { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); font-variant-numeric: tabular-nums; }
   .ev-result-sub { margin-top: var(--space-1); font-size: var(--fs-meta); font-weight: 600; color: var(--muted); }
   .ev-result-badge { margin-top: var(--space-3); }
@@ -251,7 +256,7 @@
   <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
-  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M3.5 18.5c0-2.9 2.4-4.5 5.5-4.5s5.5 1.6 5.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="17" cy="9.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M17.5 14.6c2 .5 3.5 1.8 3.5 3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
@@ -317,7 +322,7 @@
   <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
   <a class="tab is-on" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
   <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
-  <button class="tab" data-toast="Сообщество — в следующей итерации" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></button>
+  <a class="tab" href="community.html" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
   <button class="tab" data-toast="Профиль — в следующей итерации" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></button>
 </nav>
 
@@ -934,7 +939,7 @@
           location.href = 'activities.html';
           break;
         case 'news':
-          toast('Открываем новость сообщества');
+          location.href = 'news.html?id=n1';
           break;
         case 'reset':
           reset();
@@ -978,7 +983,7 @@
     if (!b) return;
     closeSheets();
     var act = b.getAttribute('data-act');
-    if (act === 'news') toast('Открываем новость сообщества');
+    if (act === 'news') location.href = 'news.html?id=n1';
     else if (act === 'share') toast('Ссылка на событие скопирована');
     else if (act === 'add-cal') toast('Событие добавлено в календарь');
   });
@@ -986,7 +991,7 @@
     var b = e.target.closest ? e.target.closest('[data-act]') : null;
     if (!b) return;
     var act = b.getAttribute('data-act');
-    if (act === 'news') toast('Открываем новость сообщества');
+    if (act === 'news') location.href = 'news.html?id=n1';
     else if (act === 'share') toast('Ссылка на событие скопирована');
   });
   $('btn-share').addEventListener('click', function () { toast('Ссылка на событие скопирована'); });

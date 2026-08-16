@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>План тренировок · Конструктор · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «План тренировок (конструктор)» — модель: product-spec §4.16 (единый
+     шаблон: название + тег-цель + сетка упражнений по дням + N тренировок в календарь),
+     цель: §4.19, карта экранов: §6.6 `training_constructor` (раздел профиля).
+     Каркас и JS-паттерны — как в 23-gto-plan.html. Таблица — экранная специфика. */
+  .tc-app { background: var(--surface); padding-bottom: calc(224px + env(safe-area-inset-bottom, 0px)); }
+  .tc-body { padding-top: 4px; }
+
+  .tc-lead { padding: var(--space-1) var(--space-1) var(--space-2); }
+  .tc-lead .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .tc-lead .tc-sub { margin: 6px 0 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+
+  .tc-tabs { flex-wrap: wrap; margin-top: var(--space-1); }
+  .tc-tabs .fchip { height: var(--h-md); }
+
+  .tc-card-top { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+  .tc-card-top h2 { margin: 0; flex: 1; font-size: var(--fs-title-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .tc-card-top .tc-key { font-size: var(--fs-meta); font-weight: 600; color: var(--meta); }
+  .tc-rows { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+  .tc-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-meta); line-height: 1.4; }
+  .tc-row .rk { flex: 1; color: var(--muted); }
+  .tc-row b { font-weight: 600; color: var(--fg); }
+
+  .tc-name {
+    width: 100%; height: var(--h-base); margin-top: var(--space-3);
+    padding: 0 var(--space-4); box-sizing: border-box;
+    font: inherit; font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+    background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+  }
+  .tc-name:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  /* Рекомендация из опросов (§4.19: опрос после тренировки -> рекомендации) */
+  .tc-rec {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed color-mix(in srgb, var(--amber) 45%, var(--border-soft));
+    border-radius: var(--radius-md); background: color-mix(in srgb, var(--amber) 7%, var(--surface));
+  }
+  .tc-rec-ic { flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, var(--surface)); }
+  .tc-rec-ic svg { width: var(--icon-md); height: var(--icon-md); }
+  .tc-rec-tx { flex: 1; min-width: 0; font-size: var(--fs-meta); line-height: 1.45; color: var(--fg-2); }
+  .tc-rec-tx b { display: block; color: var(--fg); font-weight: 600; }
+  .tc-rec .btn { flex: none; }
+
+  .tc-week { margin-top: var(--space-4); }
+  .tc-wsum { display: block; margin-top: var(--space-2); text-align: right; font-size: var(--fs-meta); color: var(--meta); }
+
+  .tc-wrap {
+    margin-top: var(--space-3); overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface);
+  }
+  .tc-table {
+    display: grid;
+    grid-template-columns: minmax(150px, 1.6fr) repeat(var(--tc-days, 7), minmax(84px, 1fr));
+    min-width: 738px;
+  }
+  .tc-cell {
+    min-height: 56px; display: flex; align-items: center; justify-content: center;
+    padding: 6px; text-align: center;
+    border-top: 1px solid var(--border-soft); border-left: 1px solid var(--border-soft);
+    font-size: var(--fs-meta); line-height: 1.25; color: var(--fg-2);
+  }
+  .tc-table .tc-head { color: var(--meta); font-weight: 600; font-size: var(--fs-caption); letter-spacing: 0.03em; text-transform: uppercase; }
+  .tc-table .tc-head.ex { text-align: left; justify-content: flex-start; padding-left: var(--space-4); }
+  .tc-table .tc-col0 { border-left: 0; }
+  .tc-table .tc-row0 .tc-cell { border-top: 0; }
+  .tc-cell.tc-ex { justify-content: flex-start; text-align: left; padding-left: var(--space-4); flex-direction: column; align-items: flex-start; gap: 3px; position: relative; }
+  .tc-ex .tc-ex-name { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .tc-ex .tc-ex-group { font-size: var(--fs-caption); color: var(--muted); }
+  .tc-ex .tc-ex-del {
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+    display: grid; place-items: center; border: none; background: transparent;
+    color: var(--meta); border-radius: var(--radius-sm); cursor: pointer;
+    transition: color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .tc-ex .tc-ex-del svg { width: 14px; height: 14px; }
+  .tc-ex .tc-ex-del:hover { color: var(--danger); background: var(--surface-2); }
+  .tc-cell.is-rest { color: var(--meta); background: var(--surface-warm); font-size: var(--fs-caption); }
+  .tc-cell.is-day {
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard);
+  }
+  .tc-cell.is-day:hover { background: var(--surface-2); }
+  .tc-cell.is-day:active { transform: scale(0.96); }
+  .tc-cell.is-day:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+  .tc-cell.is-day.is-off { opacity: 0.42; }
+
+  .tc-add {
+    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+    width: 100%; margin-top: var(--space-2); padding: var(--space-3);
+    font: inherit; font-size: var(--fs-body); font-weight: 600; color: var(--accent);
+    background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+    cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+  }
+  .tc-add:hover { background: var(--surface-warm); border-color: var(--accent); }
+  .tc-add:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .tc-add:active { transform: scale(0.99); }
+  .tc-add svg { width: var(--icon-sm); height: var(--icon-sm); }
+
+  .tc-legend { margin-top: var(--space-3); font-size: var(--fs-meta); line-height: 1.6; color: var(--meta); }
+  .tc-legend b { color: var(--fg-2); font-weight: 600; }
+
+  /* Степер «Сгенерировать N тренировок» */
+  .tc-gen { margin-top: var(--space-3); }
+  .tc-gen-top { display: flex; align-items: center; gap: var(--space-3); }
+  .tc-gen-top .gtx { flex: 1; min-width: 0; }
+  .tc-gen-top .gtx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .tc-gen-top .gtx span { display: block; margin-top: 2px; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+  .tc-stepper { flex: none; display: inline-flex; align-items: center; gap: 2px; }
+  .tc-stepper button {
+    width: 34px; height: 34px; display: grid; place-items: center;
+    font: inherit; font-size: var(--fs-title-sm); font-weight: 600;
+    color: var(--accent); background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+    cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+  }
+  .tc-stepper button:hover { border-color: var(--accent); }
+  .tc-stepper button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .tc-stepper button:active { transform: scale(0.95); }
+  .tc-stepper b { min-width: 40px; text-align: center; font-size: var(--fs-body); font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+  .tc-foot { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-soft); font-size: var(--fs-meta); line-height: 1.7; color: var(--meta); }
+  .tc-foot b { color: var(--fg-2); font-weight: 600; }
+
+  .tc-cal-link { display: inline-flex; align-items: center; justify-content: center; min-height: var(--h-base); font-size: var(--fs-body); font-weight: 600; color: var(--accent); text-decoration: none; }
+  .tc-cal-link:hover { color: var(--accent-hover); }
+
+  .tc-rise { animation: tc-rise 340ms var(--ease-out) both; }
+  .tc-rise + .tc-rise { animation-delay: 60ms; }
+  @keyframes tc-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .tc-rise { animation: none; } }
+</style>
+</head>
+<body data-od-id="tc-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="7.8" r="0.5" fill="currentColor"></circle></symbol>
+</svg>
+
+<div class="app tc-app">
+  <header class="topbar" data-od-id="tc-header">
+    <button type="button" class="topbar-ic is-back" id="tc-back" aria-label="Назад в профиль"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">План тренировок</h4>
+  </header>
+
+  <main class="body tc-body">
+    <div class="tc-lead" data-od-id="tc-lead">
+      <p class="eyebrow">Профиль · Конструктор плана</p>
+      <p class="tc-sub">Шаблон → сетка упражнений по дням → N тренировок в общий календарь</p>
+    </div>
+
+    <div class="chips is-wrap tc-tabs" id="tc-tabs" data-od-id="tc-tabs"></div>
+
+    <div id="tc-panel" data-od-id="tc-panel"></div>
+
+    <footer class="tc-foot" data-od-id="tc-footer">
+      <b>Структура</b> · шаблон = название + тег-цели (общая форма / ГТО-норматив / произвольная) + сетка упражнений по дням + «сгенерировать N тренировок» (§4.16).<br>
+      <b>Данные</b> · упражнения и объёмы — пример, наполняется методистом. Ячейки сетки — включить/исключить день упражнения из шаблона.<br>
+      <b>Календарь</b> · «Пересадить в календарь» выгружает сетку (N тренировок) в общее расписание — механика как в ГТО (§4.14).
+    </footer>
+  </main>
+</div>
+
+<div class="evd-bar" data-od-id="tc-bar">
+  <button type="button" class="btn btn-accent" id="tc-export" data-od-id="tc-export">
+    <svg aria-hidden="true"><use href="#ic-cal"></use></svg><span class="tc-export-tx">Пересадить в календарь</span>
+  </button>
+  <button type="button" class="btn btn-ghost" id="tc-workout" data-od-id="tc-workout">
+    <svg aria-hidden="true"><use href="#ic-play"></use></svg>Начать тренировку
+  </button>
+  <a class="tc-cal-link" id="tc-cal-link" href="07-calendar.html" data-od-id="tc-cal-link" hidden>
+    Открыть расписание →
+  </a>
+</div>
+
+<div class="evd-toast" id="tc-toast" role="status" aria-live="polite">
+  <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-info"></use></svg></span><span id="tc-toast-tx">Готово</span></div>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var toastTimer = null;
+  function toast(msg) {
+    $('tc-toast-tx').textContent = msg;
+    $('tc-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('tc-toast').classList.remove('open'); }, 2400);
+  }
+
+  /* Мок-данные. Шаблоны по §4.16: тег-цель + сетка упражнений по дням.
+     ГТО — пресет норматива «Подтягивания» (как 23-gto-plan), ОФП — общая форма,
+     своя — произвольная (редактируемая). */
+  var POOL = ['Приседания', 'Отжимания', 'Планка', 'Выпады', 'Скакалка', 'Бёрпи'];
+
+  var PRESETS = {
+    gto: {
+      id: 'gto', name: 'Подтягивания', tag: 'ГТО-норматив', key: 'норма 20 раз', period: '3 недели',
+      weeks: 3, days: 7, n: 9, color: 'var(--gto-silver)',
+      rec: { ex: 'Интервалы 4×400 м', tx: 'После опроса «Усталость лёгкая» добавили интервалы в подготовку к норме' },
+      exercises: [
+        { name: 'Отжимания', group: 'Грудь · трицепс', w: [
+          ['3×10', '3×10 +до отказа', '3×15', 'отдых', '3×15', '4×12', 'отдых'],
+          ['4×12', '4×12 +до отказа', '4×15', 'отдых', '4×15', '4×12 +до отказа', 'отдых'],
+          ['4×15', '4×15 +до отказа', '5×12', 'отдых', '5×12', '4×15 +до отказа', 'отдых']
+        ]},
+        { name: 'Планка', group: 'Кор · стабилизация', w: [
+          ['30 с', '45 с', '30 с', 'отдых', '45 с', '60 с', 'отдых'],
+          ['45 с', '60 с', '45 с', 'отдых', '60 с', '75 с', 'отдых'],
+          ['60 с', '75 с', '60 с', 'отдых', '75 с', '90 с', 'отдых']
+        ]},
+        { name: 'Подтягивания с резинкой', group: 'Широчайшие · бицепс', w: [
+          ['3×5', '3×6', '3×7', 'отдых', '3×8', '3×6', 'отдых'],
+          ['3×8', '3×9', '3×10', 'отдых', '3×10', '3×8', 'отдых'],
+          ['4×8', '4×9', '4×10', 'отдых', '4×10', '4×8', 'отдых']
+        ]},
+        { name: 'Вис на перекладине', group: 'Хват · предплечья', w: [
+          ['3×15 с', '3×20 с', '3×25 с', 'отдых', '3×30 с', '3×20 с', 'отдых'],
+          ['3×30 с', '3×35 с', '3×40 с', 'отдых', '3×45 с', '3×30 с', 'отдых'],
+          ['4×30 с', '4×40 с', '4×45 с', 'отдых', '4×50 с', '4×40 с', 'отдых']
+        ]}
+      ]
+    },
+    ofp: {
+      id: 'ofp', name: 'Общая форма', tag: 'Общая форма', key: '3 раза в неделю', period: '2 недели',
+      weeks: 2, days: 7, n: 6, color: 'var(--accent)',
+      rec: { ex: 'Разминка · 10 мин', tx: 'Рекомендуем разминку перед каждой тренировкой — снижает риск травм' },
+      exercises: [
+        { name: 'Приседания', group: 'Ноги', w: [
+          ['4×15', '4×20', '4×15', 'отдых', '4×20', '5×15', 'отдых'],
+          ['4×20', '4×25', '4×20', 'отдых', '4×25', '5×20', 'отдых']
+        ]},
+        { name: 'Отжимания', group: 'Грудь · трицепс', w: [
+          ['3×12', '3×15', '3×12', 'отдых', '3×15', '4×12', 'отдых'],
+          ['3×15', '3×18', '3×15', 'отдых', '3×18', '4×15', 'отдых']
+        ]},
+        { name: 'Планка', group: 'Кор · стабилизация', w: [
+          ['45 с', '60 с', '45 с', 'отдых', '60 с', '75 с', 'отдых'],
+          ['60 с', '75 с', '60 с', 'отдых', '75 с', '90 с', 'отдых']
+        ]},
+        { name: 'Скакалка', group: 'Кардио', w: [
+          ['3×60 с', '3×90 с', '3×60 с', 'отдых', '3×90 с', '4×60 с', 'отдых'],
+          ['3×90 с', '4×90 с', '3×90 с', 'отдых', '4×90 с', '4×60 с', 'отдых']
+        ]}
+      ]
+    },
+    own: {
+      id: 'own', name: 'Своя тренировка', tag: 'Произвольная', key: 'по вашему расписанию', period: '1 неделя',
+      weeks: 1, days: 5, n: 3, color: 'var(--accent-purple)',
+      rec: { ex: 'Скакалка', tx: 'Рекомендуем добавить кардио — разгоняет восстановление и тонус' },
+      exercises: [
+        { name: 'Приседания', group: 'Ноги', w: [['4×20', '3×15', 'отдых', '4×25', 'отдых']] },
+        { name: 'Отжимания', group: 'Грудь · трицепс', w: [['3×15', '4×12', 'отдых', '4×15', 'отдых']] },
+        { name: 'Планка', group: 'Кор · стабилизация', w: [['45 с', '60 с', 'отдых', '60 с', 'отдых']] }
+      ]
+    }
+  };
+
+  var ORDER = ['gto', 'ofp', 'own'];
+  var state = { preset: 'gto', week: 0, n: 9, off: {}, exported: false };
+
+  function cur() { return PRESETS[state.preset]; }
+  function cellKey(e, d) { return state.preset + '-' + state.week + '-' + e + '-' + d; }
+  function inList(list, name) {
+    for (var i = 0; i < list.length; i++) if (list[i].name === name) return true;
+    return false;
+  }
+
+  function renderTabs() {
+    var box = $('tc-tabs');
+    box.innerHTML = '';
+    ORDER.forEach(function (id) {
+      var p = PRESETS[id];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fchip' + (id === state.preset ? ' is-on' : '');
+      btn.style.setProperty('--c', p.color);
+      btn.setAttribute('data-od-id', 'tc-tab-' + id);
+      btn.innerHTML = '<span class="dot" aria-hidden="true"></span>' + p.name;
+      btn.addEventListener('click', function () {
+        state.preset = id;
+        state.week = 0;
+        state.n = p.n;
+        renderTabs();
+        renderPanel();
+      });
+      box.appendChild(btn);
+    });
+  }
+
+  function weekIncluded(p, week) {
+    var total = 0, inc = 0, daysWith = 0;
+    for (var d = 0; d < p.days; d++) {
+      var dayActive = false;
+      for (var e = 0; e < p.exercises.length; e++) {
+        var v = p.exercises[e].w[week][d];
+        if (v === 'отдых') continue;
+        total++;
+        if (!state.off[cellKey(e, d)]) inc++;
+        dayActive = true;
+      }
+      if (dayActive) daysWith++;
+    }
+    return { total: total, inc: inc, days: daysWith };
+  }
+
+  function renderPanel() {
+    var box = $('tc-panel');
+    var p = cur();
+    var html = '';
+
+    html += '<section class="card tc-card tc-rise" id="tc-card-' + state.preset + '" data-od-id="tc-card-' + state.preset + '">';
+    html += '<div class="tc-card-top"><h2>' + p.name + '</h2><span class="tc-key">' + p.key + '</span></div>';
+    html += '<div class="tc-rows">';
+    html += '<div class="tc-row"><span class="rk">Тег цели</span><b>' + p.tag + '</b></div>';
+    html += '<div class="tc-row"><span class="rk">Период</span><b>' + p.period + '</b></div>';
+    html += '<div class="tc-row"><span class="rk">Упражнений</span><b>' + p.exercises.length + '</b></div>';
+    html += '</div>';
+    if (state.preset === 'own') {
+      html += '<input class="tc-name" id="tc-name" value="' + p.name + '" data-od-id="tc-name" aria-label="Название плана" maxlength="40">';
+    }
+    html += '</section>';
+
+    html += '<div class="tc-rec tc-rise" data-od-id="tc-rec">';
+    html += '<span class="tc-rec-ic" aria-hidden="true"><svg><use href="#ic-star"></use></svg></span>';
+    html += '<span class="tc-rec-tx"><b>Из опросов</b>' + p.rec.tx + '</span>';
+    var recAdded = inList(p.exercises, p.rec.ex);
+    html += '<button type="button" class="btn btn-sm ' + (recAdded ? 'btn-secondary' : 'btn-accent') + '" id="tc-rec-add" data-od-id="tc-rec-add"' + (recAdded ? ' disabled' : '') + '>' +
+      (recAdded ? 'Добавлено ✓' : 'Добавить') + '</button>';
+    html += '</div>';
+
+    html += '<div class="tc-week">';
+    if (p.weeks > 1) {
+      html += '<div class="seg">';
+      for (var w = 0; w < p.weeks; w++) {
+        html += '<button type="button" class="seg-btn' + (w === state.week ? ' is-active' : '') + '" data-week="' + w + '" data-od-id="tc-week-' + (w + 1) + '">Неделя ' + (w + 1) + '</button>';
+      }
+      html += '</div>';
+    }
+    var sum = weekIncluded(p, state.week);
+    html += '<span class="tc-wsum">' + sum.inc + ' из ' + sum.total + ' занятий · ' + sum.days + ' дней в неделе</span>';
+    html += '</div>';
+
+    html += '<div class="tc-wrap"><div class="tc-table" style="--tc-days: ' + p.days + '">';
+    html += '<div class="tc-cell tc-head ex tc-row0 tc-col0">Упражнение</div>';
+    for (var d = 1; d <= p.days; d++) {
+      html += '<div class="tc-cell tc-head tc-row0">День ' + d + '</div>';
+    }
+    var exs = p.exercises;
+    for (var e = 0; e < exs.length; e++) {
+      var days = exs[e].w[state.week];
+      html += '<div class="tc-cell tc-ex">' +
+        '<span class="tc-ex-name">' + exs[e].name + '</span>' +
+        '<span class="tc-ex-group">' + exs[e].group + '</span>' +
+        '<button type="button" class="tc-ex-del" data-del="' + e + '" aria-label="Удалить «' + exs[e].name + '»"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>' +
+      '</div>';
+      for (var dd = 0; dd < p.days; dd++) {
+        var v = days[dd];
+        if (v === 'отдых') {
+          html += '<div class="tc-cell is-rest">отдых</div>';
+        } else {
+          var key = cellKey(e, dd);
+          html += '<div class="tc-cell is-day' + (state.off[key] ? ' is-off' : '') + '" data-cell="' + e + '-' + dd + '" role="button" tabindex="0" aria-label="' + exs[e].name + ', день ' + (dd + 1) + ': ' + v + (state.off[key] ? ', выключено' : '') + '">' + v + '</div>';
+        }
+      }
+    }
+    html += '</div></div>';
+
+    html += '<button type="button" class="tc-add" id="tc-add-ex" data-od-id="tc-add-ex">' +
+      '<svg aria-hidden="true"><use href="#ic-plus"></use></svg>Добавить упражнение</button>';
+    html += '<p class="tc-legend"><b>Обозначения</b> · × — подходы × повторения; с/мин — секунды и минуты; «отдых» — восстановление. Тап по ячейке — включить/исключить день из шаблона. × у названия — убрать упражнение.</p>';
+
+    html += '<section class="card tc-gen tc-rise" data-od-id="tc-gen">';
+    html += '<div class="tc-gen-top">';
+    html += '<span class="gtx"><b>Сгенерировать в календарь</b><span>Сетка недели × период → тренировки в общем расписании</span></span>';
+    html += '<span class="tc-stepper" data-od-id="tc-stepper">' +
+      '<button type="button" data-step="-1" aria-label="Меньше тренировок" data-od-id="tc-n-minus">−</button>' +
+      '<b id="tc-n">' + state.n + '</b>' +
+      '<button type="button" data-step="1" aria-label="Больше тренировок" data-od-id="tc-n-plus">+</button>' +
+    '</span>';
+    html += '</div>';
+    html += '</section>';
+
+    box.innerHTML = html;
+    bindPanel();
+  }
+
+  function bindPanel() {
+    var panel = $('tc-panel');
+    panel.querySelectorAll('[data-week]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.week = Number(btn.getAttribute('data-week'));
+        renderPanel();
+      });
+    });
+    panel.querySelectorAll('[data-cell]').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        var parts = cell.getAttribute('data-cell').split('-');
+        var key = cellKey(Number(parts[0]), Number(parts[1]));
+        if (state.off[key]) delete state.off[key];
+        else state.off[key] = true;
+        renderPanel();
+      });
+    });
+    panel.querySelectorAll('[data-del]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var p = cur();
+        var name = p.exercises[Number(btn.getAttribute('data-del'))].name;
+        p.exercises.splice(Number(btn.getAttribute('data-del')), 1);
+        toast('«' + name + '» удалено из плана');
+        renderPanel();
+      });
+    });
+    var addBtn = $('tc-add-ex');
+    if (addBtn) addBtn.addEventListener('click', addExercise);
+    var recBtn = $('tc-rec-add');
+    if (recBtn) recBtn.addEventListener('click', addRecommendation);
+    var nameInput = $('tc-name');
+    if (nameInput) {
+      nameInput.addEventListener('input', function () {
+        var p = cur();
+        p.name = nameInput.value.trim() || p.name;
+        $('tc-card-' + state.preset).querySelector('h2').textContent = p.name;
+      });
+    }
+    panel.querySelectorAll('[data-step]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.n = Math.min(30, Math.max(1, state.n + Number(btn.getAttribute('data-step'))));
+        $('tc-n').textContent = state.n;
+        if (state.exported) {
+          $('tc-export').disabled = false;
+          $('tc-export').querySelector('.tc-export-tx').textContent = 'Пересадить в календарь';
+        }
+      });
+    });
+  }
+
+  function addExercise() {
+    var p = cur();
+    var pick = null;
+    for (var i = 0; i < POOL.length; i++) {
+      if (!inList(p.exercises, POOL[i])) { pick = POOL[i]; break; }
+    }
+    if (!pick) { toast('Все упражнения уже в плане'); return; }
+    var w = [];
+    for (var wk = 0; wk < p.weeks; wk++) {
+      var row = [];
+      for (var d = 0; d < p.days; d++) row.push('3×12');
+      w.push(row);
+    }
+    p.exercises.push({ name: pick, group: 'Базовое', w: w });
+    toast('«' + pick + '» добавлено в план');
+    renderPanel();
+  }
+
+  function addRecommendation() {
+    var p = cur();
+    if (inList(p.exercises, p.rec.ex)) { toast('Уже добавлено в план'); return; }
+    var w = [];
+    for (var wk = 0; wk < p.weeks; wk++) {
+      var row = [];
+      for (var d = 0; d < p.days; d++) row.push('3×12');
+      w.push(row);
+    }
+    p.exercises.push({ name: p.rec.ex, group: 'Рекомендовано', w: w });
+    toast('«' + p.rec.ex + '» добавлено по рекомендации');
+    renderPanel();
+  }
+
+  $('tc-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = 'profile.html';
+  });
+
+  $('tc-export').addEventListener('click', function () {
+    if (state.exported) return;
+    state.exported = true;
+    $('tc-export').disabled = true;
+    $('tc-export').querySelector('.tc-export-tx').textContent = 'Добавлено';
+    $('tc-cal-link').hidden = false;
+    var p = cur();
+    localStorage.setItem('plan:active', JSON.stringify({
+      name: p.name, tag: p.tag, preset: p.id, n: state.n, week: state.week, exportedAt: Date.now()
+    }));
+    toast(state.n + ' тренировок «' + p.name + '» добавлены в расписание');
+  });
+
+  $('tc-workout').addEventListener('click', function () {
+    if (state.preset === 'gto') {
+      location.href = '24-gto-workout.html?norm=pull&week=1&day=1';
+    } else {
+      toast('Сначала пересадите план в календарь — тренировки появятся в расписании');
+    }
+  });
+
+  renderTabs();
+  renderPanel();
+})();
+</script>
+</body>
+</html>

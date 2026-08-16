@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Сообщество</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Сообщество — таб-бар §6.5: лендинг (Лента/Клубы) на ДС v2-языке.
+     Канон: .hd/.body/.seg/.news-card/.club-card/.mrow/.tabbar/.evd-toast. */
+  .cm-photo {
+    position: relative; display: grid; place-items: center; gap: var(--space-2);
+    height: 148px; margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1) 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: linear-gradient(135deg, #3b7bff, #9175e8);
+    color: #fff; overflow: hidden;
+  }
+  .cm-photo-ic {
+    width: 52px; height: 52px; display: grid; place-items: center;
+    border-radius: 50%; background: color-mix(in srgb, #fff 18%, transparent);
+  }
+  .cm-photo-ic svg { width: 26px; height: 26px; }
+  .cm-photo b { font-size: var(--fs-meta); font-weight: 600; letter-spacing: 0.02em; }
+  .cm-clubs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); padding: 0 var(--space-1); }
+  .cm-clubs .club-card { width: auto; }
+  .cm-note { padding: var(--space-3) var(--space-1) var(--space-1); font-size: var(--fs-caption); color: var(--meta); }
+</style>
+</head>
+<body data-od-id="community-screen">
+<svg style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M20 20l-4.3-4.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-like" viewBox="0 0 24 24"><path d="M7 10v12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-photo" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></rect><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M8.5 7l1.5-2.5h4L15.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd" data-od-id="cm-header">
+    <span class="avatar is-photo" aria-hidden="true"><img src="../assets/avatars/athlete.png" alt=""></span>
+    <span class="hd-txt"><h1>Сообщество</h1></span>
+    <span class="hd-acts">
+      <a class="icon-btn" href="07-search.html" aria-label="Поиск"><svg aria-hidden="true"><use href="#ic-search"></use></svg></a>
+      <a class="icon-btn" href="07-notifications.html" aria-label="Уведомления"><svg aria-hidden="true"><use href="#ic-bell"></use></svg><span class="notif">2</span></a>
+    </span>
+  </header>
+
+  <main class="body" data-od-id="cm-body">
+    <div class="seg" role="tablist" aria-label="Раздел сообщества">
+      <button class="seg-btn is-active" type="button" role="tab" aria-selected="true" data-panel="feed" data-od-id="cm-tab-feed">Лента</button>
+      <button class="seg-btn" type="button" role="tab" aria-selected="false" data-panel="clubs" data-od-id="cm-tab-clubs">Клубы</button>
+    </div>
+
+    <div class="cm-panel" data-panel="feed" data-od-id="cm-feed">
+      <div class="news-list">
+        <a class="news-card" href="news.html?id=n1" data-od-id="feed-item-n1">
+          <span class="cm-photo" aria-hidden="true"><span class="cm-photo-ic"><svg><use href="#ic-photo"></use></svg></span><b>Фотоотчёт · забег</b></span>
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>12 Августа</span>
+          <h3>Как прошёл забег «Петровские холмы»</h3>
+          <p>Фото с трассы, итоги и разбор — 487 участников, пьедестал и лучшие личные секунды.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">забег</span><span class="tag">итоги</span></span>
+            <span class="news-likes" aria-label="47 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>47</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n2" data-od-id="feed-item-n2">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>12 Августа</span>
+          <h3>Новое покрытие на летней площадке</h3>
+          <p>Ремонт завершён, беговые дорожки и зона разминки снова открыты для всех.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">футбол</span></span>
+            <span class="news-likes" aria-label="32 отметки «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>32</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n5" data-od-id="feed-item-n5">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>6 Августа</span>
+          <h3>«Пульс» открыл набор на утренние тренировки</h3>
+          <p>Понедельник, среда и пятница в 07:30. Первая неделя — бесплатно для участников клуба.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">фитнес</span></span>
+            <span class="news-likes" aria-label="21 отметка «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>21</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n3" data-od-id="feed-item-n3">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>8 Августа</span>
+          <h3>Открыт набор в секцию плавания</h3>
+          <p>Запись у администратора или через приложение, группы для детей 8–12 лет и взрослых.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">плавание</span></span>
+            <span class="news-likes" aria-label="18 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>18</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n4" data-od-id="feed-item-n4">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>12 Августа</span>
+          <h3>Турнир по бадминтону</h3>
+          <p>18 августа в зале №&nbsp;1. Участие свободное, победитель получит абонемент на месяц.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">новость</span><span class="tag">турнир</span></span>
+            <span class="news-likes" aria-label="9 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>9</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n7" data-od-id="feed-item-n7">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>4 Августа</span>
+          <h3>Лыжная база «Красная горка» готова к сезону</h3>
+          <p>Обновлён инвентарь проката, открыта запись на смазку и групповые выезды.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">лыжи</span></span>
+            <span class="news-likes" aria-label="13 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>13</span>
+          </span>
+        </a>
+        <a class="news-card" href="news.html?id=n6" data-od-id="feed-item-n6">
+          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>5 Августа</span>
+          <h3>Итоги недели: рейтинг и баллы</h3>
+          <p>Андрей Соколов поднялся на 12-е место в регионе. Обзор начислений и правила — в журнале.</p>
+          <span class="news-foot">
+            <span class="news-tags"><span class="tag">система</span></span>
+            <span class="news-likes" aria-label="14 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>14</span>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <div class="cm-panel" data-panel="clubs" data-od-id="cm-clubs" hidden>
+      <div class="cm-clubs">
+        <a class="club-card is-joined" style="--c:var(--sport-run)" href="club.html?id=c4" data-od-id="club-card-c4"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/running.png" alt=""></span><b>Бег</b><small>28 участников</small></a>
+        <a class="club-card" style="--c:var(--sport-swim)" href="club.html?id=c5" data-od-id="club-card-c5"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/swimming.png" alt=""></span><b>Плавание</b><small>41 участник</small></a>
+        <a class="club-card" style="--c:var(--sport-bike)" href="club.html?id=c6" data-od-id="club-card-c6"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/cycling.png" alt=""></span><b>Велоспорт</b><small>19 участников</small></a>
+        <a class="club-card is-joined" style="--c:var(--sport-gto)" href="club.html?id=c7" data-od-id="club-card-c7"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/gto.png" alt=""></span><b>ГТО</b><small>47 участников</small></a>
+        <a class="club-card" style="--c:var(--sport-strength)" href="club.html?id=c8" data-od-id="club-card-c8"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/strength.png" alt=""></span><b>Силовые</b><small>25 участников</small></a>
+        <a class="club-card" style="--c:var(--sport-ofp)" href="club.html?id=c9" data-od-id="club-card-c9"><span class="club-ic" aria-hidden="true"><img src="../assets/sports/ofp.png" alt=""></span><b>ОФП</b><small>36 участников</small></a>
+        <a class="club-card" style="--c:var(--type-training)" href="club.html?id=c1" data-od-id="club-card-c1"><span class="club-ic" aria-hidden="true"><svg style="width:64px;height:64px"><use href="#ic-dumbbell"></use></svg></span><b>Пульс</b><small>340 участников</small></a>
+        <a class="club-card" style="--c:var(--type-event)" href="club.html?id=c2" data-od-id="club-card-c2"><span class="club-ic" aria-hidden="true"><svg style="width:64px;height:64px"><use href="#ic-users"></use></svg></span><b>Арена</b><small>68 участников</small></a>
+        <a class="club-card" style="--c:var(--gto-bronze)" href="club.html?id=c3" data-od-id="club-card-c3"><span class="club-ic" aria-hidden="true"><svg style="width:64px;height:64px"><use href="#ic-target"></use></svg></span><b>Лыжный клуб</b><small>52 участника</small></a>
+      </div>
+      <p class="cm-note">В клубах — расписание, новости и участники. Вступление бесплатное, выйти можно в любой момент.</p>
+      <div style="padding: var(--space-1) var(--space-1) 0">
+        <button class="btn btn-ghost btn-block" type="button" data-toast="Создание клуба — в следующей итерации" data-od-id="cm-create"><svg aria-hidden="true"><use href="#ic-plus"></use></svg>Создать клуб</button>
+      </div>
+    </div>
+  </main>
+
+  <nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Разделы">
+    <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+    <a class="tab" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+    <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+    <button class="tab is-on" type="button" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></button>
+    <a class="tab" href="profile.html" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></a>
+  </nav>
+</div>
+
+<div class="evd-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Готово</span></div>
+  </div>
+</div>
+
+<script>
+  function $(id) { return document.getElementById(id); }
+
+  document.querySelectorAll('.seg-btn[data-panel]').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.seg-btn[data-panel]').forEach(function (x) {
+        x.classList.remove('is-active');
+        x.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      var key = tab.getAttribute('data-panel');
+      document.querySelectorAll('.cm-panel').forEach(function (p) {
+        p.hidden = p.getAttribute('data-panel') !== key;
+      });
+    });
+  });
+
+  var toastTimer;
+  function toast(tx) {
+    $('toast-tx').textContent = tx;
+    var row = $('toast').querySelector('.toast');
+    row.className = 'toast toast-info';
+    $('toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').classList.remove('open'); }, 2400);
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-toast]') : null;
+    if (btn) toast(btn.getAttribute('data-toast'));
+  });
+</script>
+</body>
+</html>

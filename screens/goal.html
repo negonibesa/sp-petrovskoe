@@ -351,6 +351,38 @@
 
   var SIGN_CHIP = { bronze: { label: 'Бронза', token: 'var(--gto-bronze)' }, silver: { label: 'Серебро', token: 'var(--gto-silver)' }, gold: { label: 'Золото', token: 'var(--gto-gold)' } };
 
+  /* Метрика прогресса для goal:active (дельта 4): счётная пара «сдано/всего»,
+     которую показывают карточки-шаги на «Активностях» (activities.html читает
+     goal:active.metric — «сделаешь — станет 5 из 5»). ГТО — нормативы из DOM
+     («Прогресс нормативов»): сдано = чипы без .is-next, следующий = имя строки
+     .is-next. Регулярность — занятия по плану (9) от целевого объёма (N занятий
+     в неделю × недели периода). Своя цель — без метрики (§4.19). */
+  function goalMetric(preset) {
+    if (preset === 'gto') {
+      var done = 0, total = 0, nextName = null;
+      document.querySelectorAll('.gl-metric-row').forEach(function (r) {
+        total++;
+        var chip = r.querySelector('.gl-chip');
+        if (chip && chip.classList.contains('is-next')) {
+          var name = r.querySelector('.gl-metric-name');
+          nextName = name ? name.firstChild.textContent.trim() : null;
+        } else {
+          done++;
+        }
+      });
+      if (!total) { total = 5; done = 4; nextName = 'Бег 2 км'; }
+      return { label: 'нормативов', done: done, total: total, next: nextName };
+    }
+    if (preset === 'regular') {
+      var countEl = document.querySelector('input[name="reg-count"]:checked');
+      var count = countEl ? parseInt(countEl.value, 10) : 3;
+      var seg = document.querySelector('#cfg-regular .seg-btn.is-active');
+      var weeks = seg && seg.getAttribute('data-seg') === 'quarter' ? 12 : 4;
+      return { label: 'занятий', done: 9, total: count * weeks, next: 'тренировка по плану' };
+    }
+    return null;
+  }
+
   function applyGoal() {
     var preset = document.querySelector('input[name="goal-preset"]:checked');
     var title = 'Своя цель';
@@ -427,7 +459,9 @@
       localStorage.setItem('goal:active', JSON.stringify({
         title: $('goal-title').textContent,
         sign: sign ? SIGN_CHIP[sign.value].label : null,
-        deadline: $('goal-deadline-val').textContent
+        deadline: $('goal-deadline-val').textContent,
+        preset: preset.value,
+        metric: goalMetric(preset.value)
       }));
     } catch (e) { /* noop */ }
     closeSheets();

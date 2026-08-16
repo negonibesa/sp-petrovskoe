@@ -227,7 +227,7 @@
 
   <section class="ds-sec" data-od-id="stage-icons" id="stage-icons">
     <h2 class="ds-h2"><span class="n">04</span>Иконки <span class="st">· перенесено</span></h2>
-    <p class="ds-desc">Инлайн-SVG спрайт, встроенный в каждую страницу (символы <code>&lt;symbol&gt;</code> в скрытом <code>&lt;svg&gt;</code>), вызов через <code>&lt;use href="#ic-…"&gt;</code>. Размеры: <code>--icon-sm</code> 16 · <code>--icon-md</code> 20 · <code>--icon-lg</code> 24. Канонический файл спрайта — <code>assets/ds-icons.svg</code>: 20 символов — только те, что используются на утверждённой главной (<code>ic-trend-down</code> — состояние «место упало» у рейтинга; <code>ic-plus</code> — FAB и навигация календаря). Новые иконки добавляем по мере переноса экранов.</p>
+    <p class="ds-desc">Инлайн-SVG спрайт, встроенный в каждую страницу (символы <code>&lt;symbol&gt;</code> в скрытом <code>&lt;svg&gt;</code>), вызов через <code>&lt;use href="#ic-…"&gt;</code>. Размеры: <code>--icon-sm</code> 16 · <code>--icon-md</code> 20 · <code>--icon-lg</code> 24. Канонический файл спрайта — <code>assets/ds-icons.svg</code>: 23 символа — только те, что используются на утверждённых экранах (<code>ic-trend-down</code> — состояние «место упало» у рейтинга; <code>ic-plus</code> — FAB и навигация календаря; <code>ic-wifi-off</code>/<code>ic-alert</code>/<code>ic-refresh</code> — состояния S2/S4). Новые иконки добавляем по мере переноса экранов.</p>
     <div class="ds-ico" data-od-id="icon-grid">
       <div class="ds-ico-item"><svg aria-hidden="true"><use href="#ic-home"></use></svg><span class="name">ic-home</span></div>
       <div class="ds-ico-item"><svg aria-hidden="true"><use href="#ic-events"></use></svg><span class="name">ic-events</span></div>
@@ -857,7 +857,31 @@
       </div>
       <div class="skel-line" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-3);"></div>
     </div>
-    <p class="ds-note">Линии <code>.skel-line</code> — фон <code>--surface-2</code> + shimmer-блик, без рамок. Контент появляется с кадром <code>od-enter</code> (ЭТАП 11), заменяя скелетон без сдвига вёрстки.</p>
+    <p class="ds-note">Линии <code>.skel-line</code> — фон <code>--surface-2</code> + shimmer-блик, без рамок. Контент появляется с кадром <code>od-enter</code> (ЭТАП 11), заменяя скелетон без сдвига вёрстки. Скелетон карточки — <code>.skel-card</code> (габариты <code>.n-card</code>).</p>
+
+    <h3 class="ds-sub">Полноэкранное состояние · .state</h3>
+    <div class="ds-panel">
+      <div class="state" style="min-height: 320px;">
+        <span class="state-ic is-danger"><svg aria-hidden="true" style="width:30px;height:30px"><use href="#ic-warn"></use></svg></span>
+        <b class="state-title">Что-то пошло не так</b>
+        <span class="state-sub">Не удалось загрузить данные. Проверьте соединение и попробуйте ещё раз.</span>
+        <div class="state-actions">
+          <button type="button" class="btn btn-accent btn-block">Повторить</button>
+          <button type="button" class="btn btn-ghost btn-block">На главную</button>
+        </div>
+      </div>
+    </div>
+    <h3 class="ds-sub">Баннер «нет сети» · .off-banner</h3>
+    <div class="ds-panel">
+      <div class="off-banner">
+        <span class="off-ic"><svg aria-hidden="true"><use href="#ic-warn"></use></svg></span>
+        <span class="off-tx">
+          <span class="off-t">Нет соединения</span>
+          <span class="off-s">Показываем сохранённые данные · синхронизация приостановлена</span>
+        </span>
+      </div>
+    </div>
+    <p class="ds-note">Формула: центрированная колонка под топбаром (min-height 60dvh), иконка-тайл 64 <code>.state-ic</code> (тон — <code>is-muted</code>/<code>is-accent</code>/<code>is-warn</code>/<code>is-danger</code>), заголовок <code>.state-title</code>, пояснение <code>.state-sub</code>, действия <code>.state-actions</code> (стопка, ширина 320). Для офлайна на странице с данными — баннер <code>.off-banner</code> (warn-тон, иконка + текст, при восстановлении — <code>.is-online</code>).</p>
   </section>
 
   <section class="ds-sec" data-od-id="stage-a11y" id="stage-a11y">

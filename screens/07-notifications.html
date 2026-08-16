@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Уведомления · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Уведомления» — перечень типов по
+     referens/notifications-checklist.md (модель «5 слоёв», §4.20),
+     спека §4.10: 4 базовых типа + удаление, §6.2.
+     Компоненты ДС v2: топбар .topbar, карточка .n-card,
+     фильтр .seg, лист .sheet, пустое состояние .empty, тосты .toast. */
+  .nf-app { background: var(--surface); padding-bottom: 32px; }
+  .nf-body { padding-top: 4px; }
+
+  .nf-seg { margin: 0 0 var(--space-2); }
+
+  .nf-groups { display: grid; gap: var(--space-6); }
+  .nf-group { display: grid; gap: var(--space-2); }
+  .nf-group-t {
+    display: flex; align-items: baseline; gap: var(--space-2);
+    margin: 0; font-size: var(--fs-meta); font-weight: 700;
+    letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--muted);
+  }
+  .nf-group-n { font-size: var(--fs-caption); font-weight: 600; color: var(--meta); }
+
+  /* Карточка уведомления: канон .n-card из ДС v2 + локальные
+     состояния (непрочитанное, ссылка, меню «⋯»). */
+  .n-card.is-unread { border-color: color-mix(in srgb, var(--accent) 38%, var(--border)); }
+  .n-card.is-unread .n-title { color: var(--fg); }
+  .n-card.is-unread .n-title::before {
+    content: ""; display: inline-block; width: 7px; height: 7px;
+    margin-right: 6px; border-radius: 50%;
+    background: var(--accent); vertical-align: 2px;
+  }
+  .n-card.is-link { cursor: pointer; transition: background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard); }
+  .n-card.is-link:hover { background: var(--surface-2); }
+  .n-card.is-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .n-card.is-removing {
+    opacity: 0; transform: translateX(24px);
+    transition: opacity 220ms var(--ease-in), transform 220ms var(--ease-in);
+  }
+  .n-card.is-rise { animation: nf-rise 340ms var(--ease-out) both; }
+  .n-card.is-rise + .n-card.is-rise { animation-delay: 50ms; }
+  @keyframes nf-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .n-card.is-rise, .n-card.is-removing { animation: none; transition: none; }
+  }
+
+  .nf-more {
+    flex: none; align-self: flex-start;
+    width: 30px; height: 30px; margin: -6px -8px 0 0;
+    display: grid; place-items: center;
+    border: 0; border-radius: 50%; background: transparent; color: var(--meta);
+    cursor: pointer;
+    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .nf-more:hover { background: var(--surface-2); color: var(--fg-2); }
+  .nf-more:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nf-more svg { width: var(--icon-sm); height: var(--icon-sm); }
+
+  .nf-invite .n-text { margin-bottom: var(--space-1); }
+
+  .nf-empty { margin-top: var(--space-2); }
+
+  .nf-toast { bottom: 28px; }
+</style>
+</head>
+<body data-od-id="notifications-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-star-solar" viewBox="0 0 24 24"><path d="M18.4832 16.7671C17.1164 17.0953 15.6895 17.0794 14.3303 16.7208C12.9712 16.3622 11.7221 15.6721 10.6951 14.7124C9.66804 13.7526 8.89506 12.5531 8.44535 11.2213C7.99564 9.88951 7.88325 8.46696 8.11824 7.08105C8.08303 7.11615 8.04526 7.14858 8.00524 7.17805C7.72524 7.39105 7.37524 7.47005 6.67524 7.62805L6.04024 7.77205C3.58024 8.32905 2.35024 8.60706 2.05723 9.54806C1.76523 10.4881 2.60324 11.4691 4.28024 13.4301L4.71424 13.9371C5.19024 14.4941 5.42923 14.7731 5.53623 15.1171C5.64323 15.4621 5.60723 15.8341 5.53523 16.5771L5.46923 17.2541C5.21623 19.8711 5.08924 21.1791 5.85524 21.7601C6.62124 22.3411 7.77323 21.8121 10.0752 20.7511L10.6722 20.4771C11.3262 20.1751 11.6532 20.0251 12.0002 20.0251C12.3472 20.0251 12.6742 20.1751 13.3292 20.4771L13.9242 20.7511C16.2272 21.8111 17.3792 22.3411 18.1442 21.7611C18.9112 21.1791 18.7842 19.8711 18.5312 17.2541L18.4832 16.7671Z" fill="currentColor"></path><path d="M9.1527 5.408L8.8247 5.996C8.4647 6.642 8.2847 6.965 8.0047 7.178C8.0447 7.148 8.08237 7.11567 8.1177 7.081C7.88265 8.46701 7.99504 9.88967 8.4448 11.2216C8.89455 12.5535 9.66763 13.7531 10.6948 14.7128C11.722 15.6726 12.9712 16.3627 14.3305 16.7212C15.6898 17.0797 17.1168 17.0954 18.4837 16.767L18.4637 16.577C18.3927 15.834 18.3567 15.462 18.4637 15.117C18.5707 14.773 18.8087 14.494 19.2857 13.937L19.7197 13.43C21.3967 11.47 22.2347 10.489 21.9417 9.548C21.6497 8.607 20.4197 8.328 17.9597 7.772L17.3237 7.628C16.6247 7.47 16.2747 7.391 15.9937 7.178C15.7137 6.965 15.5337 6.642 15.1737 5.996L14.8467 5.408C13.5797 3.136 12.9467 2 11.9997 2C11.0527 2 10.4197 3.136 9.1527 5.408Z" fill="currentColor" fill-opacity="0.5"></path></symbol>
+  <symbol id="ic-medal-solar" viewBox="0 0 24 24"><path opacity="0.5" d="M12.499 5C13.0461 5 13.5851 5.13988 14.0654 5.40723L19.2949 8.31738C19.8106 8.60458 20.241 9.02825 20.541 9.54395C20.8411 10.06 21 10.6498 21 11.25V13.2471C19.1594 14.5812 16.9937 15.4935 14.6436 15.8418C14.6409 15.8134 14.6395 15.7843 14.6367 15.7549L14.6152 15.5293C14.5912 15.281 14.5792 15.1568 14.6152 15.041C14.6502 14.9264 14.727 14.8324 14.8828 14.6465L15.0254 14.4775C15.5747 13.8232 15.8486 13.4956 15.7529 13.1807C15.6569 12.8667 15.2539 12.7739 14.4502 12.5879L14.2422 12.5391C14.0132 12.4868 13.8982 12.4611 13.8066 12.3887C13.7153 12.3175 13.6566 12.2106 13.5391 11.9951L13.4316 11.7988C13.0172 11.0394 12.8098 10.6602 12.499 10.6602C12.1896 10.6605 11.9826 11.0387 11.5684 11.7988L11.4609 11.9951C11.3434 12.2106 11.2847 12.3175 11.1934 12.3887C11.1018 12.46 10.9857 12.4868 10.7578 12.5391L10.5508 12.5879C9.74489 12.7739 9.34194 12.8667 9.24707 13.1807C9.15135 13.4956 9.42537 13.8232 9.97363 14.4775L10.1152 14.6465C10.2722 14.8324 10.3499 14.9253 10.3848 15.041C10.4197 15.1568 10.4088 15.281 10.3848 15.5293L10.3633 15.7549C10.3605 15.7843 10.3582 15.8133 10.3555 15.8418C8.00567 15.4934 5.8403 14.581 4 13.2471V11.251C4 10.6508 4.1589 10.062 4.45898 9.5459C4.75902 9.02997 5.18916 8.60566 5.70508 8.31836L10.9336 5.40723C11.4138 5.13997 11.9521 5.00008 12.499 5Z" fill="currentColor"/><path d="M21 16.749C21 17.3492 20.8411 17.938 20.541 18.4541C20.241 18.9701 19.8108 19.3943 19.2949 19.6816L14.0654 22.5928C13.5851 22.8601 13.0461 23 12.499 23C11.9521 22.9999 11.4138 22.86 10.9336 22.5928L5.70508 19.6816C5.18916 19.3943 4.75902 18.97 4.45898 18.4541C4.15889 17.938 4 17.3492 4 16.749V13.2471C5.8403 14.581 8.00567 15.4934 10.3555 15.8418C10.2784 16.6576 10.2474 17.0723 10.4893 17.2598C10.7401 17.4535 11.1166 17.2769 11.8701 16.9229L12.0654 16.8311C12.2788 16.731 12.3858 16.6818 12.499 16.6816C12.6124 16.6816 12.721 16.7309 12.9346 16.8311L13.1299 16.9229C13.8822 17.278 14.26 17.4535 14.5107 17.2598C14.7526 17.0723 14.7206 16.6577 14.6436 15.8418C16.9937 15.4935 19.1594 14.5812 21 13.2471V16.749Z" fill="currentColor"/><path opacity="0.5" d="M13.5996 1C15.6742 1 16.7109 0.999932 17.3555 1.625C18 2.25006 18 3.25493 18 5.2666V6.59668L14.0654 4.40723C13.5851 4.13988 13.0461 4 12.499 4C11.9521 4.00008 11.4138 4.13997 10.9336 4.40723L7 6.59668V5.2666C7 3.25492 6.99994 2.25006 7.64453 1.625C8.28803 0.999932 9.32581 1 11.4004 1H13.5996Z" fill="currentColor"/></symbol>
+</svg>
+
+<div class="app nf-app">
+  <header class="topbar" data-od-id="nf-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Уведомления</h4>
+    <button type="button" class="topbar-act" id="btn-clear" data-od-id="nf-clear">Очистить</button>
+  </header>
+
+  <main class="body nf-body" data-od-id="nf-body">
+    <div class="seg nf-seg" id="nf-seg" data-od-id="nf-seg" role="group" aria-label="Фильтр уведомлений">
+      <button type="button" class="seg-btn is-active" data-filter="all" data-od-id="nf-filter-all">Все</button>
+      <button type="button" class="seg-btn" data-filter="unread" data-od-id="nf-filter-unread">Непрочитанные</button>
+    </div>
+    <div id="nf-groups" data-od-id="nf-groups"></div>
+    <div class="empty nf-empty" id="nf-empty" hidden data-od-id="nf-empty">
+      <span class="empty-ic"><svg aria-hidden="true"><use href="#ic-bell"></use></svg></span>
+      <b>Уведомлений нет</b>
+      <span>Всё прочитано — вернёмся, когда появится что-то новое</span>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="menu-scrim" aria-hidden="true"></div>
+<div class="sheet" id="menu-sheet" role="dialog" aria-modal="true" aria-label="Действия с уведомлением">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Уведомление</h3>
+    <button type="button" class="sheet-close" id="menu-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <button type="button" class="sheet-item" id="menu-read"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span class="sheet-it"><span class="sheet-il">Отметить прочитанным</span><span class="sheet-ih">Уберёт точку и выделение</span></span></button>
+    <button type="button" class="sheet-item" id="menu-delete"><span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-close"></use></svg></span><span class="sheet-it"><span class="sheet-il">Удалить</span><span class="sheet-ih">Безвозвратно</span></span></button>
+  </div>
+  <button type="button" class="sheet-cancel" id="menu-cancel">Отмена</button>
+</div>
+
+<div class="scrim" id="clear-scrim" aria-hidden="true"></div>
+<div class="sheet" id="clear-sheet" role="dialog" aria-modal="true" aria-label="Очистить уведомления">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Очистить всё?</h3>
+    <button type="button" class="sheet-close" id="clear-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <p class="sheet-note" id="clear-note">Все уведомления будут удалены. Это действие нельзя отменить.</p>
+  <button type="button" class="sheet-primary" id="clear-ok">Очистить всё</button>
+  <button type="button" class="sheet-cancel" id="clear-cancel">Отмена</button>
+</div>
+
+<div class="evd-toast nf-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Готово</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+
+  /* Перечень типов уведомлений — referens/notifications-checklist.md.
+     Обязательные по умолчанию: расписание, аренда, баллы, значки,
+     списание −50, системная безопасность. Включаемые в настройках
+     (отмечены flag 'opt'): изменение позиции в рейтинге, серии. */
+  var NOTIFS = [
+    { id: 1,  group: 'Сегодня', t: 'Через 30 минут — Круговая тренировка', x: 'Тренажёрный зал · 09:00', m: '08:30', c: 'var(--type-training)', ic: 'ic-clock', href: '07-calendar.html', unread: true },
+    { id: 2,  group: 'Сегодня', t: 'Вас пригласили на марафон', x: 'Осенний полумарафон · 12 окт, 08:00 · центр СП', m: '08:05', c: 'var(--type-event)', ic: 'ic-events', href: '15-event-marathon.html', unread: true, invite: true, kind: 'event' },
+    { id: 13, group: 'Сегодня', t: 'Мария К. хочет добавить вас в друзья', x: 'Общие активности: бег, ГТО', m: '07:45', c: 'var(--accent)', ic: 'ic-users', unread: true, invite: true, kind: 'friend' },
+    { id: 3,  group: 'Сегодня', t: '+50 баллов', x: 'За активность в сентябре · сервис', m: '07:12', c: 'var(--amber)', ic: 'ic-star-solar', unread: true },
+    { id: 4,  group: 'Сегодня', t: 'Тест-день ГТО — сегодня', x: 'Бег 2 км · 12 авг · стадион', m: '07:00', c: 'var(--gto-silver)', ic: 'ic-target', href: '25-gto-test.html', unread: true },
+    { id: 5,  group: 'Вчера', t: 'Друг записался на то же событие', x: 'Иван П. · Осенний полумарафон', m: '19:24', c: 'var(--accent)', ic: 'ic-users', href: '15-event-marathon.html', unread: true },
+    { id: 6,  group: 'Вчера', t: 'Аренда площадки подтверждена', x: 'Волейбол · 11 авг · 18:00 · площадка №2', m: '14:38', c: 'var(--type-rental)', ic: 'ic-check', href: '07-calendar.html' },
+    { id: 7,  group: 'Вчера', t: 'Серия · 7 дней подряд', x: 'Тренировки без пропусков — так держать', m: '09:02', c: 'var(--amber)', ic: 'ic-medal-solar', opt: true },
+    { id: 8,  group: 'Вчера', t: 'Перенос времени · Кросс-тренинг', x: 'Теперь 19:30 вместо 18:00 · зал №1', m: '08:20', c: 'var(--type-event)', ic: 'ic-clock', href: '07-calendar.html' },
+    { id: 9,  group: 'Ранее', t: 'Опрос после тренировки не заполнен', x: 'Бег · 9 авг — потратьте 2 минуты', m: '12 авг', c: 'var(--warn)', ic: 'ic-dumbbell', href: 'activities.html' },
+    { id: 10, group: 'Ранее', t: 'Списание −50 баллов', x: 'Подозрение в накрутке · обязательное уведомление', m: '11 авг', c: 'var(--danger)', ic: 'ic-close' },
+    { id: 11, group: 'Ранее', t: 'Шахматный турнир отменён', x: 'Судья перенёс мероприятие · клуб СП', m: '10 авг', c: 'var(--type-club)', ic: 'ic-events' },
+    { id: 12, group: 'Ранее', t: 'Вход с нового устройства', x: 'iPhone 15 · Сергиев Посад · если это не вы — смените пароль', m: '9 авг', c: 'var(--fg-2)', ic: 'ic-home' }
+  ];
+
+  var ORDER = ['Сегодня', 'Вчера', 'Ранее'];
+  var filter = 'all';
+  var activeId = null;
+  var toastTimer = null;
+
+  function unreadCount() {
+    return NOTIFS.reduce(function (n, it) { return n + (it.unread ? 1 : 0); }, 0);
+  }
+
+  function toast(tx, cls) {
+    $('toast-tx').textContent = tx;
+    var row = $('toast').querySelector('.toast');
+    row.className = 'toast ' + (cls || 'toast-success');
+    $('toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').classList.remove('open'); }, 2400);
+  }
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function cardHtml(it) {
+    var cls = 'n-card';
+    if (it.href) cls += ' is-link';
+    if (it.unread) cls += ' is-unread';
+    if (it.invite) cls += ' nf-invite';
+    cls += ' is-rise';
+    var acts = '';
+    if (it.invite) {
+      var ok = 'Принять';
+      var no = 'Позже';
+      if (it.kind === 'friend') { no = 'Отклонить'; }
+      acts = '<span class="n-acts">' +
+        '<button type="button" class="n-btn n-btn-primary" data-act="accept">' + ok + '</button>' +
+        '<button type="button" class="n-btn n-btn-secondary" data-act="decline">' + no + '</button>' +
+        '</span>';
+    }
+    return '<article class="' + cls + '" style="--c:' + it.c + '" data-id="' + it.id + '"' +
+      (it.href ? ' data-href="' + it.href + '"' : '') + '>' +
+      '<span class="n-ic"><svg aria-hidden="true"><use href="#' + it.ic + '"></use></svg></span>' +
+      '<span class="n-body">' +
+      '<span class="n-title">' + esc(it.t) + '</span>' +
+      '<span class="n-text">' + esc(it.x) + '</span>' +
+      '<span class="n-meta">' + esc(it.m) + '</span>' + acts +
+      '</span>' +
+      '<button type="button" class="nf-more" data-more="' + it.id + '" aria-label="Действия с уведомлением"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>' +
+      '</article>';
+  }
+
+  function render() {
+    var shown = NOTIFS.filter(function (it) {
+      return filter === 'all' || it.unread;
+    });
+    $('nf-empty').hidden = shown.length > 0;
+
+    var groups = ORDER.map(function (g) {
+      var items = shown.filter(function (it) { return it.group === g; });
+      if (!items.length) return '';
+      var n = items.filter(function (it) { return it.unread; }).length;
+      return '<div class="nf-group" data-od-id="nf-group-' + g + '">' +
+        '<h3 class="nf-group-t">' + g +
+        (n ? '<span class="nf-group-n">' + n + ' новых</span>' : '') +
+        '</h3>' +
+        items.map(cardHtml).join('') +
+        '</div>';
+    }).join('');
+
+    $('nf-groups').innerHTML = groups;
+    $('btn-clear').style.visibility = NOTIFS.length ? 'visible' : 'hidden';
+  }
+
+  function openMenu(id) {
+    activeId = id;
+    $('menu-scrim').classList.add('open');
+    $('menu-sheet').classList.add('open');
+  }
+  function closeMenu() {
+    activeId = null;
+    $('menu-scrim').classList.remove('open');
+    $('menu-sheet').classList.remove('open');
+  }
+
+  function removeById(id) {
+    var card = document.querySelector('.n-card[data-id="' + id + '"]');
+    if (card) {
+      card.classList.add('is-removing');
+      setTimeout(function () {
+        NOTIFS = NOTIFS.filter(function (it) { return it.id !== id; });
+        render();
+      }, 220);
+    } else {
+      NOTIFS = NOTIFS.filter(function (it) { return it.id !== id; });
+      render();
+    }
+  }
+
+  /* Фильтр */
+  document.querySelectorAll('#nf-seg .seg-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#nf-seg .seg-btn').forEach(function (x) { x.classList.remove('is-active'); });
+      b.classList.add('is-active');
+      filter = b.getAttribute('data-filter');
+      render();
+    });
+  });
+
+  /* События по списку */
+  $('nf-groups').addEventListener('click', function (e) {
+    var more = e.target.closest('.nf-more');
+    if (more) { openMenu(parseInt(more.getAttribute('data-more'), 10)); return; }
+
+    var act = e.target.closest('[data-act]');
+    var card = e.target.closest('.n-card');
+    if (act && card) {
+      var id = parseInt(card.getAttribute('data-id'), 10);
+      var it = NOTIFS.find(function (x) { return x.id === id; });
+      if (act.getAttribute('data-act') === 'accept') {
+        it.unread = false; it.invite = false;
+        toast(it.kind === 'friend' ? 'Вы теперь друзья с Марией К.' : 'Вы записаны на марафон');
+      } else {
+        it.unread = false; it.invite = false;
+        toast(it.kind === 'friend' ? 'Заявка отклонена' : 'Приглашение отложено');
+      }
+      render();
+      return;
+    }
+
+    if (card && card.getAttribute('data-href')) {
+      location.href = card.getAttribute('data-href');
+    } else if (card) {
+      var cid = parseInt(card.getAttribute('data-id'), 10);
+      var item = NOTIFS.find(function (x) { return x.id === cid; });
+      if (item && item.unread) { item.unread = false; render(); toast('Отмечено прочитанным'); }
+    }
+  });
+
+  /* Меню карточки */
+  $('menu-read').addEventListener('click', function () {
+    var it = NOTIFS.find(function (x) { return x.id === activeId; });
+    if (it && it.unread) { it.unread = false; render(); toast('Отмечено прочитанным'); }
+    closeMenu();
+  });
+  $('menu-delete').addEventListener('click', function () {
+    if (activeId != null) { removeById(activeId); toast('Уведомление удалено'); }
+    closeMenu();
+  });
+  $('menu-close').addEventListener('click', closeMenu);
+  $('menu-cancel').addEventListener('click', closeMenu);
+  $('menu-scrim').addEventListener('click', closeMenu);
+
+  /* Очистить всё */
+  function openClear() { $('clear-scrim').classList.add('open'); $('clear-sheet').classList.add('open'); }
+  function closeClear() { $('clear-scrim').classList.remove('open'); $('clear-sheet').classList.remove('open'); }
+  $('btn-clear').addEventListener('click', function () {
+    $('clear-note').textContent = 'Будет удалено ' + NOTIFS.length + ' уведомлений' + (unreadCount() ? ' (' + unreadCount() + ' непрочитанных)' : '') + '. Действие нельзя отменить.';
+    openClear();
+  });
+  $('clear-ok').addEventListener('click', function () {
+    NOTIFS = [];
+    render();
+    closeClear();
+    toast('Уведомления очищены');
+  });
+  $('clear-close').addEventListener('click', closeClear);
+  $('clear-cancel').addEventListener('click', closeClear);
+  $('clear-scrim').addEventListener('click', closeClear);
+
+  /* Назад */
+  $('btn-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = '06-home.html';
+  });
+
+  /* Escape закрывает листы */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if ($('menu-sheet').classList.contains('open')) closeMenu();
+      if ($('clear-sheet').classList.contains('open')) closeClear();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

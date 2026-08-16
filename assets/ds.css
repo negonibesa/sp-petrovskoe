@@ -307,7 +307,7 @@ a { color: inherit; }
 .btn[hidden], .recap[hidden], .steps[hidden], .field[hidden], .row[hidden],
 .slot-sub[hidden], .evd-type[hidden], .facility-group[hidden],
 .slot-grid[hidden], .chips[hidden], .seg[hidden], .total-card[hidden], .cost-row[hidden],
-.card[hidden] { display: none !important; }
+.card[hidden], .empty[hidden], .state[hidden], .n-card[hidden], .off-banner[hidden] { display: none !important; }
 
 .btn-accent {
   background: linear-gradient(135deg, var(--accent), var(--accent-purple));
@@ -1082,6 +1082,60 @@ a { color: inherit; }
   100% { background-position: -80% 0; }
 }
 
+/* Полноэкранное состояние (офлайн / ошибка / пусто-как-экран):
+   центрированная колонка под топбаром, иконка-тайл 64 .state-ic
+   (тон через модификатор is-muted / is-accent / is-warn / is-danger),
+   заголовок .state-title, пояснение .state-sub, действия .state-actions. */
+.state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60dvh; padding: 48px var(--space-5); text-align: center;
+}
+.state-ic {
+  flex: none; width: 64px; height: 64px; margin-bottom: var(--space-3);
+  display: grid; place-items: center; border-radius: var(--radius-lg);
+  color: var(--muted); background: var(--surface-2);
+}
+.state-ic svg { width: 30px; height: 30px; }
+.state-ic.is-accent { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.state-ic.is-warn { color: color-mix(in oklab, var(--amber) 60%, var(--fg)); background: color-mix(in srgb, var(--warn) 14%, var(--surface)); }
+.state-ic.is-danger { color: color-mix(in oklab, var(--danger) 70%, var(--fg)); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+.state-title { font-size: var(--fs-title); font-weight: 700; letter-spacing: var(--tracking-tight); color: var(--fg); }
+.state-sub { max-width: 340px; font-size: var(--fs-meta); line-height: 1.55; color: var(--muted); margin-top: var(--space-1); }
+.state-actions { display: flex; flex-direction: column; gap: var(--space-3); width: 100%; max-width: 320px; margin-top: var(--space-6); }
+
+/* Баннер «нет сети»: показывает закэшированные данные, тон --warn,
+   действие (опционально) — маленькая кнопка .off-act. */
+.off-banner {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--warn) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--warn) 32%, transparent);
+  border-radius: var(--radius-md);
+}
+.off-banner .off-ic {
+  flex: none; width: 34px; height: 34px; display: grid; place-items: center;
+  border-radius: var(--radius-md);
+  color: color-mix(in oklab, var(--amber) 60%, var(--fg));
+  background: color-mix(in srgb, var(--warn) 16%, var(--surface));
+}
+.off-banner .off-ic svg { width: var(--icon-md); height: var(--icon-md); }
+.off-banner .off-tx { flex: 1; min-width: 0; text-align: left; }
+.off-banner .off-t { display: block; font-size: var(--fs-meta); font-weight: 700; color: var(--fg); }
+.off-banner .off-s { display: block; font-size: var(--fs-caption); line-height: 1.4; color: var(--muted); margin-top: 2px; }
+.off-banner .off-act { flex: none; }
+.off-banner.is-online { background: color-mix(in srgb, var(--success) 12%, var(--surface)); border-color: color-mix(in srgb, var(--success) 32%, transparent); }
+.off-banner.is-online .off-ic { color: color-mix(in oklab, var(--success) 55%, var(--fg)); background: color-mix(in srgb, var(--success) 16%, var(--surface)); }
+
+/* Скелетон карточки: те же габариты, что у .n-card/.ev-card, чтобы
+   контент не прыгал при замене (od-enter). */
+.skel-card {
+  display: flex; gap: var(--space-3); padding: var(--space-4);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.skel-card .skel-line { flex: none; }
+.skel-card .skel-body { flex: 1; min-width: 0; }
+
 /* ────────────────────────────────────────────────
    ЭТАП 11 · Моушн и доступность
    Моушн-токены — в ЭТАПЕ 1 (--motion-fast, --motion-base,
@@ -1249,7 +1303,7 @@ select.input:invalid { color: var(--muted); }
 
 .mrow {
   display: flex; align-items: center; gap: var(--space-3);
-  width: 100%; min-height: 56px; padding: var(--space-2) var(--space-1);
+  width: 100%; min-width: 0; min-height: 56px; padding: var(--space-2) var(--space-1);
   border: 0; background: none; text-align: left;
   border-radius: var(--radius-md); cursor: pointer;
   color: inherit; text-decoration: none;
@@ -1459,7 +1513,10 @@ select.input:invalid { color: var(--muted); }
    var(--space-4) и вертикальным ритмом: общий шаг
    var(--space-2), секции .sec — var(--space-6) (эффективный
    рендер home-v2, где переопределение на --space-4
-   безусловно). Подвал .site-foot — копирайт.
+   безусловно). Заголовок .topbar/.hd отделён от контента
+   ЕДИНЫМ отступом var(--space-1) (4px): верхний паддинг .body;
+   первая секция .sec не дублирует его (margin-top: 0).
+   Подвал .site-foot — копирайт.
    ──────────────────────────────────────────────── */
 .app {
   position: relative; z-index: 1;
@@ -1468,9 +1525,11 @@ select.input:invalid { color: var(--muted); }
   padding: 0 0 calc(84px + env(safe-area-inset-bottom));
   min-height: 100vh;
 }
-.body { padding: 0 var(--space-4); }
+.body { padding: var(--space-1) var(--space-4) 0; }
+.body > :first-child { margin-top: 0; }
 .body > * + * { margin-top: var(--space-2); }
 .body > * + .sec { margin-top: var(--space-6); }
+.body > .sec:first-child { margin-top: 0; }
 .body > .chips { margin-top: 0; }
 .body > .chips-sub { margin-top: var(--space-2); }
 .body > .cal-card { margin-top: var(--space-2); }
@@ -1487,7 +1546,7 @@ select.input:invalid { color: var(--muted); }
    .sheet, но видима всегда; на ≥560px — карточка.
    ──────────────────────────────────────────────── */
 .evc-hint {
-  margin: var(--space-3) 0 var(--space-4);
+  margin: 0 0 var(--space-4);
   font-weight: 500;
   color: var(--meta);
 }
@@ -1848,6 +1907,82 @@ select.input:invalid { color: var(--muted); }
 @media (min-width: 560px) { .steps { padding: 0 var(--space-6) var(--space-4); } }
 .step-dot { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--border-strong); transition: background var(--motion-base) var(--ease-standard); }
 .step-dot.is-done, .step-dot.is-now { background: linear-gradient(135deg, var(--accent), var(--accent-purple)); }
+
+/* ── Сводка и подтверждение (шаг «Проверка» мастера) ──
+   .summary — карточка-сводка из пар «ключ/значение» (.sum-row):
+   ключ капсом серым слева, значение справа. В значении доп. строка
+   через <span class="sub">. Канон — referens/create-event.html */
+.summary { display: block; }
+.sum-row {
+  display: flex; gap: var(--space-3);
+  padding: var(--space-3) var(--space-1);
+  border-bottom: 1px solid var(--border-soft);
+}
+.sum-row:last-child { border-bottom: 0; }
+.sum-k {
+  flex: none; width: 116px;
+  font-size: var(--fs-caption); font-weight: 600;
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--meta); padding-top: 3px;
+}
+.sum-v {
+  flex: 1; min-width: 0;
+  font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  line-height: 1.4;
+}
+.sum-v .sub { display: block; font-size: var(--fs-caption); font-weight: 500; color: var(--muted); margin-top: 2px; }
+.sum-v .sub b { font-weight: 600; color: var(--fg-2); }
+
+/* Цветная плашка типа события — цвет задаётся inline --c */
+.type-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-caption); font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, var(--surface));
+  border-radius: 7px;
+  padding: 4px 9px;
+}
+
+/* ── Экран успеха (шаг «Готово» мастера) ──
+   .done-wrap — центрированная колонка: значок, заголовок, подпись,
+   карточка события (.done-card), список заметок (.done-note). */
+.done-wrap { text-align: center; padding: 28px 12px 8px; }
+.done-ic {
+  width: 88px; height: 88px; margin: 0 auto 18px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--success) 14%, var(--surface));
+  color: var(--success);
+}
+.done-ic svg { width: 44px; height: 44px; }
+.done-title {
+  margin: 0;
+  font-family: var(--font-display); font-size: 26px; font-weight: 600;
+  letter-spacing: var(--tracking-display);
+}
+.done-sub { margin: 6px 0 24px; font-size: var(--fs-body); color: var(--muted); }
+.done-card {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: 10px;
+}
+.done-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.done-card .dc-line { display: flex; align-items: center; gap: 8px; font-size: var(--fs-body); color: var(--fg-2); margin-top: 4px; }
+.done-card .dc-line svg { width: 16px; height: 16px; color: var(--meta); flex: none; }
+.done-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-caption); font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+  border-radius: 7px;
+  padding: 4px 10px;
+}
+.done-notes { text-align: left; margin-bottom: 20px; }
+.done-note { display: flex; align-items: center; gap: 10px; font-size: var(--fs-body); color: var(--fg-2); padding: 8px 2px; }
+.done-note svg { width: 18px; height: 18px; color: var(--success); flex: none; }
 
 /* Поиск в нижнем листе (пикер людей) */
 .sheet-search {

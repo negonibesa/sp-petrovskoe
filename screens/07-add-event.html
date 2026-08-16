@@ -25,9 +25,12 @@
   <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="7.8" r="0.5" fill="currentColor"></circle></symbol>
   <symbol id="ic-warn" viewBox="0 0 24 24"><path d="M12 4.5L3.5 19.5h17L12 4.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M12 10.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path><circle cx="12" cy="17.2" r="0.4" fill="currentColor"></circle></symbol>
-  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M3.5 18.5c0-2.9 2.4-4.5 5.5-4.5s5.5 1.6 5.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="17" cy="9.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M17.5 14.6c2 .5 3.5 1.8 3.5 3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M3.5 9.5h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M8 13.5l1.6 1.6L13.5 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-barcode" viewBox="0 0 24 24"><path d="M4 7v10M6.5 7v10M10 7v9M12 8v8M15 7v10M18 7v9M20 7v10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
 </svg>
 
 <div class="app">
@@ -101,6 +104,22 @@
       <div class="field" id="field-place" style="margin-top:var(--space-2)">
         <label class="field-label" for="ev-place">Место</label>
         <input class="input" id="ev-place" type="text" maxlength="80" autocomplete="off" placeholder="Где проходит?">
+      </div>
+    </section>
+
+    <section id="step-trainer" data-od-id="add-trainer" aria-label="Тренер и время" hidden>
+      <h2 class="step-title">Тренер и время</h2>
+      <p class="step-note">Выберите тренера и свободное время — покажем слоты.</p>
+      <div class="card">
+        <span class="field-label">Тренер</span>
+        <div class="trainer-list" id="trainer-list" style="margin-top:var(--space-3)"></div>
+      </div>
+      <div class="card" id="tr-slots-card" hidden="">
+        <p class="slot-sub" id="tr-owner"></p>
+        <div class="slot-grid" id="tr-slots"></div>
+        <div class="divider is-thin" id="tr-dur-row" hidden=""></div>
+        <p class="slot-sub" id="tr-dur-title" hidden="">Длительность</p>
+        <div class="slot-grid" id="tr-duration" hidden=""></div>
       </div>
     </section>
 
@@ -179,6 +198,27 @@
           <div class="cost-row"><span>Площадка</span><b id="total-fac">0 ₽</b></div>
           <div class="cost-row" id="total-inv-row" hidden=""><span>Инвентарь</span><b id="total-inv-val"></b></div>
           <div class="cost-row is-total"><span>К оплате</span><b id="total-cost">0 ₽</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-confirm" data-od-id="add-confirm" aria-label="Подтверждение" hidden>
+      <h2 class="step-title">Подтверждение</h2>
+      <p class="step-note" id="confirm-note">Проверьте данные — бронь подтвердится сразу.</p>
+      <div class="card">
+        <div class="summary" id="confirm-summary"></div>
+      </div>
+    </section>
+
+    <section id="step-done" data-od-id="add-done" aria-label="Готово" hidden>
+      <div class="done-wrap">
+        <div class="done-ic"><svg aria-hidden="true"><use href="#ic-check"></use></svg></div>
+        <h2 class="done-title" id="done-title">Событие создано!</h2>
+        <p class="done-sub" id="done-sub">Оно уже в вашем календаре</p>
+        <div class="done-card" id="done-card"></div>
+        <div class="done-notes">
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-bell"></use></svg>Участники уведомлены</div>
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-cal"></use></svg>Добавлено в календарь</div>
         </div>
       </div>
     </section>
@@ -383,6 +423,13 @@
     { id: "p10", name: "Павел Егоров", club: "Теннисный клуб" }
   ];
 
+  var TRAINERS = [
+    { id: "t1", name: "Дмитрий Волков", spec: "Силовые тренировки", price: 800, rating: "4.9", slots: ["09:00", "10:00", "11:00", "14:00", "16:00", "17:00"] },
+    { id: "t2", name: "Анна Смирнова", spec: "Плавание", price: 700, rating: "4.8", slots: ["09:00", "11:00", "12:00", "15:00", "17:00"] },
+    { id: "t3", name: "Павел Егоров", spec: "Бег и ОФП", price: 600, rating: "4.7", slots: ["10:00", "11:00", "14:00", "16:00", "18:00"] },
+    { id: "t4", name: "Мария Петрова", spec: "Фитнес и растяжка", price: 750, rating: "4.9", slots: ["09:00", "10:00", "14:00", "15:00", "18:00"] }
+  ];
+
   /* ── Состояние ──────────────────────────── */
   var today = new Date();
   var st = {
@@ -390,16 +437,27 @@
     date: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
     time: new Date(0, 0, 0, 19, 0),
     fmt: null,
-    rStep: 0,
+    stepIdx: 0,
     facility: null,
     slot: null,
     duration: 2,
     inv: false,
     invItem: null,
     friends: false,
-    people: []
+    people: [],
+    trainer: null,
+    trSlot: null,
+    trDur: 1
   };
-  var RSTEPS = ["facility", "extras"];
+  function stepsFor(t) {
+    if (t === "rental") return ["facility", "extras", "confirm", "done"];
+    if (t === "training" && st.fmt === "С тренером") return ["details", "trainer", "confirm", "done"];
+    return ["details", "confirm", "done"];
+  }
+  function contentSteps() {
+    if (!st.type) return [];
+    return stepsFor(st.type).filter(function (s) { return s !== "done"; });
+  }
   var step = "type";
 
   /* ── Форматтеры ─────────────────────────── */
@@ -412,6 +470,10 @@
   function fmtPrice(n) { return n.toLocaleString("ru-RU") + " ₽"; }
   function byId(fid) {
     for (var i = 0; i < FACILITIES.length; i++) if (FACILITIES[i].id === fid) return FACILITIES[i];
+    return null;
+  }
+  function byTr(tid) {
+    for (var i = 0; i < TRAINERS.length; i++) if (TRAINERS[i].id === tid) return TRAINERS[i];
     return null;
   }
   function hourState(f, h) {
@@ -575,15 +637,19 @@
   /* ── Шаги ───────────────────────────────── */
   function showStep(s) {
     step = s;
-    ["step-type", "step-details", "step-facility", "step-extras"].forEach(function (id) {
-      $(id).hidden = id !== "step-" + s;
-    });
-    var isRent = st.type === "rental" && RSTEPS.indexOf(s) !== -1;
-    $("steps").hidden = !isRent;
-    if (isRent) renderSteps();
+    var all = ["step-type", "step-details", "step-trainer", "step-facility", "step-extras", "step-confirm", "step-done"];
+    all.forEach(function (id) { $(id).hidden = id !== "step-" + s; });
+    var idx = contentSteps().indexOf(s);
+    if (idx !== -1) st.stepIdx = idx;
+    var inFlow = contentSteps().indexOf(s) !== -1 || s === "done";
+    $("steps").hidden = !inFlow;
+    if (inFlow) renderSteps();
     var title = "Создание события";
     if (s === "details") title = TYPES[st.type].name;
-    if (isRent) title = "Аренда";
+    if (s === "trainer") title = "С тренером";
+    if (s === "facility" || s === "extras") title = "Аренда";
+    if (s === "confirm") title = "Подтверждение";
+    if (s === "done") title = "Готово";
     $("bar-title").textContent = title;
     renderBar();
     window.scrollTo(0, 0);
@@ -591,11 +657,14 @@
   function renderSteps() {
     var box = $("steps");
     box.innerHTML = "";
-    RSTEPS.forEach(function (rs, i) {
+    var content = contentSteps();
+    var cur = content.indexOf(step);
+    var allDone = step === "done";
+    content.forEach(function (rs, i) {
       var d = document.createElement("span");
       d.className = "step-dot";
-      if (i < st.rStep) d.classList.add("is-done");
-      if (i === st.rStep) d.classList.add("is-now");
+      if (allDone || i < cur) d.classList.add("is-done");
+      if (i === cur) d.classList.add("is-now");
       box.appendChild(d);
     });
   }
@@ -608,13 +677,26 @@
     } else if (step === "details") {
       next.hidden = true; save.hidden = false; back.hidden = true; recap.hidden = true;
       save.textContent = "Далее";
+    } else if (step === "trainer") {
+      next.hidden = false; save.hidden = true; back.hidden = false; recap.hidden = true;
+      next.textContent = "Далее";
+      next.disabled = !(st.trainer && st.trSlot !== null);
+    } else if (step === "confirm") {
+      next.hidden = false; save.hidden = true; back.hidden = false;
+      recap.hidden = !(st.type === "rental" && st.facility && st.slot !== null);
+      next.textContent = st.type === "rental" ? "Забронировать" : (st.type === "training" && st.fmt === "С тренером" ? "Отправить заявку" : "Создать событие");
+      next.disabled = false;
+    } else if (step === "done") {
+      next.hidden = false; save.hidden = true; back.hidden = true; recap.hidden = true;
+      next.textContent = "Готово";
+      next.disabled = false;
     } else {
       next.hidden = false; save.hidden = true; back.hidden = false;
       recap.hidden = !(step === "facility" && st.facility && st.slot !== null);
-      next.textContent = step === "extras" ? "Забронировать" : "Далее";
+      next.textContent = "Далее";
       next.disabled = step === "facility" ? !(st.facility !== null && st.slot !== null) : false;
     }
-    if (RSTEPS.indexOf(step) !== -1) updateRecap();
+    if (contentSteps().indexOf(step) !== -1) updateRecap();
   }
 
   /* ── Тип ────────────────────────────────── */
@@ -626,10 +708,11 @@
   function startType() {
     if (!st.type) return;
     if (st.type === "rental") {
-      st.rStep = 0; st.facility = null; st.slot = null; st.duration = 2;
+      st.stepIdx = 0; st.facility = null; st.slot = null; st.duration = 2;
       renderFacilityStep();
       showStep("facility");
     } else {
+      st.stepIdx = 0; st.trainer = null; st.trSlot = null; st.trDur = 1;
       renderDetails();
       showStep("details");
     }
@@ -665,6 +748,60 @@
     $("field-place").hidden = false;
     $("val-date").textContent = fmtDateW(st.date);
     $("val-time").textContent = fmtTime(st.time.getHours(), st.time.getMinutes());
+    var idx = contentSteps().indexOf("details");
+    if (idx !== -1) st.stepIdx = idx;
+    renderSteps();
+  }
+
+  /* ── Тренер (формат «С тренером») ───────── */
+  function renderTrainer() {
+    var list = $("trainer-list");
+    list.innerHTML = "";
+    TRAINERS.forEach(function (tr) {
+      var on = st.trainer === tr.id;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "mrow" + (on ? " is-on" : "");
+      b.innerHTML =
+        '<span class="mrow-ava">' + tr.name.split(" ").map(function (w) { return w[0]; }).join("") + "</span>" +
+        '<span class="mrow-tx"><span class="mrow-t">' + tr.name + '</span><span class="mrow-s">' + tr.spec + " · " + fmtPrice(tr.price) + "/ч · рейтинг " + tr.rating + "</span></span>" +
+        '<span class="mrow-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
+      b.addEventListener("click", function () {
+        st.trainer = tr.id;
+        st.trSlot = null;
+        renderTrainer();
+        renderBar();
+      });
+      list.appendChild(b);
+    });
+    renderTrainerSlots();
+  }
+  function renderTrainerSlots() {
+    var card = $("tr-slots-card"),
+        owner = $("tr-owner"), slots = $("tr-slots"),
+        durRow = $("tr-dur-row"), durTitle = $("tr-dur-title"), dur = $("tr-duration");
+    var tr = st.trainer ? byTr(st.trainer) : null;
+    if (!tr) {
+      card.hidden = true;
+      return;
+    }
+    card.hidden = false;
+    owner.innerHTML = tr.name + " · " + fmtDateShort(st.date) + ":";
+    var html = "";
+    tr.slots.forEach(function (t) {
+      html += '<button type="button" class="slot is-free' + (st.trSlot === t ? " is-sel" : "") + '" data-trslot="' + t + '">' + t + "</button>";
+    });
+    slots.innerHTML = html;
+    durRow.hidden = false; durTitle.hidden = false; dur.hidden = false;
+    dur.innerHTML = "";
+    [1, 2].forEach(function (d) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "slot" + (st.trDur === d ? " is-sel" : "");
+      b.textContent = d + " ч";
+      b.addEventListener("click", function () { st.trDur = d; renderTrainerSlots(); renderBar(); });
+      dur.appendChild(b);
+    });
   }
 
   /* ── Аренда: шаг «Площадка» ─────────────── */
@@ -948,20 +1085,117 @@
     if (!list.length) box.innerHTML = '<p class="sheet-note">Никого не нашли</p>';
   }
 
+  /* ── Подтверждение ──────────────────────── */
+  function confirmRows() {
+    var rows = [];
+    rows.push(["Тип", '<span class="type-pill" style="--c:' + TYPES[st.type].color + '">' + TYPES[st.type].name + "</span>"]);
+    if (st.type === "rental") {
+      var f = byId(st.facility);
+      var c = costNow();
+      rows.push(["Дата и время", fmtDate(st.date) + ", " + fmtTime(st.slot) + " – " + fmtTime(st.slot + st.duration) + '<span class="sub">' + st.duration + " " + pluralHours(st.duration) + "</span>"]);
+      rows.push(["Площадка", f.name + '<span class="sub">' + f.addr + " · " + f.cap + "</span>"]);
+      rows.push(["Инвентарь", c.item ? c.item.name + '<span class="sub">' + fmtPrice(c.item.price) + " за сеанс</span>" : "Без инвентаря"]);
+      rows.push(["Стоимость", fmtPrice(c.c) + '<span class="sub">' + fmtPrice(f.price) + " × " + st.duration + " ч" + (c.item ? " + инвентарь" : "") + "</span>"]);
+      var cnt = st.people.length;
+      rows.push(["Участники", cnt ? "Вы + " + cnt + " " + pluralize(cnt, "участник", "участника", "участников") : "Только вы"]);
+    } else if (st.type === "training" && st.fmt === "С тренером") {
+      var tr = byTr(st.trainer);
+      rows.push(["Дата и время", fmtDate(st.date) + ", " + st.trSlot + '<span class="sub">' + st.trDur + " " + pluralHours(st.trDur) + "</span>"]);
+      rows.push(["Тренер", tr.name + '<span class="sub">' + tr.spec + " · рейтинг " + tr.rating + "</span>"]);
+      rows.push(["Место", $("ev-place").value.trim() || "Спорткомплекс"]);
+      rows.push(["Стоимость", fmtPrice(tr.price * st.trDur) + '<span class="sub">' + fmtPrice(tr.price) + " × " + st.trDur + " ч</span>"]);
+      var cnt2 = st.people.length;
+      rows.push(["Участники", cnt2 ? "Вы + " + cnt2 + " " + pluralize(cnt2, "участник", "участника", "участников") : "Только вы"]);
+    } else {
+      rows.push(["Дата и время", fmtDate(st.date) + ", " + fmtTime(st.time.getHours(), st.time.getMinutes())]);
+      rows.push(["Название", $("ev-name").value.trim() || "—"]);
+      rows.push(["Место", $("ev-place").value.trim() || "—"]);
+      var cnt3 = st.people.length;
+      if (cnt3) rows.push(["Участники", "Вы + " + cnt3 + " " + pluralize(cnt3, "участник", "участника", "участников")]);
+    }
+    return rows;
+  }
+  function renderConfirm() {
+    var box = $("confirm-summary");
+    box.innerHTML = "";
+    confirmRows().forEach(function (r) {
+      var row = document.createElement("div");
+      row.className = "sum-row";
+      row.innerHTML = '<div class="sum-k">' + r[0] + '</div><div class="sum-v">' + r[1] + "</div>";
+      box.appendChild(row);
+    });
+    var note = $("confirm-note");
+    if (st.type === "rental") note.textContent = "Проверьте данные — бронь подтвердится сразу.";
+    else if (st.type === "training" && st.fmt === "С тренером") note.textContent = "Проверьте данные — отправим заявку тренеру.";
+    else note.textContent = "Проверьте данные перед созданием.";
+  }
+
+  /* ── Экран «Готово» ─────────────────────── */
+  function renderDone() {
+    var when;
+    if (st.type === "rental") when = fmtDate(st.date) + ", " + fmtTime(st.slot) + " – " + fmtTime(st.slot + st.duration);
+    else if (st.type === "training" && st.fmt === "С тренером") when = fmtDate(st.date) + ", " + st.trSlot + " – " + endTimeStr(st.trSlot, st.trDur);
+    else when = fmtDate(st.date) + ", " + fmtTime(st.time.getHours(), st.time.getMinutes());
+    var title = $("ev-name").value.trim() ||
+      (st.type === "rental" ? "Аренда · " + byId(st.facility).name :
+        (st.type === "training" && st.fmt === "С тренером" ? "Занятие · " + byTr(st.trainer).name : TYPES[st.type].name));
+    var place = st.type === "rental"
+      ? byId(st.facility).name + " · " + byId(st.facility).addr
+      : (st.type === "training" && st.fmt === "С тренером" ? "Спорткомплекс" : ($("ev-place").value.trim() || "Место уточняется"));
+    var status = st.type === "rental" ? "Подтверждено" : (st.type === "training" && st.fmt === "С тренером" ? "Ожидает" : "Запланировано");
+    var html =
+      '<h3 style="color:' + TYPES[st.type].color + '">' + title + "</h3>" +
+      '<div class="dc-line"><span class="done-status" style="--c:' + TYPES[st.type].color + '">' + status + "</span></div>" +
+      '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-cal"></use></svg>' + when + "</div>" +
+      '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-pin"></use></svg>' + place + "</div>";
+    if (st.type === "rental") {
+      var f = byId(st.facility), c = costNow();
+      html += '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-barcode"></use></svg>' + fmtPrice(c.c) + " · " + st.duration + " ч" + (c.item ? " · с инвентарём" : "") + "</div>";
+    } else if (st.type === "training" && st.fmt === "С тренером") {
+      var tr = byTr(st.trainer);
+      html += '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-barcode"></use></svg>' + fmtPrice(tr.price * st.trDur) + " · " + st.trDur + " ч</div>";
+    }
+    if (st.people.length) {
+      html += '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-users"></use></svg>Участники: ' + st.people.length + "</div>";
+    }
+    $("done-card").innerHTML = html;
+    $("done-sub").textContent = st.type === "rental" ? "Бронь площадки подтверждена" :
+      (st.type === "training" && st.fmt === "С тренером" ? "Заявка отправлена тренеру" : "Оно уже в вашем календаре");
+  }
+  function endTimeStr(t, h) {
+    var q = t.split(":");
+    var hh = (+q[0] + h) % 24;
+    return (hh < 10 ? "0" : "") + hh + ":" + q[1];
+  }
+  function pluralHours(n) {
+    if (n === 1) return "час";
+    if (n >= 2 && n <= 4) return "часа";
+    return "часов";
+  }
+
   /* ── Сводка в плашке ────────────────────── */
   function updateRecap() {
-    if (!st.facility || st.slot === null) return;
-    var f = byId(st.facility);
-    var c = costNow();
-    $("recap-name").textContent = f.name;
-    $("recap-when").textContent = fmtDateShort(st.date) + " · " + fmtTime(st.slot) + " – " + fmtTime(st.slot + st.duration);
-    $("recap-cost").textContent = fmtPrice(c.c);
+    if (st.type === "rental") {
+      if (!st.facility || st.slot === null) return;
+      var f = byId(st.facility);
+      var c = costNow();
+      $("recap-name").textContent = f.name;
+      $("recap-when").textContent = fmtDateShort(st.date) + " · " + fmtTime(st.slot) + " – " + fmtTime(st.slot + st.duration);
+      $("recap-cost").textContent = fmtPrice(c.c);
+    } else if (st.type === "training" && st.fmt === "С тренером") {
+      if (!st.trainer || st.trSlot === null) return;
+      var tr = byTr(st.trainer);
+      $("recap-name").textContent = "С тренером · " + tr.name;
+      $("recap-when").textContent = fmtDateShort(st.date) + " · " + st.trSlot + " – " + endTimeStr(st.trSlot, st.trDur);
+      $("recap-cost").textContent = fmtPrice(tr.price * st.trDur);
+    }
   }
 
   /* ── Завершение ─────────────────────────── */
   function finish(msg) {
+    renderDone();
     toast(msg);
-    setTimeout(function () { window.location.href = "07-calendar.html"; }, 1400);
+    showStep("done");
   }
 
   /* ── События интерфейса ─────────────────── */
@@ -971,12 +1205,27 @@
     });
     $("btn-next").addEventListener("click", function () {
       if (step === "type") { startType(); return; }
-      if (step === "facility") { st.rStep = 1; renderExtras(); showStep("extras"); return; }
-      if (step === "extras") { finish("Бронь оформлена"); return; }
+      if (step === "facility") { st.stepIdx = 1; renderExtras(); showStep("extras"); return; }
+      if (step === "extras") { renderConfirm(); showStep("confirm"); return; }
+      if (step === "trainer") { renderConfirm(); showStep("confirm"); return; }
+      if (step === "confirm") {
+        var msg = st.type === "rental" ? "Бронь оформлена" :
+          (st.type === "training" && st.fmt === "С тренером" ? "Заявка отправлена" : "Событие создано");
+        finish(msg);
+        return;
+      }
+      if (step === "done") { window.location.href = "07-calendar.html"; return; }
     });
     $("btn-save").addEventListener("click", function () {
       if (!$("ev-name").value.trim()) { toast("Добавьте название события"); return; }
-      finish("Добавлено в календарь");
+      if (st.type === "training" && st.fmt === "С тренером") {
+        st.stepIdx = 1;
+        renderTrainer();
+        showStep("trainer");
+      } else {
+        renderConfirm();
+        showStep("confirm");
+      }
     });
     $("btn-back-step").addEventListener("click", goBack);
     $("btn-back").addEventListener("click", goBack);
@@ -1007,6 +1256,15 @@
       if (hourState(byId(st.facility), +s.getAttribute("data-slot")) !== "free") return;
       st.slot = +s.getAttribute("data-slot");
       renderFacilitySlots(byId(st.facility));
+      renderBar();
+    });
+
+    /* Слоты тренера */
+    $("tr-slots").addEventListener("click", function (e) {
+      var s = e.target.closest("[data-trslot]");
+      if (!s) return;
+      st.trSlot = s.getAttribute("data-trslot");
+      renderTrainerSlots();
       renderBar();
     });
 
@@ -1055,11 +1313,21 @@
     $("people-search").addEventListener("input", renderPeopleList);
   }
   function goBack() {
-    if (st.type === "rental" && RSTEPS.indexOf(step) !== -1) {
-      if (step === "extras") { st.rStep = 0; showStep("facility"); return; }
-      st.rStep = 0; st.facility = null; st.slot = null; showStep("type"); return;
+    var idx = contentSteps().indexOf(step);
+    if (idx > 0) {
+      var prev = contentSteps()[idx - 1];
+      if (prev === "facility") { st.stepIdx = 0; renderFacilityStep(); showStep("facility"); return; }
+      if (prev === "details") { st.stepIdx = 0; renderDetails(); showStep("details"); return; }
+      if (prev === "trainer") { st.stepIdx = 1; renderTrainer(); showStep("trainer"); return; }
+      if (prev === "extras") { st.stepIdx = 1; renderExtras(); showStep("extras"); return; }
+      if (prev === "confirm") { st.stepIdx = 2; renderConfirm(); showStep("confirm"); return; }
+      showStep(prev);
+      return;
     }
-    if (step === "details") { showStep("type"); return; }
+    if (step === "details" || step === "trainer" || step === "facility" || step === "extras" || step === "confirm") {
+      showStep("type");
+      return;
+    }
     if (step === "type") { window.location.href = "07-calendar.html"; }
   }
   function openDateSheet() {

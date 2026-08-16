@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Загрузка · Состояния · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/ds.css">
+<style>
+  /* S3 · Загрузка (index §08). Скелетоны карточек (.skel-card /
+     .skel-line) повторяют габариты финального контента; контент
+     появляется кадром od-enter — вёрстка не прыгает. */
+  .st-app { background: var(--surface-warm); }
+  .st-body { padding-top: 4px; }
+  .st-skel { display: grid; gap: var(--space-3); }
+  .st-skel .skel-line { width: 100%; }
+  .st-skel-btn { height: var(--h-base); margin-top: var(--space-2); }
+  .st-content { display: grid; gap: var(--space-3); }
+  .st-content.od-reveal { animation: od-enter var(--motion-base) var(--ease-out); }
+</style>
+</head>
+<body data-od-id="state-loading-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+</svg>
+
+<div class="app st-app">
+  <header class="topbar" data-od-id="st-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Загрузка</h4>
+  </header>
+
+  <main class="body st-body" data-od-id="st-body">
+    <div class="st-skel" id="st-skel" data-od-id="st-skel" aria-hidden="true" aria-label="Загрузка данных">
+      <div class="skel-card">
+        <span class="skel-line" style="width:42px;height:42px;border-radius:var(--radius-md)"></span>
+        <span class="skel-body">
+          <span class="skel-line" style="width:58%;height:14px;margin-bottom:var(--space-2)"></span>
+          <span class="skel-line" style="width:82%;height:12px;margin-bottom:var(--space-2)"></span>
+          <span class="skel-line" style="width:38%;height:12px"></span>
+        </span>
+      </div>
+      <div class="skel-card">
+        <span class="skel-line" style="width:42px;height:42px;border-radius:var(--radius-md)"></span>
+        <span class="skel-body">
+          <span class="skel-line" style="width:52%;height:14px;margin-bottom:var(--space-2)"></span>
+          <span class="skel-line" style="width:76%;height:12px;margin-bottom:var(--space-2)"></span>
+          <span class="skel-line" style="width:44%;height:12px"></span>
+        </span>
+      </div>
+      <div class="skel-card">
+        <span class="skel-line" style="width:42px;height:42px;border-radius:var(--radius-md)"></span>
+        <span class="skel-body">
+          <span class="skel-line" style="width:64%;height:14px;margin-bottom:var(--space-2)"></span>
+          <span class="skel-line" style="width:70%;height:12px"></span>
+        </span>
+      </div>
+      <span class="skel-line st-skel-btn"></span>
+    </div>
+
+    <div class="st-content" id="st-content" hidden data-od-id="st-content">
+      <div class="n-card" style="--c: var(--accent)">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Тренировка · бег 5 км</span>
+          <span class="n-text">Пн, 18 августа · 07:30 · стадион «Юность»</span>
+          <span class="n-meta">Тренер · А. Соколов</span>
+        </span>
+      </div>
+      <div class="n-card" style="--c: var(--accent-purple)">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Силовая · верх тела</span>
+          <span class="n-text">Ср, 20 августа · 18:00 · фитнес-зал «Движение»</span>
+          <span class="n-meta">Групповая · до 12 человек</span>
+        </span>
+      </div>
+      <div class="n-card" style="--c: var(--success)">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Волейбольный турнир двора</span>
+          <span class="n-text">Сб, 23 августа · 10:00 · площадка №1</span>
+          <span class="n-meta">Событие · открыта запись</span>
+        </span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var btnBack = document.getElementById('btn-back');
+  btnBack.addEventListener('click', function () { history.back(); });
+
+  var skel = document.getElementById('st-skel');
+  var content = document.getElementById('st-content');
+  setTimeout(function () {
+    skel.hidden = true;
+    content.hidden = false;
+    content.classList.add('od-reveal');
+  }, 1400);
+})();
+</script>
+</body>
+</html>

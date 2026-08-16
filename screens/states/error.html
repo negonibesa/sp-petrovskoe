@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Ошибка · Состояния · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/ds.css">
+<style>
+  /* S4 · Ошибка (index §08). Полноэкранное состояние .state
+     (иконка-тайл .state-ic.is-danger + заголовок + пояснение +
+     действия: повторить / на главную). Повтор демонстрирует
+     восстановление: контент появляется кадром od-enter. */
+  .st-app { background: var(--surface-warm); }
+  .st-body { padding-top: 4px; }
+  .st-state { min-height: calc(60dvh - 40px); }
+  .st-content { display: grid; gap: var(--space-3); }
+  .st-content.od-reveal { animation: od-enter var(--motion-base) var(--ease-out); }
+  .st-toast { bottom: 28px; }
+</style>
+</head>
+<body data-od-id="state-error-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path><path d="M12 17h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app st-app">
+  <header class="topbar" data-od-id="st-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Ошибка</h4>
+  </header>
+
+  <main class="body st-body" data-od-id="st-body">
+    <div class="state st-state" id="st-state" data-od-id="st-state">
+      <span class="state-ic is-danger" id="st-error-ic"><svg aria-hidden="true"><use href="#ic-alert"></use></svg></span>
+      <b class="state-title" id="st-error-title">Что-то пошло не так</b>
+      <p class="state-sub" id="st-error-sub">Не удалось загрузить данные. Проверьте соединение и попробуйте ещё раз.</p>
+      <div class="state-actions" data-od-id="st-actions">
+        <button type="button" class="btn btn-accent btn-block" id="btn-retry" data-od-id="st-retry">
+          <span class="spinner" aria-hidden="true"></span><span id="st-retry-tx">Повторить</span>
+        </button>
+        <a class="btn btn-ghost btn-block" href="../06-home.html" data-od-id="st-home">На главную</a>
+      </div>
+    </div>
+
+    <div class="st-content" id="st-content" hidden data-od-id="st-content">
+      <div class="n-card" style="--c: var(--accent)">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Тренировка · бег 5 км</span>
+          <span class="n-text">Пн, 18 августа · 07:30 · стадион «Юность»</span>
+          <span class="n-meta">Тренер · А. Соколов</span>
+        </span>
+      </div>
+      <div class="n-card" style="--c: var(--accent-purple)">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Силовая · верх тела</span>
+          <span class="n-text">Ср, 20 августа · 18:00 · фитнес-зал «Движение»</span>
+          <span class="n-meta">Групповая · до 12 человек</span>
+        </span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="evd-toast st-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Данные обновлены</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var btnBack = document.getElementById('btn-back');
+  btnBack.addEventListener('click', function () { history.back(); });
+
+  var btn = document.getElementById('btn-retry');
+  var state = document.getElementById('st-state');
+  var content = document.getElementById('st-content');
+  var toast = document.getElementById('toast');
+
+  btn.addEventListener('click', function () {
+    if (btn.disabled) return;
+    btn.classList.add('is-busy');
+    btn.disabled = true;
+    document.getElementById('st-retry-tx').textContent = 'Повторяем…';
+    setTimeout(function () {
+      btn.classList.remove('is-busy');
+      state.hidden = true;
+      content.hidden = false;
+      content.classList.add('od-reveal');
+      toast.classList.add('open');
+      setTimeout(function () { toast.classList.remove('open'); }, 2200);
+    }, 900);
+  });
+})();
+</script>
+</body>
+</html>

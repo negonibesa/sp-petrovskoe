@@ -13,7 +13,7 @@
   /* Экранная специфика анкеты — канон: referens/welcome-v2.html (screen-questionnaire).
      Чипы — DS .pick-chip в контейнере .chips.is-wrap; внутри .field рельсу ds.css сбрасываем. */
   .q-app { background: var(--surface); padding-bottom: 0; }
-  .q-scroll { padding: 12px var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); }
+  .q-scroll { padding: var(--space-1) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); }
 
   .q-head { width: 100%; text-align: left; }
   .eyebrow {
@@ -96,6 +96,9 @@
   <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
 </svg>
 
 <div class="app q-app">
@@ -105,11 +108,12 @@
   </header>
 
   <main class="body q-scroll" data-od-id="questionnaire-body">
-    <header class="q-head">
-      <p class="eyebrow">Почти всё готово</p>
-      <h2>Расскажите о себе</h2>
-      <p class="role-sub">Данные из регистрации подставим автоматически — проверьте их.</p>
-    </header>
+    <div id="q-form-wrap">
+      <header class="q-head">
+        <p class="eyebrow">Почти всё готово</p>
+        <h2>Расскажите о себе</h2>
+        <p class="role-sub">Данные из регистрации подставим автоматически — проверьте их.</p>
+      </header>
 
     <form id="form-questionnaire" novalidate>
       <p class="form-alert" id="alert-q" role="alert"></p>
@@ -248,6 +252,25 @@
     <footer class="cta-foot">
       <button type="submit" form="form-questionnaire" class="btn btn-accent btn-lg btn-block" id="btn-q-save" disabled><span class="spinner" aria-hidden="true"></span>Сохранить и начать</button>
     </footer>
+    </div>
+
+    <section id="q-done" data-od-id="questionnaire-done" aria-label="Анкета отправлена" hidden>
+      <div class="done-wrap">
+        <div class="done-ic"><svg aria-hidden="true"><use href="#ic-check"></use></svg></div>
+        <h2 class="done-title">Анкета отправлена!</h2>
+        <p class="done-sub">Добро пожаловать в «Петровское СП». Профиль создан — можно начинать.</p>
+        <div class="done-card">
+          <h3 id="q-done-name">Спортсмен</h3>
+          <div class="dc-line"><svg aria-hidden="true"><use href="#ic-user"></use></svg>Профиль спортсмена открыт</div>
+          <div class="dc-line"><svg aria-hidden="true"><use href="#ic-events"></use></svg>Запись на тренировки доступна</div>
+        </div>
+        <div class="done-notes">
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-check"></use></svg>Анкета сохранена</div>
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-target"></use></svg>Совет: добавьте цель на главной</div>
+        </div>
+        <button type="button" class="btn btn-accent btn-lg btn-block" id="btn-q-done">На главную</button>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -647,13 +670,20 @@
     btn.setAttribute('aria-busy', 'true');
     btn.disabled = true;
     setTimeout(function () {
-      location.href = '06-home.html';
+      $('q-done-name').textContent = qFio.value.trim() || 'Спортсмен';
+      $('q-form-wrap').hidden = true;
+      $('q-done').hidden = false;
     }, 600);
   });
 
-  $('btn-q-back').addEventListener('click', function () { location.href = '03-role.html'; });
+  $('btn-q-done').addEventListener('click', function () { location.href = '06-home.html'; });
+  function qLeave() {
+    if ($('q-done').hidden) location.href = '03-role.html';
+    else location.href = '06-home.html';
+  }
+  $('btn-q-back').addEventListener('click', qLeave);
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') location.href = '03-role.html';
+    if (e.key === 'Escape') qLeave();
   });
 
   updateQ();

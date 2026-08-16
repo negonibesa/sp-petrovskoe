@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Пусто · Состояния · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/ds.css">
+<style>
+  /* S1 · Пусто (index §08). Три контекста: лента · календарь · журнал.
+     Компонент ДС v2 — .empty; переключение контекстов — .seg. */
+  .st-app { background: var(--surface-warm); }
+  .st-body { padding-top: 4px; }
+  .st-seg { margin: 0 0 var(--space-4); }
+  .st-empty { margin-top: var(--space-2); }
+  .st-empty .btn { margin-top: var(--space-4); }
+</style>
+</head>
+<body data-od-id="state-empty-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+</svg>
+
+<div class="app st-app">
+  <header class="topbar" data-od-id="st-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Пусто</h4>
+  </header>
+
+  <main class="body st-body" data-od-id="st-body">
+    <div class="seg st-seg" id="st-seg" data-od-id="st-seg" role="group" aria-label="Контекст пустого состояния">
+      <button type="button" class="seg-btn is-active" data-context="feed" data-od-id="st-ctx-feed">Лента</button>
+      <button type="button" class="seg-btn" data-context="calendar" data-od-id="st-ctx-calendar">Календарь</button>
+      <button type="button" class="seg-btn" data-context="journal" data-od-id="st-ctx-journal">Журнал</button>
+    </div>
+
+    <div class="empty st-empty" id="st-empty-feed" data-od-id="st-empty-feed">
+      <span class="empty-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span>
+      <b>В ленте пока пусто</b>
+      <span>Здесь появятся новости клуба, результаты и анонсы, когда кто-то ими поделится</span>
+      <a class="btn btn-accent btn-sm" href="../06-home.html" data-od-id="st-feed-cta">На главную</a>
+    </div>
+
+    <div class="empty st-empty" id="st-empty-calendar" hidden data-od-id="st-empty-calendar">
+      <span class="empty-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
+      <b>Записей пока нет</b>
+      <span>Запишитесь на тренировку или событие — оно появится в календаре</span>
+      <a class="btn btn-accent btn-sm" href="../07-search.html" data-od-id="st-calendar-cta">Найти тренировку</a>
+    </div>
+
+    <div class="empty st-empty" id="st-empty-journal" hidden data-od-id="st-empty-journal">
+      <span class="empty-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span>
+      <b>Тренировок ещё не было</b>
+      <span>Здесь появится история тренировок: упражнения, длительность и результат</span>
+      <a class="btn btn-accent btn-sm" href="../activities.html" data-od-id="st-journal-cta">Начать тренировку</a>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var btnBack = document.getElementById('btn-back');
+  btnBack.addEventListener('click', function () { history.back(); });
+
+  var seg = document.getElementById('st-seg');
+  var blocks = {
+    feed: document.getElementById('st-empty-feed'),
+    calendar: document.getElementById('st-empty-calendar'),
+    journal: document.getElementById('st-empty-journal')
+  };
+  seg.addEventListener('click', function (e) {
+    var btn = e.target.closest('.seg-btn');
+    if (!btn) return;
+    var ctx = btn.getAttribute('data-context');
+    seg.querySelectorAll('.seg-btn').forEach(function (b) {
+      b.classList.toggle('is-active', b === btn);
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+    });
+    Object.keys(blocks).forEach(function (k) { blocks[k].hidden = k !== ctx; });
+  });
+})();
+</script>
+</body>
+</html>

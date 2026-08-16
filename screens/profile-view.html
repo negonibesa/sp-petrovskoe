@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Профиль · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Профиль» (чужой, просмотр) — пакет профиля §6.6. Модель —
+     карточка-человек из поиска + подход referens/profile-v2.html.
+     Данные подставляются по ?id= (PERSON), по умолчанию p1.
+     Компоненты: .topbar, .ava-72, .btn, .dash-stats, .dash-card,
+     .gto-badge, .sec/.sec-head, .evd-rows, .mrow, .tabbar, .evd-toast. */
+  .pv-app { background: var(--surface); padding-bottom: 32px; }
+
+  .pv-hero { display: flex; align-items: center; gap: var(--space-3); }
+  .pv-hero-tx { flex: 1; min-width: 0; }
+  .pv-hero-tx h1 { margin: 0; font-family: var(--font-body); font-size: var(--fs-title); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; color: var(--fg); overflow-wrap: anywhere; }
+  .pv-hero-tx .sub { margin: var(--space-1) 0 0; font-size: var(--fs-meta); color: var(--muted); }
+  .pv-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+  .pv-chips .gchip { padding: var(--space-1) var(--space-3); font-size: var(--fs-caption); }
+
+  .pv-acts { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  .pv-acts .btn[hidden] { display: none; }
+
+  /* Карточка знака ГТО */
+  .pv-gto {
+    display: flex; align-items: center; gap: var(--space-3);
+    margin-top: var(--space-3); padding: var(--space-4);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface);
+  }
+  .pv-gto .gto-badge { background: var(--surface-2); }
+  .pv-gto-tx { flex: 1; min-width: 0; }
+  .pv-gto-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .pv-gto-tx > span { display: block; margin-top: 2px; font-size: var(--fs-meta); color: var(--muted); }
+  .pv-gto-bar { height: 4px; margin-top: var(--space-2); border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+  .pv-gto-bar i { display: block; height: 100%; border-radius: inherit; background: var(--gto-gold); }
+  .pv-gto-pts { flex: none; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Общие данные */
+  .pv-info { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+  .info-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); }
+  .info-row + .info-row { border-top: 1px solid var(--border-soft); }
+  .info-row span { flex: none; font-size: var(--fs-meta); color: var(--meta); }
+  .info-row b { text-align: right; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+</style>
+</head>
+<body data-od-id="profile-view-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 2c-1 4 1 6 3 8s4 4 3 8c-1 3-4 4-6 3.5C9 20.5 7 18 7 15c0-2 1-4 2.5-5C10 9.5 11 6 12 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M9.5 15.5c0-1.5.8-2.5 2-3.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users-sm" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M3.5 18c0-2.8 2.4-4.8 5.5-4.8s5.5 2 5.5 4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16.5 6.2a3 3 0 0 1 0 5.6M17.5 13.4c1.8.6 3 2 3 4.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><path d="M9.2 12l-3-6.3 4.4.9M14.8 12l3-6.3-4.4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="13.8" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-trend-up" viewBox="0 0 24 24"><path d="M3.5 17l6-6 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.5 7.5h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+</svg>
+
+<div class="app pv-app">
+  <header class="topbar" data-od-id="pv-header">
+    <button class="topbar-ic is-back" type="button" id="pv-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx" id="pv-title">Профиль</h4>
+  </header>
+
+  <main class="body" data-od-id="pv-body">
+    <div class="pv-hero" data-od-id="pv-hero">
+      <span class="ava-72 is-photo" id="pv-ava" aria-hidden="true"><img src="../assets/avatars/athlete-f.png" alt=""></span>
+      <span class="pv-hero-tx">
+        <h1 id="pv-name">Дмитрий Орлов</h1>
+        <span class="sub" id="pv-sub">Бег · 29 лет · ID 2247</span>
+        <span class="pv-chips" id="pv-chips"></span>
+      </span>
+    </div>
+
+    <div class="pv-acts" data-od-id="pv-acts">
+      <button class="btn btn-accent btn-block" type="button" id="pv-primary" data-od-id="pv-primary"></button>
+      <button class="btn btn-ghost btn-block" type="button" id="pv-secondary" data-od-id="pv-secondary"></button>
+    </div>
+
+    <div class="dash-stats" data-od-id="pv-stats">
+      <div class="dash-card">
+        <span class="dash-cell">
+          <span class="dc-top" style="--c: var(--accent)"><svg aria-hidden="true"><use href="#ic-star"></use></svg>Баллы</span>
+          <span class="dc-val" id="pv-balls">950</span>
+          <span class="dc-meta" id="pv-level">уровень «Новичок»</span>
+        </span>
+      </div>
+      <div class="dash-card">
+        <span class="dash-cell">
+          <span class="dc-top" style="--c: var(--danger)"><svg aria-hidden="true"><use href="#ic-flame"></use></svg>Серия</span>
+          <span class="dc-val" id="pv-streak">3</span>
+          <span class="dc-meta">дня подряд</span>
+        </span>
+      </div>
+      <div class="dash-card">
+        <span class="dash-cell">
+          <span class="dc-top" style="--c: var(--success)"><svg aria-hidden="true"><use href="#ic-users-sm"></use></svg>Друзья</span>
+          <span class="dc-val" id="pv-friends">18</span>
+          <span class="dc-meta">общих: <span id="pv-common">12</span></span>
+        </span>
+      </div>
+    </div>
+
+    <div class="pv-gto" id="pv-gto" data-od-id="pv-gto" hidden>
+      <span class="gto-badge" aria-hidden="true"><img id="pv-gto-img" src="../assets/gto/sign-silver.png" alt=""></span>
+      <span class="pv-gto-tx">
+        <b id="pv-gto-name">Знак ГТО · Серебро</b>
+        <span id="pv-gto-meta">сдано 3 из 5 нормативов</span>
+        <span class="pv-gto-bar"><i id="pv-gto-bar" style="width: 60%"></i></span>
+      </span>
+      <span class="pv-gto-pts" id="pv-gto-pts">+300</span>
+    </div>
+
+    <section class="sec" data-od-id="pv-info">
+      <div class="sec-head"><h2>Общие данные</h2></div>
+      <div class="pv-info">
+        <div class="info-row"><span>Клуб</span><b id="pv-club">Беговой клуб «Темп»</b></div>
+        <div class="info-row"><span>Возраст</span><b id="pv-age">29 лет</b></div>
+        <div class="info-row"><span>Цель</span><b id="pv-goal">Пробежать 10 км к осени</b></div>
+      </div>
+    </section>
+
+    <section class="sec" data-od-id="pv-activities">
+      <div class="sec-head"><h2>Недавние активности</h2></div>
+      <div class="evd-rows">
+        <div class="mrow is-static">
+          <span class="mrow-media is-medal is-bronze" aria-hidden="true"><svg><use href="#ic-medal"></use></svg></span>
+          <span class="mrow-tx">
+            <span class="mrow-t">Летний Кубок · 3-е место</span>
+            <span class="mrow-s">Соревнование · 14 августа</span>
+          </span>
+          <span class="mrow-side"><span class="mrow-pts">+50</span></span>
+        </div>
+        <div class="mrow is-static">
+          <span class="mrow-media" style="--c: var(--success)" aria-hidden="true"><svg><use href="#ic-trend-up"></use></svg></span>
+          <span class="mrow-tx">
+            <span class="mrow-t">Вечерний бег · 5 км</span>
+            <span class="mrow-s">Самостоятельно · 12 августа</span>
+          </span>
+          <span class="mrow-side"><span class="mrow-pts">+20</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Навигация">
+  <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+  <a class="tab" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+  <a class="tab" href="community.html" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
+  <button class="tab is-on" type="button" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></button>
+</nav>
+
+<div class="evd-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Готово</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+  var toastTimer;
+
+  function toast(tx) {
+    $('toast-tx').textContent = tx;
+    var row = $('toast').querySelector('.toast');
+    row.className = 'toast toast-info';
+    $('toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').classList.remove('open'); }, 2400);
+  }
+
+  var GTO = {
+    'Золото':   { img: 'sign-gold.png',   pts: '+500', bar: function (d) { return d; } },
+    'Серебро':  { img: 'sign-silver.png', pts: '+300', bar: function (d) { return d; } },
+    'Бронза':   { img: 'sign-bronze.png', pts: '+150', bar: function (d) { return d; } }
+  };
+
+  var PERSON = {
+    p1: { name: 'Дмитрий Орлов',   sub: 'Бег · 29 лет · ID 2247',      photo: 'athlete-f.png',   friend: true,  tags: [{ t: 'Друг', c: 'var(--accent)' }, { t: 'ГТО · Серебро', c: 'var(--gto-silver)' }],
+          gto: { lvl: 'Серебро', done: 3, total: 5 }, club: 'Беговой клуб «Темп»', age: '29 лет', goal: 'Пробежать 10 км к осени', balls: 950,  streak: 3,  friends: 18, common: 12 },
+    p2: { name: 'Мария Ковалёва',  sub: 'Бег · 27 лет · ID 3319',      photo: 'athlete-f.png',   friend: true,  tags: [{ t: 'Друг', c: 'var(--accent)' }, { t: 'ГТО · Золото', c: 'var(--gto-gold)' }],
+          gto: { lvl: 'Золото', done: 5, total: 5 }, club: 'Беговой клуб «Темп»', age: '27 лет', goal: 'Марафон 42,2 км в сентябре', balls: 2100, streak: 12, friends: 31, common: 9 },
+    p3: { name: 'Анна Ковалёва',   sub: 'ЛФК · 41 год · ID 5108',      photo: 'athlete-f.png',   friend: false, tags: [{ t: 'Клуб «Здоровье»', c: 'var(--accent-purple)' }],
+          gto: null, club: 'Клуб «Здоровье»', age: '41 год', goal: 'Восстановиться после травмы', balls: 640, streak: 1, friends: 9, common: 0 },
+    p4: { name: 'Илья Морозов',    sub: 'Силовая · 31 год · ID 1844',  photo: 'athlete.png',     friend: true,  tags: [{ t: 'Друг', c: 'var(--accent)' }, { t: 'ГТО · Бронза', c: 'var(--gto-bronze)' }],
+          gto: { lvl: 'Бронза', done: 2, total: 5 }, club: 'Зал «СП Петровское»', age: '31 год', goal: 'Жим лёжа 100 кг', balls: 1380, streak: 8, friends: 22, common: 5 },
+    p5: { name: 'Ольга Серова',    sub: 'Плавание · 33 года · ID 4790', photo: 'athlete-f.png',  friend: true,  tags: [{ t: 'Друг', c: 'var(--accent)' }],
+          gto: null, club: 'Бассейн «Дельфин»', age: '33 года', goal: 'Заплыв на 1 км без остановки', balls: 520, streak: 2, friends: 6, common: 3 },
+    p6: { name: 'Степан Родин',    sub: 'Зал · 26 лет · ID 6155',      photo: 'athlete.png',     friend: false, tags: [{ t: 'Зал «СП Петровское»', c: 'var(--accent)' }],
+          gto: null, club: 'Зал «СП Петровское»', age: '26 лет', goal: 'Кроссфит-чемпионат в октябре', balls: 310, streak: 1, friends: 4, common: 1 },
+    p8: { name: 'Пётр Демидов',    sub: 'Клуб «Арена» · 28 лет · ID 7731', photo: 'athlete.png',    friend: false, tags: [{ t: 'Клуб «Арена»', c: 'var(--accent)' }],
+          gto: null, club: 'Волейбольный клуб «Арена»', age: '28 лет', goal: 'Закрепиться в основе команды', balls: 480, streak: 4, friends: 11, common: 2 },
+    p9: { name: 'Тимур Амиров',    sub: 'ГТО · 34 года · ID 9024',     photo: 'athlete.png',     friend: false, tags: [{ t: 'ГТО', c: 'var(--gto-bronze)' }],
+          gto: { lvl: 'Бронза', done: 4, total: 5 }, club: 'Клуб ГТО', age: '34 года', goal: 'Сдать нормы на серебро', balls: 1210, streak: 7, friends: 15, common: 4 },
+    p11: { name: 'Влад Кузнецов',  sub: 'Силовая · 24 года · ID 1187', photo: 'athlete.png',     friend: false, tags: [{ t: 'Клуб «Арена»', c: 'var(--accent)' }],
+          gto: null, club: 'Волейбольный клуб «Арена»', age: '24 года', goal: 'Тяга 140 кг', balls: 390, streak: 3, friends: 8, common: 1 },
+    p13: { name: 'Кирилл Носов',   sub: 'Лыжи · 30 лет · ID 5582',     photo: 'athlete.png',     friend: false, tags: [{ t: 'ГТО', c: 'var(--gto-bronze)' }],
+          gto: null, club: 'Лыжный клуб', age: '30 лет', goal: '10 км классикой к сезону', balls: 610, streak: 5, friends: 13, common: 3 },
+    p14: { name: 'Сергей Мальцев', sub: 'Силовая · 35 лет · ID 6210',  photo: 'athlete.png',     friend: false, tags: [{ t: 'Силовые', c: 'var(--sport-strength)' }],
+          gto: null, club: 'Силовые тренировки', age: '35 лет', goal: 'Становая тяга 180 кг', balls: 840, streak: 6, friends: 17, common: 5 },
+    p15: { name: 'Оксана Верещагина', sub: 'Велоспорт · 29 лет · ID 8813', photo: 'athlete-f.png', friend: false, tags: [{ t: 'Велоспорт', c: 'var(--sport-bike)' }],
+          gto: null, club: 'Велоспорт', age: '29 лет', goal: 'Групповая гонка 50 км', balls: 430, streak: 2, friends: 7, common: 1 }
+  };
+
+  var id = (new URLSearchParams(location.search).get('id') || 'p1');
+  var p = PERSON[id] || PERSON.p1;
+
+  function level(balls) {
+    if (balls >= 2500) return '«Мастер»';
+    if (balls >= 1000) return '«Активный»';
+    return '«Новичок»';
+  }
+
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+  function render() {
+    document.title = p.name + ' · Петровское СП';
+    $('pv-title').textContent = p.name;
+    $('pv-name').textContent = p.name;
+    $('pv-sub').textContent = p.sub;
+    $('pv-ava').querySelector('img').src = '../assets/avatars/' + p.photo;
+    $('pv-chips').innerHTML = p.tags.map(function (t) {
+      return '<span class="gchip" style="--c: ' + t.c + '"><span class="dot"></span>' + t.t + '</span>';
+    }).join('');
+
+    var primary = $('pv-primary');
+    var secondary = $('pv-secondary');
+    if (p.friend) {
+      primary.textContent = 'Написать';
+      primary.setAttribute('data-toast', 'Сообщения — в следующей итерации');
+      secondary.textContent = 'В друзьях';
+      secondary.setAttribute('data-toast', 'Удалить из друзей — в следующей итерации');
+    } else {
+      primary.textContent = 'Добавить в друзья';
+      primary.removeAttribute('data-toast');
+      primary.setAttribute('data-add', '1');
+      secondary.textContent = 'Написать';
+      secondary.setAttribute('data-toast', 'Сообщения — в следующей итерации');
+    }
+
+    $('pv-balls').textContent = fmt(p.balls);
+    $('pv-level').textContent = 'уровень ' + level(p.balls);
+    $('pv-streak').textContent = p.streak;
+    $('pv-friends').textContent = p.friends;
+    $('pv-common').textContent = p.common;
+
+    var gto = $('pv-gto');
+    if (p.gto) {
+      var g = GTO[p.gto.lvl];
+      $('pv-gto-img').src = '../assets/gto/' + g.img;
+      $('pv-gto-name').textContent = 'Знак ГТО · ' + p.gto.lvl;
+      $('pv-gto-meta').textContent = 'сдано ' + p.gto.done + ' из ' + p.gto.total + ' нормативов';
+      $('pv-gto-bar').style.width = (100 * p.gto.done / p.gto.total) + '%';
+      $('pv-gto-pts').textContent = g.pts;
+      gto.hidden = false;
+    } else {
+      gto.hidden = true;
+    }
+
+    $('pv-club').textContent = p.club;
+    $('pv-age').textContent = p.age;
+    $('pv-goal').textContent = p.goal;
+  }
+
+  render();
+
+  $('pv-back').addEventListener('click', function () {
+    if (history.length > 1) history.back(); else location.href = 'friends.html';
+  });
+
+  $('pv-primary').addEventListener('click', function (e) {
+    if (this.hasAttribute('data-add')) {
+      e.stopPropagation();
+      toast('Заявка на добавление в друзья отправлена');
+      this.textContent = 'Заявка отправлена';
+      this.removeAttribute('data-add');
+      this.disabled = true;
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-toast]') : null;
+    if (btn) toast(btn.getAttribute('data-toast'));
+  });
+})();
+</script>
+</body>
+</html>

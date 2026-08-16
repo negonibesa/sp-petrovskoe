@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Баллы и рейтинг · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Экран «Баллы и рейтинг» — пакет профиля §6.6 (rating_details),
+     детализация §4.2. Модель: referens/points-ratings.html (альфа) —
+     взят подход (сегменты Баллы/Рейтинг, журнал начислений со
+     статусами, лист правил, лидерборд), переписан на ДС v2.
+     Компоненты: .topbar, .seg, .dash-stats, .dash-card, .scrim, .sheet,
+     .sheet-list, .evd-toast. */
+  .rd-app { background: var(--surface); padding-bottom: 32px; }
+
+  /* Панели сегментов */
+  .rd-panel[hidden] { display: none; }
+  .rd-seg { margin-top: var(--space-3); }
+
+  /* Карточка уровня */
+  .rd-lvl {
+    padding: var(--space-5) var(--space-4);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  }
+  .rd-lvl-h { display: flex; align-items: baseline; gap: var(--space-2); }
+  .rd-lvl-h b { font-size: var(--fs-title); font-weight: 600; letter-spacing: -0.01em; color: var(--fg); }
+  .rd-lvl-pts { margin-left: auto; font-size: var(--fs-meta); font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+  .rd-lvl-bar { height: 6px; margin-top: var(--space-3); border-radius: var(--radius-pill); background: var(--surface); overflow: hidden; border: 1px solid var(--border-soft); }
+  .rd-lvl-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-purple)); }
+  .rd-lvl-scale { position: relative; height: 18px; margin-top: 4px; }
+  .rd-lvl-scale span { position: absolute; top: 0; transform: translateX(-50%); font-size: var(--fs-caption); color: var(--meta); white-space: nowrap; }
+  .rd-lvl-scale span:first-child { transform: none; left: 0; }
+  .rd-lvl-scale span:last-child { transform: translateX(-100%); right: 0; left: auto; }
+  .rd-lvl-hint { margin: var(--space-2) 0 0; font-size: var(--fs-meta); color: var(--muted); }
+  .rd-lvl-hint b { color: var(--fg-2); font-weight: 600; }
+
+  /* Правила — ссылка у заголовка журнала */
+  .rd-rules {
+    flex: none; display: inline-flex; align-items: center; gap: var(--space-1);
+    min-height: 44px; padding: 0 var(--space-2); border: 0; background: none;
+    font-size: var(--fs-meta); font-weight: 600; color: var(--accent); cursor: pointer;
+  }
+  .rd-rules svg { width: var(--icon-sm); height: var(--icon-sm); }
+  .rd-rules:hover { color: var(--accent-hover); }
+
+  /* Журнал начислений */
+  .rd-jr { display: grid; gap: var(--space-1); }
+  .jr-day {
+    display: flex; align-items: center; gap: var(--space-2);
+    margin: var(--space-3) 0 var(--space-1);
+    font-family: var(--font-display); font-size: var(--fs-caption); font-weight: 700;
+    letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--muted);
+    white-space: nowrap;
+  }
+  .jr-day::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+  .jr-day:first-child { margin-top: 0; }
+  .jr {
+    display: flex; align-items: center; gap: var(--space-3); min-width: 0;
+    padding: var(--space-3) var(--space-1); border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .jr-ic {
+    flex: none; width: 40px; height: 40px; border-radius: var(--radius-md);
+    display: grid; place-items: center;
+    color: var(--c, var(--accent)); background: color-mix(in srgb, var(--c, var(--accent)) 13%, var(--surface));
+  }
+  .jr-ic svg { width: var(--icon-md); height: var(--icon-md); }
+  .jr-ic.is-gto { border-radius: 50%; overflow: hidden; padding: 0; background: var(--surface-2); }
+  .jr-ic.is-gto img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .jr-ic.is-medal { background: color-mix(in srgb, var(--gto-silver) 18%, var(--surface)); }
+  .jr-tx { flex: 1; min-width: 0; }
+  .jr-tx b { display: block; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jr-tx span { display: block; margin-top: 2px; font-size: var(--fs-caption); color: var(--meta); }
+  .jr-pts { flex: none; font-size: var(--fs-body); font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .jr-pts.is-neg { color: var(--danger); }
+  .jr-st { flex: none; }
+  .st-pill {
+    display: inline-flex; align-items: center; font-size: var(--fs-caption); font-weight: 600;
+    border-radius: var(--radius-pill); padding: 2px var(--space-2); white-space: nowrap;
+  }
+  .st-pill.is-confirmed { color: color-mix(in oklab, var(--success) 55%, var(--fg)); background: color-mix(in srgb, var(--success) 12%, var(--surface)); }
+  .st-pill.is-pending { color: color-mix(in oklab, var(--amber) 58%, var(--fg)); background: color-mix(in srgb, var(--amber) 12%, var(--surface)); }
+  .st-pill.is-rejected { color: color-mix(in oklab, var(--danger) 62%, var(--fg)); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+  .st-pill.is-system { color: var(--muted); background: var(--surface-2); }
+
+  /* Место в рейтинге */
+  .rd-place {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-5) var(--space-4);
+    border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface);
+  }
+  .rd-place-pos { font-size: var(--fs-display); font-weight: 700; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .rd-place-tx { flex: 1; min-width: 0; }
+  .rd-place-tx b { display: block; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .rd-place-tx span { display: block; margin-top: 2px; font-size: var(--fs-caption); color: var(--meta); }
+  .rd-place-delta { flex: none; display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-caption); font-weight: 600; color: color-mix(in oklab, var(--success) 55%, var(--fg)); background: color-mix(in srgb, var(--success) 12%, var(--surface)); border-radius: var(--radius-pill); padding: var(--space-1) 8px; white-space: nowrap; }
+  .rd-place-delta svg { width: 12px; height: 12px; }
+
+  /* Лидерборд */
+  .rd-lb { display: grid; gap: var(--space-1); }
+  .lb {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-1); border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .lb.is-me { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+  .lb-pos {
+    flex: none; width: 24px; text-align: center;
+    font-size: var(--fs-body); font-weight: 700; color: var(--meta); font-variant-numeric: tabular-nums;
+  }
+  .lb-pos.is-top { color: var(--amber); }
+  .lb-pos.is-silver { color: var(--meta); }
+  .lb-pos.is-bronze { color: var(--gto-bronze); }
+  .lb-ava {
+    flex: none; width: var(--h-sm); height: var(--h-sm); border-radius: 50%;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--c, var(--accent)) 14%, var(--surface));
+    color: color-mix(in oklab, var(--c, var(--accent)) 55%, var(--fg));
+    font-size: var(--fs-caption); font-weight: 700;
+  }
+  .lb.is-me .lb-ava { background: var(--accent); color: var(--accent-on); }
+  .lb-tx { flex: 1; min-width: 0; }
+  .lb-tx b { display: block; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-tx span { display: block; margin-top: 2px; font-size: var(--fs-caption); color: var(--meta); }
+  .lb-pts { flex: none; font-size: var(--fs-meta); font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+
+  .rd-panel .chips { margin-top: var(--space-3); }
+  .rd-list-note { margin: var(--space-3) 0 0; font-size: var(--fs-caption); line-height: 1.45; color: var(--meta); text-align: center; }
+
+  /* Посещаемость — heatmap (§2.3.10, API GET /api/mobile/attendance) */
+  .rd-att-hero { margin-top: var(--space-3); }
+  .rd-visits {
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+    border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface);
+  }
+  .rd-visits-num { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+  .rd-visits-tx { flex: 1; min-width: 0; }
+  .rd-visits-tx b { display: block; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .rd-visits-tx span { display: block; margin-top: 2px; font-size: var(--fs-caption); color: var(--meta); }
+  .rd-visits-delta {
+    flex: none; display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: var(--fs-caption); font-weight: 600; color: color-mix(in oklab, var(--success) 55%, var(--fg));
+    background: color-mix(in srgb, var(--success) 12%, var(--surface)); border-radius: var(--radius-pill); padding: var(--space-1) 8px; white-space: nowrap;
+  }
+  .rd-visits-delta svg { width: 12px; height: 12px; }
+
+  .rd-hm-card {
+    margin-top: var(--space-3); padding: var(--space-4);
+    border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface);
+  }
+  .rd-hm-head { display: flex; align-items: center; gap: var(--space-2); }
+  .rd-hm-head h3 { flex: 1; min-width: 0; margin: 0; font-size: var(--fs-body); font-weight: 700; color: var(--fg); }
+  .rd-hm-nav { display: flex; gap: var(--space-1); }
+  .rd-hm-nav .icon-btn-sm:first-child svg { transform: rotate(180deg); }
+  .rd-hm-week, .rd-hm-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .rd-hm-week { margin-top: var(--space-3); padding-bottom: var(--space-1); }
+  .rd-hm-wd { text-align: center; font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--meta); padding: var(--space-2) 0; }
+  .rd-hm-grid { row-gap: var(--space-1); }
+  .hm-cell {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; margin: 0 auto;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2); color: var(--meta);
+    font-size: var(--fs-caption); font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .hm-cell.is-empty { opacity: 0.35; }
+  .hm-cell.is-today { outline: 1px solid var(--accent); outline-offset: 1px; }
+  .hm-cell.is-l1 { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: color-mix(in oklab, var(--accent) 50%, var(--fg-2)); }
+  .hm-cell.is-l2 { background: color-mix(in srgb, var(--accent) 38%, var(--surface)); color: var(--fg); }
+  .hm-cell.is-l3 { background: color-mix(in srgb, var(--accent) 62%, var(--surface)); color: var(--fg); }
+  .hm-cell.is-l4 { background: var(--accent); color: var(--accent-on); }
+
+  .rd-hm-legend { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: var(--space-3); font-size: var(--fs-caption); color: var(--meta); }
+  .rd-hm-legend span:first-child { margin-right: var(--space-1); }
+  .rd-hm-legend .lg { width: 12px; height: 12px; border-radius: 3px; background: var(--surface-2); }
+  .rd-hm-legend .lg.is-l1 { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  .rd-hm-legend .lg.is-l2 { background: color-mix(in srgb, var(--accent) 38%, var(--surface)); }
+  .rd-hm-legend .lg.is-l3 { background: color-mix(in srgb, var(--accent) 62%, var(--surface)); }
+  .rd-hm-legend .lg.is-l4 { background: var(--accent); }
+  .rd-hm-note { margin: var(--space-2) 0 0; font-size: var(--fs-caption); line-height: 1.45; color: var(--meta); text-align: center; }
+
+  .rd-chart-card { margin-top: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+  .rd-chart-card h3 { margin: 0 0 var(--space-3); font-size: var(--fs-body); font-weight: 700; color: var(--fg); }
+  .hm-bars { display: flex; align-items: flex-end; gap: var(--space-2); height: 132px; }
+  .hm-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; }
+  .hm-bar i {
+    width: 100%; max-width: 34px; border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 40%, var(--surface)) 100%);
+    min-height: 4px;
+  }
+  .hm-bar b { font-size: var(--fs-caption); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .hm-bar span { font-size: var(--fs-caption); color: var(--meta); }
+
+  .rd-export { width: 100%; margin-top: var(--space-3); }
+
+  /* Лист правил */
+  .rd-rule-sec { font-size: var(--fs-caption); font-weight: 700; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--muted); margin: var(--space-3) 0 var(--space-1); }
+  .rd-rule-sec:first-child { margin-top: 0; }
+  .rd-rule-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border-soft); font-size: var(--fs-meta); }
+  .rd-rule-row:last-child { border-bottom: 0; }
+  .rd-rule-row span { color: var(--fg-2); }
+  .rd-rule-row b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rd-rule-note { margin: var(--space-2) 0 0; font-size: var(--fs-caption); line-height: 1.5; color: var(--meta); }
+</style>
+</head>
+<body data-od-id="rating-details-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 11v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path><circle cx="12" cy="8" r="1.2" fill="currentColor"></circle></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+  <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 2c-1 4 1 6 3 8s4 4 3 8c-1 3-4 4-6 3.5C9 20.5 7 18 7 15c0-2 1-4 2.5-5C10 9.5 11 6 12 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M9.5 15.5c0-1.5.8-2.5 2-3.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-trend-up" viewBox="0 0 24 24"><path d="M3.5 17l6-6 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.5 7.5h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-export" viewBox="0 0 24 24"><path d="M12 3.5V15M12 3.5L7.5 8M12 3.5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-chev-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><path d="M9.2 12l-3-6.3 4.4.9M14.8 12l3-6.3-4.4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="13.8" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="14" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="4" y="14" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor"></path></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M9.5 12l1.8 1.8 3.2-3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app rd-app">
+  <header class="topbar" data-od-id="rd-header">
+    <a class="topbar-ic is-back" href="profile.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h4 class="topbar-tx">Баллы и рейтинг</h4>
+    <button class="topbar-ic" type="button" data-sheet-open="rules" data-od-id="rd-rules-open" aria-label="Правила начислений"><svg aria-hidden="true"><use href="#ic-info"></use></svg></button>
+  </header>
+
+  <main class="body" data-od-id="rd-body">
+    <div class="seg rd-seg" role="tablist" aria-label="Раздел">
+      <button class="seg-btn is-active" type="button" role="tab" aria-selected="true" data-panel="points" data-od-id="tab-points">Баллы</button>
+      <button class="seg-btn" type="button" role="tab" aria-selected="false" data-panel="rating" data-od-id="tab-rating">Рейтинг</button>
+      <button class="seg-btn" type="button" role="tab" aria-selected="false" data-panel="attendance" data-od-id="tab-attendance">Посещаемость</button>
+    </div>
+
+    <div class="rd-panel" data-panel="points" data-od-id="panel-points">
+      <section class="rd-lvl" data-od-id="rd-level">
+        <div class="rd-lvl-h">
+          <b>Активный</b>
+          <span class="rd-lvl-pts">1 280 баллов</span>
+        </div>
+        <div class="rd-lvl-bar"><i style="width: 51.2%"></i></div>
+        <div class="rd-lvl-scale"><span>Новичок · 0</span><span>Активный · 1 000</span><span>Мастер · 2 500</span></div>
+        <p class="rd-lvl-hint">До уровня <b>«Мастер»</b> — ещё 1 220 баллов</p>
+      </section>
+
+      <div class="dash-stats" data-od-id="rd-stats">
+        <div class="dash-card">
+          <span class="dash-cell">
+            <span class="dc-top" style="--c: var(--danger)"><svg aria-hidden="true"><use href="#ic-flame"></use></svg>Серия</span>
+            <span class="dc-val">6</span>
+            <span class="dc-meta">дней подряд</span>
+          </span>
+        </div>
+        <div class="dash-card">
+          <span class="dash-cell">
+            <span class="dc-top" style="--c: var(--success)"><svg aria-hidden="true"><use href="#ic-trend-up"></use></svg>За 30 дней</span>
+            <span class="dc-val">+475</span>
+            <span class="dc-meta">включая бонусы</span>
+          </span>
+        </div>
+      </div>
+
+      <section class="sec" data-od-id="rd-journal">
+        <div class="sec-head">
+          <h2>Журнал начислений</h2>
+          <button class="rd-rules" type="button" data-od-id="rd-rules" data-sheet-open="rules">Правила<svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+        </div>
+        <div class="rd-jr">
+          <div class="jr-day">Сегодня</div>
+          <div class="jr">
+            <span class="jr-ic" style="--c: var(--accent)" aria-hidden="true"><svg><use href="#ic-dumbbell"></use></svg></span>
+            <span class="jr-tx"><b>Зал · «СП Петровское»</b><span>по QR на входе · 07:45</span></span>
+            <span class="jr-st"><span class="st-pill is-confirmed">Подтверждено</span></span>
+            <span class="jr-pts">+40</span>
+          </div>
+          <div class="jr">
+            <span class="jr-ic" style="--c: var(--success)" aria-hidden="true"><svg><use href="#ic-trend-up"></use></svg></span>
+            <span class="jr-tx"><b>Самостоятельная тренировка</b><span>ожидает проверки тренером</span></span>
+            <span class="jr-st"><span class="st-pill is-pending">Ожидает</span></span>
+            <span class="jr-pts">+20</span>
+          </div>
+
+          <div class="jr-day">14 августа</div>
+          <div class="jr">
+            <span class="jr-ic is-medal" style="--c: var(--gto-silver)" aria-hidden="true"><svg><use href="#ic-medal"></use></svg></span>
+            <span class="jr-tx"><b>Летний Кубок · 2-е место</b><span>по итогам соревнования</span></span>
+            <span class="jr-st"><span class="st-pill is-confirmed">Подтверждено</span></span>
+            <span class="jr-pts">+75</span>
+          </div>
+          <div class="jr">
+            <span class="jr-ic" style="--c: var(--accent-purple)" aria-hidden="true"><svg><use href="#ic-qr"></use></svg></span>
+            <span class="jr-tx"><b>Аренда корта</b><span>оплата по QR · 19:20</span></span>
+            <span class="jr-st"><span class="st-pill is-confirmed">Подтверждено</span></span>
+            <span class="jr-pts">+30</span>
+          </div>
+
+          <div class="jr-day">Система</div>
+          <div class="jr">
+            <span class="jr-ic is-gto" aria-hidden="true"><img src="../assets/gto/sign-silver.png" alt=""></span>
+            <span class="jr-tx"><b>Знак ГТО · Серебро</b><span>по результатам испытаний</span></span>
+            <span class="jr-st"><span class="st-pill is-system">Система</span></span>
+            <span class="jr-pts">+300</span>
+          </div>
+          <div class="jr">
+            <span class="jr-ic" style="--c: var(--danger)" aria-hidden="true"><svg><use href="#ic-flame"></use></svg></span>
+            <span class="jr-tx"><b>Серия · 3 дня активности</b><span>бонус за серию</span></span>
+            <span class="jr-st"><span class="st-pill is-system">Система</span></span>
+            <span class="jr-pts">+10</span>
+          </div>
+          <div class="jr">
+            <span class="jr-ic" style="--c: var(--danger)" aria-hidden="true"><svg><use href="#ic-shield"></use></svg></span>
+            <span class="jr-tx"><b>Нарушение в сообществе</b><span>спорное начисление, отменено</span></span>
+            <span class="jr-st"><span class="st-pill is-rejected">Отклонено</span></span>
+            <span class="jr-pts is-neg">−50</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="rd-panel" data-panel="rating" data-od-id="panel-rating" hidden>
+      <section class="rd-place" data-od-id="rd-my-place">
+        <span class="rd-place-pos">12</span>
+        <span class="rd-place-tx">
+          <b>12-е место в регионе</b>
+          <span>из 214 участников · вид спорта: бег</span>
+        </span>
+        <span class="rd-place-delta"><svg aria-hidden="true"><use href="#ic-trend-up"></use></svg>+2</span>
+      </section>
+
+      <div class="chips" data-od-id="rd-scope" role="group" aria-label="Скоуп рейтинга">
+        <button class="fchip is-on" type="button" data-scope="region" data-od-id="scope-region">Регион</button>
+        <button class="fchip" type="button" data-scope="friends" data-od-id="scope-friends">Друзья</button>
+        <button class="fchip" type="button" data-scope="club" data-od-id="scope-club">Сообщество</button>
+      </div>
+
+      <div class="rd-lb" id="rd-list" data-od-id="rd-list"></div>
+
+      <p class="rd-list-note" data-od-id="rd-list-note">Рейтинг обновляется ежедневно по итогам начислений.</p>
+    </div>
+
+    <div class="rd-panel" data-panel="attendance" data-od-id="panel-attendance" hidden>
+      <section class="rd-att-hero">
+        <div class="rd-visits">
+          <span class="rd-visits-num" id="rd-visits-num" data-od-id="rd-visits-num">8</span>
+          <span class="rd-visits-tx">
+            <b>посещений</b>
+            <span id="rd-visits-month" data-od-id="rd-visits-month">за август 2026</span>
+          </span>
+          <span class="rd-visits-delta"><svg aria-hidden="true"><use href="#ic-trend-up"></use></svg>+2</span>
+        </div>
+      </section>
+
+      <section class="rd-hm-card" data-od-id="rd-heatmap">
+        <div class="rd-hm-head">
+          <h3 id="rd-hm-month" data-od-id="rd-hm-month">Август 2026</h3>
+          <span class="rd-hm-nav">
+            <button type="button" class="icon-btn icon-btn-sm" id="rd-hm-prev" data-od-id="rd-hm-prev" aria-label="Предыдущий месяц"><svg aria-hidden="true"><use href="#ic-chev-left"></use></svg></button>
+            <button type="button" class="icon-btn icon-btn-sm" id="rd-hm-next" data-od-id="rd-hm-next" aria-label="Следующий месяц"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+          </span>
+        </div>
+        <div class="rd-hm-week" id="rd-hm-week" data-od-id="rd-hm-week"></div>
+        <div class="rd-hm-grid" id="rd-hm-grid" data-od-id="rd-hm-grid"></div>
+        <div class="rd-hm-legend" aria-hidden="true"><span>Меньше</span><span class="lg"></span><span class="lg is-l1"></span><span class="lg is-l2"></span><span class="lg is-l3"></span><span class="lg is-l4"></span><span>Больше</span></div>
+        <p class="rd-hm-note" data-od-id="rd-hm-note">Зелёная рамка — сегодня. Цвет отражает число посещений за день.</p>
+      </section>
+
+      <section class="rd-chart-card" data-od-id="rd-chart">
+        <h3>По месяцам</h3>
+        <div class="hm-bars" id="rd-hm-bars" data-od-id="rd-hm-bars"></div>
+      </section>
+
+      <button type="button" class="btn btn-accent rd-export" data-od-id="rd-export" data-toast="Статистика выгружена в Excel">
+        <svg aria-hidden="true"><use href="#ic-export"></use></svg>Экспорт в Excel
+      </button>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="rules-scrim" data-od-id="rules-scrim" aria-hidden="true"></div>
+<div class="sheet" id="rules-sheet" role="dialog" aria-modal="true" aria-label="Правила начислений" data-od-id="rules-sheet">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Правила начислений</h3>
+    <button type="button" class="sheet-close" data-od-id="rules-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <div class="rd-rule-sec">Зал и активности</div>
+    <div class="rd-rule-row"><span>Зал · отметка по QR</span><b>+40</b></div>
+    <div class="rd-rule-row"><span>Самостоятельная тренировка</span><b>+20 · до 3 в неделю</b></div>
+    <div class="rd-rule-row"><span>Аренда площадки</span><b>+30</b></div>
+    <div class="rd-rule-sec">Соревнования</div>
+    <div class="rd-rule-row"><span>Участие</span><b>+50</b></div>
+    <div class="rd-rule-row"><span>Место 1 / 2 / 3</span><b>+100 / 75 / 50</b></div>
+    <div class="rd-rule-sec">ГТО</div>
+    <div class="rd-rule-row"><span>Норматив (ступень)</span><b>+50</b></div>
+    <div class="rd-rule-row"><span>Знак · бронза / серебро / золото</span><b>+150 / 300 / 500</b></div>
+    <div class="rd-rule-sec">Серия</div>
+    <div class="rd-rule-row"><span>Серия 3 / 7 / 30 дней</span><b>+10 / 25 / 75</b></div>
+    <div class="rd-rule-sec">Штрафы</div>
+    <div class="rd-rule-row"><span>Нарушение правил сообщества</span><b>−50</b></div>
+    <p class="rd-rule-note"><b>Ожидает</b> — начисление проверяет тренер; в зачёт идут только подтверждённые баллы. Спорные начисления отклоняются автоматически.</p>
+  </div>
+</div>
+
+<div class="evd-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Готово</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+  var toastTimer;
+
+  function toast(tx) {
+    $('toast-tx').textContent = tx;
+    var row = $('toast').querySelector('.toast');
+    row.className = 'toast toast-info';
+    $('toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').classList.remove('open'); }, 2400);
+  }
+
+  /* Сегменты Баллы / Рейтинг */
+  var segBtns = document.querySelectorAll('[data-panel]');
+  var tabs = document.querySelectorAll('.seg-btn');
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var p = t.getAttribute('data-panel');
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.classList.toggle('is-active', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.rd-panel').forEach(function (panel) {
+        panel.hidden = panel.getAttribute('data-panel') !== p;
+      });
+    });
+  });
+
+  /* Лист правил */
+  var rulesSheet = $('rules-sheet');
+  var rulesScrim = $('rules-scrim');
+  function openRules() {
+    rulesScrim.classList.add('open');
+    rulesSheet.classList.add('open');
+  }
+  function closeRules() {
+    rulesScrim.classList.remove('open');
+    rulesSheet.classList.remove('open');
+  }
+  document.querySelectorAll('[data-sheet-open]').forEach(function (b) { b.addEventListener('click', openRules); });
+  document.querySelectorAll('[data-od-id="rules-close"]').forEach(function (b) { b.addEventListener('click', closeRules); });
+  rulesScrim.addEventListener('click', closeRules);
+
+  /* Лидерборд */
+  var SCOPE = {
+    region: [
+      { pos: 1,  n: 'Максим Л.', d: 'бег',            pts: '4 120', me: false },
+      { pos: 2,  n: 'София К.',  d: 'плавание',       pts: '3 850', me: false },
+      { pos: 3,  n: 'Игорь П.',  d: 'зал',            pts: '3 600', me: false },
+      { pos: 4,  n: 'Ольга В.',  d: 'бег',            pts: '3 140', me: false },
+      { pos: 5,  n: 'Кирилл Н.', d: 'ГТО',            pts: '2 890', me: false },
+      { pos: 6,  n: 'Настя Г.',  d: 'зал',            pts: '2 410', me: false },
+      { pos: 7,  n: 'Пётр Д.',   d: 'плавание',       pts: '2 150', me: false },
+      { pos: 8,  n: 'Лена Ш.',   d: 'бег',            pts: '1 980', me: false },
+      { pos: 9,  n: 'Влад К.',   d: 'зал',            pts: '1 740', me: false },
+      { pos: 10, n: 'Тимур А.',  d: 'ГТО',            pts: '1 560', me: false },
+      { pos: 11, n: 'Сергей М.', d: 'бег',            pts: '1 420', me: false },
+      { pos: 12, n: 'Андрей С.', d: 'бег · вы',       pts: '1 280', me: true },
+      { pos: 13, n: 'Мария К.',  d: 'бег',            pts: '1 210', me: false }
+    ],
+    friends: [
+      { pos: 1,  n: 'Мария К.',  d: 'бег · ГТО золото', pts: '2 100', me: false },
+      { pos: 2,  n: 'Илья М.',   d: 'зал',              pts: '1 380', me: false },
+      { pos: 3,  n: 'Андрей С.', d: 'бег · вы',         pts: '1 280', me: true },
+      { pos: 4,  n: 'Дмитрий О.', d: 'бег · ГТО серебро', pts: '950',  me: false },
+      { pos: 5,  n: 'Анна К.',   d: 'ЛФК',              pts: '640',   me: false },
+      { pos: 6,  n: 'Ольга С.',  d: 'плавание',         pts: '520',   me: false }
+    ],
+    club: [
+      { pos: 1,  n: 'Максим Л.', d: 'бег',            pts: '4 120', me: false },
+      { pos: 2,  n: 'София К.',  d: 'плавание',       pts: '3 850', me: false },
+      { pos: 3,  n: 'Игорь П.',  d: 'зал',            pts: '3 600', me: false },
+      { pos: 4,  n: 'Настя Г.',  d: 'зал',            pts: '2 410', me: false },
+      { pos: 5,  n: 'Пётр Д.',   d: 'плавание',       pts: '2 150', me: false },
+      { pos: 6,  n: 'Андрей С.', d: 'бег · вы',       pts: '1 280', me: true },
+      { pos: 7,  n: 'Мария К.',  d: 'бег',            pts: '1 210', me: false }
+    ]
+  };
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function rowClass(r) { return r.pos <= 3 ? ' is-top' : ''; }
+  function color(r) { return r.pos === 1 ? 'var(--amber)' : r.pos === 2 ? 'var(--meta)' : r.pos === 3 ? 'var(--gto-bronze)' : 'var(--accent)'; }
+  function renderList(key) {
+    var rows = SCOPE[key] || [];
+    var posClass = function (p) { return p === 1 ? 'is-top' : p === 2 ? 'is-silver' : p === 3 ? 'is-bronze' : ''; };
+    $('rd-list').innerHTML = rows.map(function (r) {
+      var pos = '<span class="lb-pos ' + posClass(r.pos) + '">' + r.pos + '</span>';
+      var ava = '<span class="lb-ava" style="--c: ' + color(r) + '">' + esc(r.n.replace(/ .*/, '')) + '</span>';
+      var me = r.me ? ' is-me' : '';
+      return '<div class="lb' + me + '" data-od-id="lb-row">' + pos + ava +
+        '<span class="lb-tx"><b>' + esc(r.n) + (r.me ? ' · вы' : '') + '</b><span>' + esc(r.d) + '</span></span>' +
+        '<span class="lb-pts">' + r.pts + '</span></div>';
+    }).join('');
+  }
+  renderList('region');
+
+  document.querySelectorAll('.fchip[data-scope]').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.fchip[data-scope]').forEach(function (x) { x.classList.remove('is-on'); });
+      c.classList.add('is-on');
+      renderList(c.getAttribute('data-scope'));
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-toast]') : null;
+    if (btn) toast(btn.getAttribute('data-toast'));
+  });
+
+  /* Посещаемость — heatmap (§2.3.10). API GET /api/mobile/attendance
+     (month+year -> total_visits, attendance_map {день: кол-во}, monthly_stats). */
+  var HM_MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  var HM_WD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  var HM_START = { y: 2026, m: 7 }; /* август 2026 */
+
+  /* attendance_map: день -> количество посещений (текущий месяц);
+     total_visits — сумма за месяц (пример ТЗ — «8 посещений»);
+     monthly_stats — для графика. */
+  var HM_MAP = { 1: 1, 4: 2, 6: 1, 8: 1, 11: 1, 13: 1, 15: 1 };
+  var HM_STATS = [
+    { m: 'Мар', v: 12 }, { m: 'Апр', v: 9 }, { m: 'Май', v: 14 },
+    { m: 'Июн', v: 11 }, { m: 'Июл', v: 6 }, { m: 'Авг', v: 8 }
+  ];
+  var HM_VIEW = { y: HM_START.y, m: HM_START.m };
+
+  function hmMonIndex(date) { return (date.getDay() + 6) % 7; }
+  function hmLevel(v) {
+    if (v >= 4) return 'is-l4';
+    if (v === 3) return 'is-l3';
+    if (v === 2) return 'is-l2';
+    if (v === 1) return 'is-l1';
+    return '';
+  }
+  /* Карта для месяца: текущий — демо HM_MAP, остальные — детерминированная
+     псевдослучайная (та же для одинаковых месяц+год). */
+  function hmMapFor(y, m) {
+    if (y === HM_START.y && m === HM_START.m) return HM_MAP;
+    var dim = new Date(y, m + 1, 0).getDate();
+    var map = {};
+    for (var d = 1; d <= dim; d++) {
+      var seed = (y * 31 + m * 17 + d * 13) % 100;
+      if (seed < 45) map[d] = 0;
+      else if (seed < 70) map[d] = 1;
+      else if (seed < 85) map[d] = 2;
+      else if (seed < 95) map[d] = 3;
+      else map[d] = 4;
+    }
+    return map;
+  }
+  function hmTotal(map) {
+    var s = 0;
+    for (var k in map) if (map.hasOwnProperty(k)) s += map[k];
+    return s;
+  }
+  function hmRenderHeatmap() {
+    var y = HM_VIEW.y, m = HM_VIEW.m;
+    var map = hmMapFor(y, m);
+    var label = HM_MONTHS[m] + ' ' + y;
+    $('rd-hm-month').textContent = label;
+    $('rd-visits-month').textContent = 'за ' + HM_MONTHS[m].toLowerCase() + ' ' + y;
+    $('rd-visits-num').textContent = hmTotal(map);
+
+    $('rd-hm-week').innerHTML = HM_WD.map(function (w) {
+      return '<span class="rd-hm-wd">' + w + '</span>';
+    }).join('');
+
+    var first = new Date(y, m, 1);
+    var dim = new Date(y, m + 1, 0).getDate();
+    var prevDim = new Date(y, m, 0).getDate();
+    var lead = hmMonIndex(first);
+    var today = new Date();
+    var cells = [];
+    for (var i = lead - 1; i >= 0; i--) cells.push({ d: prevDim - i, other: true });
+    for (var d = 1; d <= dim; d++) cells.push({ d: d, other: false });
+    var tail = cells.length % 7;
+    if (tail) for (var k = 1; k <= 7 - tail; k++) cells.push({ d: k, other: true });
+
+    var grid = $('rd-hm-grid');
+    grid.innerHTML = cells.map(function (c) {
+      var cls = 'hm-cell';
+      if (c.other) cls += ' is-empty';
+      else {
+        var v = map[c.d] || 0;
+        if (v) cls += ' ' + hmLevel(v);
+        if (c.d === today.getDate() && m === today.getMonth() && y === today.getFullYear()) cls += ' is-today';
+      }
+      return '<span class="' + cls + '"' + (c.other ? ' aria-hidden="true"' : '') + '>' + c.d + '</span>';
+    }).join('');
+  }
+
+  function hmRenderBars() {
+    var max = 1;
+    HM_STATS.forEach(function (s) { if (s.v > max) max = s.v; });
+    $('rd-hm-bars').innerHTML = HM_STATS.map(function (s) {
+      var h = Math.max(4, Math.round((s.v / max) * 100));
+      return '<span class="hm-bar"><i style="height: ' + h + '%"></i><b>' + s.v + '</b><span>' + s.m + '</span></span>';
+    }).join('');
+  }
+
+  $('rd-hm-prev').addEventListener('click', function () {
+    HM_VIEW.m--;
+    if (HM_VIEW.m < 0) { HM_VIEW.m = 11; HM_VIEW.y--; }
+    hmRenderHeatmap();
+  });
+  $('rd-hm-next').addEventListener('click', function () {
+    HM_VIEW.m++;
+    if (HM_VIEW.m > 11) { HM_VIEW.m = 0; HM_VIEW.y++; }
+    hmRenderHeatmap();
+  });
+
+  hmRenderHeatmap();
+  hmRenderBars();
+})();
+</script>
+</body>
+</html>

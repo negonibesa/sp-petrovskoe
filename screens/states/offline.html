@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Офлайн · Состояния · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/ds.css">
+<style>
+  /* S2 · Офлайн (index §08). Канон: баннер «нет сети» (.off-banner)
+     + закэшированные данные (карточки .n-card с метой «сохранено
+     офлайн») + действие «Повторить попытку». */
+  .st-app { background: var(--surface-warm); }
+  .st-body { padding-top: 4px; }
+  .st-off { margin-bottom: var(--space-4); }
+  .st-list { display: grid; gap: var(--space-3); }
+  .st-cache-note {
+    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+    margin-top: var(--space-3); font-size: var(--fs-caption); font-weight: 600; color: var(--meta);
+  }
+  .st-retry { margin-top: var(--space-6); }
+  .st-toast { bottom: 28px; }
+</style>
+</head>
+<body data-od-id="state-offline-screen">
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-wifi-off" viewBox="0 0 24 24"><path d="M8.5 16.43a5 5 0 0 1 7 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 12.86a10 10 0 0 1 5.17-2.69M19 12.86a10 10 0 0 0-2.01-1.52" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2 8.82a15 15 0 0 1 4.18-2.64M22 8.82a15 15 0 0 0-11.29-3.76" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 20h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 3v5h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 16H3v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app st-app">
+  <header class="topbar" data-od-id="st-header">
+    <button type="button" class="topbar-ic is-back" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Офлайн</h4>
+  </header>
+
+  <main class="body st-body" data-od-id="st-body">
+    <div class="off-banner" id="st-banner" data-od-id="st-banner" role="status">
+      <span class="off-ic"><svg aria-hidden="true"><use href="#ic-wifi-off"></use></svg></span>
+      <span class="off-tx">
+        <span class="off-t" id="st-banner-t">Нет соединения</span>
+        <span class="off-s" id="st-banner-s">Показываем сохранённые данные · синхронизация приостановлена</span>
+      </span>
+    </div>
+
+    <div class="st-list" data-od-id="st-cache" aria-label="Сохранённые данные">
+      <div class="n-card" style="--c: var(--accent)" data-od-id="st-cache-1">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Тренировка · бег 5 км</span>
+          <span class="n-text">Пн, 18 августа · 07:30 · стадион «Юность»</span>
+          <span class="n-meta">Сохранено офлайн · 12:05</span>
+        </span>
+      </div>
+      <div class="n-card" style="--c: var(--amber)" data-od-id="st-cache-2">
+        <span class="n-ic"><svg aria-hidden="true"><use href="#ic-bell"></use></svg></span>
+        <span class="n-body">
+          <span class="n-title">Открыта запись на субботник</span>
+          <span class="n-text">Благоустройство стадиона · сб, 23 августа</span>
+          <span class="n-meta">Сохранено офлайн · 12:03</span>
+        </span>
+      </div>
+    </div>
+
+    <p class="st-cache-note" data-od-id="st-cache-note"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ic-check"></use></svg>Кэш обновлён 18 августа в 12:05</p>
+
+    <button type="button" class="btn btn-accent btn-block st-retry" id="btn-retry" data-od-id="st-retry">
+      <span class="spinner" aria-hidden="true"></span><span id="st-retry-tx">Повторить попытку</span>
+    </button>
+  </main>
+</div>
+
+<div class="evd-toast st-toast" id="toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Снова в сети</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var btnBack = document.getElementById('btn-back');
+  btnBack.addEventListener('click', function () { history.back(); });
+
+  var btn = document.getElementById('btn-retry');
+  var banner = document.getElementById('st-banner');
+  var toast = document.getElementById('toast');
+
+  btn.addEventListener('click', function () {
+    if (btn.disabled) return;
+    btn.classList.add('is-busy');
+    btn.disabled = true;
+    document.getElementById('st-retry-tx').textContent = 'Проверяем соединение…';
+    setTimeout(function () {
+      btn.classList.remove('is-busy');
+      banner.classList.add('is-online');
+      document.getElementById('st-banner-t').textContent = 'Снова в сети';
+      document.getElementById('st-banner-s').textContent = 'Данные синхронизированы · 12:06';
+      document.getElementById('st-retry-tx').textContent = 'Синхронизировано';
+      toast.classList.add('open');
+      setTimeout(function () { toast.classList.remove('open'); }, 2200);
+    }, 900);
+  });
+})();
+</script>
+</body>
+</html>
