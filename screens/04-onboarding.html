@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Онбординг · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  .app-onb {
+    max-width: 430px; min-height: 100dvh; margin: 0 auto;
+    display: flex; flex-direction: column; background: var(--surface-warm);
+    overflow: hidden; position: relative;
+  }
+  @media (min-width: 768px) and (min-height: 680px) {
+    .app-onb {
+      margin-block: 24px; height: calc(100dvh - 48px); min-height: 640px;
+      border-radius: 36px; border: 1px solid var(--border);
+    }
+  }
+
+  /* Слайды */
+  .onb-slides { flex: 1 1 auto; position: relative; overflow: hidden; }
+  .onb-slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: var(--space-8) var(--space-6);
+    opacity: 0; transform: translateX(40px);
+    transition: opacity 420ms var(--ease-standard), transform 420ms var(--ease-standard);
+    pointer-events: none;
+  }
+  .onb-slide.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .onb-slide.is-prev { opacity: 0; transform: translateX(-40px); }
+
+  .onb-img {
+    width: min(260px, 70vw); height: min(260px, 70vw);
+    border-radius: 50%; overflow: hidden; margin-bottom: var(--space-6);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--surface)), var(--surface-2));
+    display: grid; place-items: center;
+    box-shadow: 0 8px 32px rgba(59,123,255,.12);
+  }
+  .onb-img img { width: 72%; height: 72%; object-fit: contain; }
+
+  .onb-tx { text-align: center; max-width: 300px; }
+  .onb-tx h2 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-display); font-size: var(--fs-title);
+    font-weight: 700; letter-spacing: 0.01em; color: var(--fg);
+  }
+  .onb-tx p { margin: 0; font-size: var(--fs-body); color: var(--muted); line-height: 1.5; }
+
+  /* Нижняя часть */
+  .onb-foot {
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;
+    gap: var(--space-4); padding: var(--space-4) var(--space-6) calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Точки */
+  .onb-dots { display: flex; gap: 8px; }
+  .onb-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border-strong); border: none; padding: 0;
+    cursor: pointer; transition: background 240ms, width 240ms;
+  }
+  .onb-dot.is-on { width: 24px; border-radius: var(--radius-pill); background: var(--accent); }
+
+  .onb-actions { display: flex; gap: var(--space-3); width: 100%; max-width: 300px; }
+  .onb-actions .btn { flex: 1; }
+
+  .onb-skip {
+    background: none; border: none; padding: var(--space-2);
+    font: inherit; font-size: var(--fs-meta); font-weight: 600;
+    color: var(--meta); cursor: pointer; border-radius: var(--radius-sm);
+  }
+  .onb-skip:hover { color: var(--fg); }
+  .onb-skip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+</style>
+</head>
+<body data-od-id="onboarding-screen">
+<div class="app app-onb">
+  <div class="onb-slides" id="onb-slides" data-od-id="onb-slides">
+    <div class="onb-slide is-active" data-od-id="onb-slide-1">
+      <div class="onb-img"><img src="../assets/welcome/run.png" alt=""></div>
+      <div class="onb-tx"><h2>Тренируйся</h2><p>Персональный план, статистика и конструктор тренировок — всё в одном месте</p></div>
+    </div>
+    <div class="onb-slide" data-od-id="onb-slide-2">
+      <div class="onb-img"><img src="../assets/welcome/volleyball.png" alt=""></div>
+      <div class="onb-tx"><h2>Соревнуйся</h2><p>Марафоны, турниры и челленджи с друзьями и клубами</p></div>
+    </div>
+    <div class="onb-slide" data-od-id="onb-slide-3">
+      <div class="onb-img"><img src="../assets/gto/sign-silver.png" alt=""></div>
+      <div class="onb-tx"><h2>Побеждай</h2><p>Нормативы ГТО, значки и рейтинг — докажи свой уровень</p></div>
+    </div>
+  </div>
+
+  <div class="onb-foot">
+    <div class="onb-dots" id="onb-dots">
+      <button type="button" class="onb-dot is-on" data-i="0" aria-label="Слайд 1"></button>
+      <button type="button" class="onb-dot" data-i="1" aria-label="Слайд 2"></button>
+      <button type="button" class="onb-dot" data-i="2" aria-label="Слайд 3"></button>
+    </div>
+    <div class="onb-actions">
+      <button type="button" class="btn btn-accent btn-lg" id="onb-next">Далее</button>
+    </div>
+    <button type="button" class="onb-skip" id="onb-skip">Пропустить</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var slides = document.querySelectorAll('.onb-slide');
+  var dots = document.querySelectorAll('.onb-dot');
+  var cur = 0;
+
+  function go(i) {
+    slides.forEach(function (s, j) {
+      s.classList.remove('is-active', 'is-prev');
+      if (j === i) s.classList.add('is-active');
+      else if (j < i) s.classList.add('is-prev');
+    });
+    dots.forEach(function (d, j) { d.classList.toggle('is-on', j === i); });
+    cur = i;
+    document.getElementById('onb-next').textContent = i === slides.length - 1 ? 'Начать' : 'Далее';
+  }
+
+  document.getElementById('onb-next').addEventListener('click', function () {
+    if (cur < slides.length - 1) go(cur + 1);
+    else location.href = '05-questionnaire.html';
+  });
+
+  document.getElementById('onb-skip').addEventListener('click', function () {
+    location.href = '05-questionnaire.html';
+  });
+
+  dots.forEach(function (d) {
+    d.addEventListener('click', function () { go(parseInt(d.getAttribute('data-i'))); });
+  });
+})();
+</script>
+</body>
+</html>
