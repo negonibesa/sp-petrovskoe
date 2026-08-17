@@ -148,7 +148,7 @@
 |---|---|---|
 | 01 Вход и онбординг | 7 / 8 | 04-onboarding |
 | 02 Главная | 6 / 6 | — |
-| 03 Расписание и запись | 0 / 2 | 08-schedule, 09-club-schedule |
+| 03 Расписание и запись | 0 / 2 | 08-schedule, 09-club-schedule (заменены `07-calendar`) |
 | 04 Календарь и тренировки | 3 / 7 | 10-calendar, 11-bookings-calendar, 12-bookings-list, 14-post-training-survey |
 | 05 Сообщество | 3 / 3 | — |
 | 06 Профиль и сервис | 7 / 7 | — |

@@ -502,16 +502,22 @@
     $('tc-cal-link').hidden = false;
     var p = cur();
     localStorage.setItem('plan:active', JSON.stringify({
-      name: p.name, tag: p.tag, preset: p.id, n: state.n, week: state.week, exportedAt: Date.now()
+      name: p.name, tag: p.tag, preset: p.id, n: state.n, week: state.week, exercises: p.exercises, exportedAt: Date.now()
     }));
-    toast(state.n + ' тренировок «' + p.name + '» добавлены в расписание');
+    /* Перенаправляем в мастер создания события с параметрами шаблона */
+    window.location.href = '07-add-event.html?from=template&preset=' + encodeURIComponent(p.id);
   });
 
   $('tc-workout').addEventListener('click', function () {
     if (state.preset === 'gto') {
       location.href = '24-gto-workout.html?norm=pull&week=1&day=1';
     } else {
-      toast('Сначала пересадите план в календарь — тренировки появятся в расписании');
+      /* Перенаправляем в мастер создания события с шаблоном */
+      var p = cur();
+      localStorage.setItem('plan:active', JSON.stringify({
+        name: p.name, tag: p.tag, preset: p.id, n: state.n, week: state.week, exercises: p.exercises, exportedAt: Date.now()
+      }));
+      window.location.href = '07-add-event.html?from=template&preset=' + encodeURIComponent(p.id);
     }
   });
 

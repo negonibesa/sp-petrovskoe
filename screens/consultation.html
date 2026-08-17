@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Консультации тренера · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  .cs-app { background: var(--surface-warm); padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .cs-body { padding-top: var(--space-1); }
+
+  /* Форма отправки вопроса */
+  .cs-form { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-3) var(--space-4) var(--space-4); }
+  .cs-form-label { font-size: var(--fs-meta); font-weight: 600; color: var(--fg-2); margin-bottom: var(--space-2); display: block; }
+  .cs-trainer-select { width: 100%; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-warm); font-size: var(--fs-body); color: var(--fg); font-family: var(--font-body); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M9 5l7 7-7 7' fill='none' stroke='%239aa3b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+  .cs-trainer-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+  .cs-textarea { width: 100%; min-height: 100px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-warm); font-size: var(--fs-body); color: var(--fg); font-family: var(--font-body); resize: vertical; margin-top: var(--space-3); }
+  .cs-textarea::placeholder { color: var(--meta); }
+  .cs-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+  .cs-send { width: 100%; margin-top: var(--space-3); padding: var(--space-3); border: none; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: var(--fs-body); font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: background var(--motion-fast) var(--ease-standard); }
+  .cs-send:hover { background: color-mix(in srgb, var(--accent) 85%, black); }
+  .cs-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* История диалогов */
+  .cs-history { padding: 0 var(--space-4); }
+  .cs-msg { display: flex; gap: var(--space-3); padding: var(--space-3) 0; }
+  .cs-msg + .cs-msg { border-top: 1px solid var(--border-soft); }
+  .cs-msg-ic { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: var(--fs-meta); font-weight: 700; }
+  .cs-msg-ic.is-user { background: var(--accent); }
+  .cs-msg-ic.is-trainer { background: var(--success); }
+  .cs-msg-body { flex: 1; min-width: 0; }
+  .cs-msg-name { font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .cs-msg-text { font-size: var(--fs-body); color: var(--fg); line-height: 1.5; margin-top: var(--space-1); }
+  .cs-msg-time { font-size: var(--fs-caption); color: var(--meta); margin-top: 4px; }
+  .cs-msg-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; border-radius: var(--radius-pill); font-size: var(--fs-caption); font-weight: 600; background: color-mix(in srgb, var(--success) 12%, var(--surface)); color: var(--success); }
+
+  /* Тост */
+  .evd-toast { position: fixed; top: calc(20px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%) translateY(-120%); z-index: 1100; transition: transform 340ms var(--ease-out); pointer-events: none; }
+  .evd-toast.open { transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .toast-row { display: flex; gap: var(--space-2); }
+  .toast { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font-size: var(--fs-meta); font-weight: 600; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .toast-success { background: var(--surface); color: var(--success); }
+  .t-ico { display: grid; place-items: center; width: 20px; height: 20px; }
+  .t-ico svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body data-od-id="consultation-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-send" viewBox="0 0 24 24"><path d="M22 2L11 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M22 2L15 22L11 13L2 9L22 2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app cs-app">
+  <header class="topbar" data-od-id="consultation-header">
+    <button type="button" class="topbar-ic is-back" id="cs-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Консультации тренера</h4>
+  </header>
+
+  <main class="body cs-body" data-od-id="consultation-body">
+    <section class="cs-form" data-od-id="consultation-form">
+      <label class="cs-form-label" for="cs-trainer">Выберите тренера</label>
+      <select class="cs-trainer-select" id="cs-trainer">
+        <option value="">— Тренер —</option>
+        <option value="coach-ivan">Иван Петров · Тренер по плаванию</option>
+        <option value="coach-maria">Мария Сидорова · Тренер по лёгкой атлетике</option>
+        <option value="coach-dmitry">Дмитрий Козлов · Тренер по ОФП</option>
+      </select>
+      <textarea class="cs-textarea" id="cs-question" placeholder="Задайте вопрос тренеру..." rows="4"></textarea>
+      <button type="button" class="cs-send" id="cs-send" disabled>Отправить вопрос</button>
+    </section>
+
+    <section class="sec" data-od-id="consultation-history">
+      <div class="sec-head">
+        <h2>История</h2>
+      </div>
+      <div class="cs-history" id="cs-history"></div>
+    </section>
+  </main>
+</div>
+
+<div class="evd-toast" id="cs-toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="cs-toast-tx">Вопрос отправлен</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+
+  var HISTORY = [
+    {
+      trainer: 'Иван Петров',
+      role: 'Тренер по плаванию',
+      q: 'Как лучше чередовать нагрузки на выносливость и скорость?',
+      a: 'Рекомендую 2 дня на выносливость, 1 день休息, затем 1 день на скорость. Между сердечными — минимум 48 часов.',
+      qTime: '12 авг, 14:30',
+      aTime: '12 авг, 16:10'
+    },
+    {
+      trainer: 'Мария Сидорова',
+      role: 'Тренер по лёгкой атлетике',
+      q: 'Боль в колене после забега — стоит ли продолжать подготовку?',
+      a: 'Сделайте перерыв 2–3 дня,冰敷 15 мин. Если боль не уйдёт — приходите на очную консультацию.',
+      qTime: '8 авг, 09:15',
+      aTime: '8 авг, 11:40'
+    }
+  ];
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderHistory() {
+    var wrap = $('cs-history');
+    var html = '';
+    HISTORY.forEach(function (h) {
+      var initials = h.trainer.split(' ').map(function(w) { return w.charAt(0); }).join('');
+      html += '<div class="cs-msg">' +
+        '<span class="cs-msg-ic is-user">АС</span>' +
+        '<div class="cs-msg-body">' +
+          '<div class="cs-msg-name">Вы</div>' +
+          '<div class="cs-msg-text">' + esc(h.q) + '</div>' +
+          '<div class="cs-msg-time">' + esc(h.qTime) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cs-msg">' +
+        '<span class="cs-msg-ic is-trainer">' + esc(initials) + '</span>' +
+        '<div class="cs-msg-body">' +
+          '<div class="cs-msg-name">' + esc(h.trainer) + ' · ' + esc(h.role) + '</div>' +
+          '<div class="cs-msg-text">' + esc(h.a) + '</div>' +
+          '<div class="cs-msg-time">' + esc(h.aTime) + '</div>' +
+          '<span class="cs-msg-tag">Ответ получен</span>' +
+        '</div>' +
+      '</div>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  function toast(msg) {
+    $('cs-toast-tx').textContent = msg;
+    $('cs-toast').classList.add('open');
+    setTimeout(function () { $('cs-toast').classList.remove('open'); }, 2400);
+  }
+
+  function updateSend() {
+    var trainer = $('cs-trainer').value;
+    var question = $('cs-question').value.trim();
+    $('cs-send').disabled = !trainer || !question;
+  }
+
+  $('cs-trainer').addEventListener('change', updateSend);
+  $('cs-question').addEventListener('input', updateSend);
+
+  $('cs-send').addEventListener('click', function () {
+    var trainer = $('cs-trainer');
+    var question = $('cs-question');
+    var name = trainer.options[trainer.selectedIndex].text.split('·')[0].trim();
+    var now = new Date();
+    var months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+    var timeStr = now.getDate() + ' ' + months[now.getMonth()] + ', ' +
+      String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+    HISTORY.unshift({
+      trainer: name,
+      role: trainer.options[trainer.selectedIndex].text.split('·')[1] || '',
+      q: question.value.trim(),
+      a: null,
+      qTime: timeStr,
+      aTime: null
+    });
+
+    renderHistory();
+    question.value = '';
+    trainer.selectedIndex = 0;
+    updateSend();
+    toast('Вопрос отправлен · ответ приходит в уведомлениях');
+  });
+
+  $('cs-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = 'profile.html';
+  });
+
+  renderHistory();
+})();
+</script>
+</body>
+</html>

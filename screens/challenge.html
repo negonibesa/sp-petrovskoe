@@ -17,7 +17,7 @@
      Модель — подход referens/points-ratings.html (этапы и баллы §4.2).
      Компоненты: .topbar, .avatar-sm, .btn, .dash-stats, .dash-card,
      .sec/.sec-head, .evd-toast. */
-  .ch-app { background: var(--surface); padding-bottom: 32px; }
+  .ch-app { background: var(--surface); padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
 
   .ch-hero {
     padding: var(--space-5) var(--space-4);
@@ -50,8 +50,8 @@
 
   .ch-acts { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
 
-  .ch-mil { display: grid; gap: var(--space-1); }
-  .ms { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-1); border-radius: var(--radius-md); }
+  .ch-mil { display: grid; gap: var(--space-2); }
+  .ms { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); }
   .ms-dot {
     flex: none; width: 26px; height: 26px; border-radius: 50%;
     display: grid; place-items: center;

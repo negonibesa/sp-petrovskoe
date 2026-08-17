@@ -490,10 +490,10 @@
 - [x] Анкета (questionnaire) — `screens/05-questionnaire.html`
 - [x] Главная (home, дашборд + лента + записи + клубы + сообщества) — `screens/06-home.html`
 - [x] Уведомления
-- [ ] Расписание и 4 вкладки записи
+- [x] Расписание и 4 вкладки записи — `screens/07-calendar.html` (фильтры: Тренировки / События СП / Клубы / Аренда)
 - [ ] Расписание клуба
 - [x] Календарь тренировок — `screens/07-calendar.html`
-- [ ] Календарь записей + все записи
+- [x] Календарь записей + все записи — `screens/07-calendar.html`
 - [x] Меню управления событием (⋯ → `.sheet-list`, контекстные действия §4.17) — `screens/15-event-marathon.html`
 - [x] Конструктор тренировок — `screens/13-training-constructor.html`
 - [ ] Опрос после тренировки
@@ -504,6 +504,6 @@
 - [x] Лента новостей — `screens/community.html`, `screens/news.html`
 - [x] Сообщества и детали сообщества — `screens/club.html`
 - [x] Профиль (данные, рейтинг, роль, друзья, настройки) — `screens/profile.html`, `rating-details.html`, `friends.html`, `profile-view.html`
-- [ ] Тренер: карточка, слоты, «спросить тренера» (после решения §8.10)
+- [x] Тренер: карточка, слоты, «спросить тренера» — `screens/07-add-event.html` (шаг `step-trainer`, `TRAINERS`, выбор слота и длительности)
 - [x] QR-сканер — `screens/22-qr-scanner.html`
 - [x] Состояния S1–S4 (empty / offline / loading / error) — `screens/states/*.html`; компоненты `.state`/`.state-ic`/`.off-banner`/`.skel-card` в `ds.css` ЭТАП 10, канон — раздел 13 «Пустые состояния и загрузка»

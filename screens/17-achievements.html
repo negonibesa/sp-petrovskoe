@@ -14,7 +14,7 @@
 <style>
   /* Полный список достижений: фильтры + список.
      Компоненты: .topbar, .chips, .fchip, .mrow (канон ДС). */
-  .ach-app { background: var(--surface); padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+  .ach-app { background: var(--surface); padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
 
   /* ── Фильтры ── */
   .ach-filters { padding: 0 var(--space-4); }
@@ -40,7 +40,7 @@
   /* ── Карточка достижения (канон .mrow-паттерн) ── */
   .ach-row {
     display: flex; align-items: center; gap: var(--space-3);
-    padding: var(--space-3) var(--space-1);
+    padding: var(--space-3);
     border-radius: var(--radius-md);
     transition: background var(--motion-fast) var(--ease-standard);
   }

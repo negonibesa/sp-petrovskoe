@@ -12,7 +12,7 @@
   /* Деталка клуба — подэкран Сообщества (§6.5). Канон: .topbar, .card,
      .mrow/.mrow-ava/.mrow-media, .avatar-sm, .btn, .tabbar, .evd-toast.
      Спорт-иконки — картинки из assets/sports, иконки клубов без картинки — символы. */
-  .cl-hero { display: flex; flex-direction: column; gap: var(--space-4); }
+  .cl-hero { display: flex; flex-direction: column; gap: var(--space-5); }
   .cl-top { display: flex; align-items: center; gap: var(--space-3); }
   .cl-ic {
     flex: none; width: 64px; height: 64px; display: grid; place-items: center;
@@ -23,7 +23,7 @@
   .cl-ic svg { width: 34px; height: 34px; }
   .cl-tx { flex: 1; min-width: 0; }
   .cl-tx h1 { margin: 0; font-size: var(--fs-title); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--fg); }
-  .cl-tx span { display: block; margin-top: 3px; font-size: var(--fs-meta); color: var(--muted); }
+  .cl-tx span { display: block; margin-top: var(--space-1); font-size: var(--fs-meta); color: var(--muted); }
   .cl-desc { margin: 0; font-size: var(--fs-body); line-height: 1.55; color: var(--fg-2); }
   .cl-row-media.is-icon { background: color-mix(in srgb, var(--c, var(--accent)) 13%, var(--surface)); }
 </style>

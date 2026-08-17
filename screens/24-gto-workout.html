@@ -106,6 +106,19 @@
   .gpw-hint { margin-top: var(--space-2); text-align: center; font-size: var(--fs-meta); color: var(--meta); }
   .gpw-confirm-sub { margin: var(--space-2) var(--space-1) 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
 
+  .cs-link {
+    display: flex; align-items: center; gap: var(--space-2);
+    margin: var(--space-1) var(--space-1) 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg);
+    color: var(--accent); text-decoration: none; font-size: var(--fs-meta); font-weight: 600;
+    transition: border-color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .cs-link:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+  .cs-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .cs-link svg { width: 16px; height: 16px; flex: none; }
+  .cs-link span { flex: 1; }
+
   @keyframes gpw-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .gpw-ex, .gpw-fill { animation: none; transition: none; } }
 </style>
@@ -121,6 +134,7 @@
   <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></symbol>
   <symbol id="ic-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-send" viewBox="0 0 24 24"><path d="M22 2L11 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M22 2L15 22L11 13L2 9L22 2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
 </svg>
 
 <div class="app gpw-app">
@@ -148,6 +162,12 @@
         <button type="button" class="gpw-sess-pause" id="gpw-sess-pause" aria-label="Пауза тренировки"><svg aria-hidden="true"><use href="#ic-pause"></use></svg></button>
       </div>
     </section>
+
+    <a class="cs-link" href="consultation.html" data-od-id="gto-workout-ask-trainer">
+      <svg aria-hidden="true"><use href="#ic-send"></use></svg>
+      <span>Вопрос тренеру</span>
+      <svg aria-hidden="true"><use href="#ic-chev"></use></svg>
+    </a>
 
     <div id="gpw-body" data-od-id="gto-workout-body"></div>
   </main>

@@ -85,6 +85,16 @@
 
       <div class="chips" id="fmt-chips" role="group" aria-label="Формат тренировки"></div>
 
+      <div class="template-badge" id="template-badge" hidden style="margin-top:var(--space-2);display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);background:color-mix(in srgb, var(--accent) 8%, var(--surface));border:1px solid color-mix(in srgb, var(--accent) 20%, var(--border-soft));">
+        <span style="font-size:var(--icon-sm);color:var(--accent)">⚡</span>
+        <span id="template-badge-tx" style="font-size:var(--fs-meta);font-weight:600;color:var(--accent)"></span>
+      </div>
+
+      <button type="button" id="btn-from-template" class="btn btn-ghost btn-sm" hidden style="margin-top:var(--space-2);width:100%;">
+        <svg aria-hidden="true" style="width:var(--icon-sm);height:var(--icon-sm)"><use href="#ic-dumbbell"></use></svg>
+        Выбрать из шаблона
+      </button>
+
       <div class="evd-rows" id="rows-time">
         <button type="button" class="row evd-row" id="row-date">
           <span class="row-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span>
@@ -319,6 +329,14 @@
   </div>
 </div>
 
+<div class="scrim" id="tpl-scrim" aria-hidden="true"></div>
+<div class="sheet" id="tpl-sheet" role="dialog" aria-modal="true" aria-label="Выбор шаблона">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <h3 class="sheet-title">Шаблон тренировки</h3>
+  <button type="button" class="sheet-close js-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  <div class="sheet-body" id="tpl-list"></div>
+</div>
+
 <div class="evd-toast" id="toast" role="status" aria-live="polite">
   <div class="toast toast-success"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="toast-tx">Добавлено в календарь</span></div>
 </div>
@@ -449,7 +467,8 @@
     people: [],
     trainer: null,
     trSlot: null,
-    trDur: 1
+    trDur: 1,
+    template: null
   };
   function stepsFor(t) {
     if (t === "rental") return ["facility", "extras", "confirm", "done"];
@@ -528,7 +547,8 @@
   function wireSheets() {
     var pairs = [
       ["date-sheet", "date-scrim"], ["time-sheet", "time-scrim"],
-      ["people-sheet", "people-scrim"], ["facinfo-sheet", "facinfo-scrim"]
+      ["people-sheet", "people-scrim"], ["facinfo-sheet", "facinfo-scrim"],
+      ["tpl-sheet", "tpl-scrim"]
     ];
     pairs.forEach(function (p) {
       var s = $(p[0]), sc = $(p[1]);
@@ -750,6 +770,19 @@
     $("field-place").hidden = false;
     $("val-date").textContent = fmtDateW(st.date);
     $("val-time").textContent = fmtTime(st.time.getHours(), st.time.getMinutes());
+    /* Кнопка «Из шаблона» — только для тренировок без выбранного шаблона */
+    var tplBtn = $("btn-from-template");
+    if (st.type === "training" && !st.template) {
+      tplBtn.hidden = false;
+    } else {
+      tplBtn.hidden = true;
+    }
+    if (st.template) {
+      $("template-badge").hidden = false;
+      $("template-badge-tx").textContent = st.template.name + " · " + st.template.tag;
+    } else {
+      $("template-badge").hidden = true;
+    }
     var idx = contentSteps().indexOf("details");
     if (idx !== -1) st.stepIdx = idx;
     renderSteps();
@@ -1111,6 +1144,11 @@
     } else {
       rows.push(["Дата и время", fmtDate(st.date) + ", " + fmtTime(st.time.getHours(), st.time.getMinutes())]);
       rows.push(["Название", $("ev-name").value.trim() || "—"]);
+      if (st.template) {
+        rows.push(["Шаблон", st.template.name + '<span class="sub">' + st.template.tag + "</span>"]);
+        var exCount = st.template.exercises ? st.template.exercises.length : 0;
+        if (exCount) rows.push(["Упражнения", exCount + " " + pluralize(exCount, "упражнение", "упражнения", "упражнений")]);
+      }
       rows.push(["Место", $("ev-place").value.trim() || "—"]);
       var cnt3 = st.people.length;
       if (cnt3) rows.push(["Участники", "Вы + " + cnt3 + " " + pluralize(cnt3, "участник", "участника", "участников")]);
@@ -1160,6 +1198,10 @@
     if (st.people.length) {
       html += '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-users"></use></svg>Участники: ' + st.people.length + "</div>";
     }
+    if (st.template) {
+      var exList = (st.template.exercises || []).map(function (e) { return e.name; }).join(', ');
+      if (exList) html += '<div class="dc-line"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg>Упражнения: ' + exList + "</div>";
+    }
     $("done-card").innerHTML = html;
     $("done-sub").textContent = st.type === "rental" ? "Бронь площадки подтверждена" :
       (st.type === "training" && st.fmt === "С тренером" ? "Заявка отправлена тренеру" : "Оно уже в вашем календаре");
@@ -1173,6 +1215,13 @@
     if (n === 1) return "час";
     if (n >= 2 && n <= 4) return "часа";
     return "часов";
+  }
+  function pluralize(n, one, few, many) {
+    var mod10 = n % 10, mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 19) return many;
+    if (mod10 === 1) return one;
+    if (mod10 >= 2 && mod10 <= 4) return few;
+    return many;
   }
 
   /* ── Сводка в плашке ────────────────────── */
@@ -1313,6 +1362,33 @@
       openSheet("people-sheet", "people-scrim");
     });
     $("people-search").addEventListener("input", renderPeopleList);
+
+    /* Шаблон тренировки — кнопка «Из шаблона» */
+    $("btn-from-template").addEventListener("click", function () {
+      var list = $("tpl-list");
+      list.innerHTML = "";
+      Object.keys(TEMPLATES).forEach(function (id) {
+        var t = TEMPLATES[id];
+        var plan = null;
+        try { plan = JSON.parse(localStorage.getItem("plan:active") || "null"); } catch (e) {}
+        var isCurrent = plan && plan.preset === id;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "mrow" + (isCurrent ? " is-on" : "");
+        b.innerHTML =
+          '<span class="mrow-media" style="color:' + TYPES.training.color + '"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span>' +
+          '<span class="mrow-tx"><span class="mrow-t">' + t.name + '</span><span class="mrow-s">' + t.tag + " · " + t.desc + (isCurrent ? " · активный" : "") + "</span></span>" +
+          '<span class="mrow-check"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span>';
+        b.addEventListener("click", function () {
+          st.template = { id: id, name: t.name, tag: t.tag, exercises: [] };
+          $("ev-name").value = t.name;
+          closeSheet("tpl-sheet", "tpl-scrim");
+          renderDetails();
+        });
+        list.appendChild(b);
+      });
+      openSheet("tpl-sheet", "tpl-scrim");
+    });
   }
   function goBack() {
     var idx = contentSteps().indexOf(step);
@@ -1322,7 +1398,7 @@
       if (prev === "details") { st.stepIdx = 0; renderDetails(); showStep("details"); return; }
       if (prev === "trainer") { st.stepIdx = 1; renderTrainer(); showStep("trainer"); return; }
       if (prev === "extras") { st.stepIdx = 1; renderExtras(); showStep("extras"); return; }
-      if (prev === "confirm") { st.stepIdx = 2; renderConfirm(); showStep("confirm"); return; }
+      if (prev === "confirm") { st.stepIdx = contentSteps().indexOf("confirm"); renderConfirm(); showStep("confirm"); return; }
       showStep(prev);
       return;
     }
@@ -1340,6 +1416,13 @@
     openSheet("date-sheet", "date-scrim");
   }
 
+  /* ── Шаблоны тренировок (из конструктора) ── */
+  var TEMPLATES = {
+    gto:  { name: 'Подтягивания', tag: 'ГТО-норматив', desc: 'Подготовка к нормативу ГТО' },
+    ofp:  { name: 'Общая форма', tag: 'Общая форма', desc: 'Комплекс ОФП на 2 недели' },
+    own:  { name: 'Своя тренировка', tag: 'Произвольная', desc: 'Индивидуальный план' }
+  };
+
   /* ── Init ───────────────────────────────── */
   function init() {
     wireSheets();
@@ -1356,6 +1439,32 @@
     tSel = { h: 19, m: 0 };
     wHour = buildWheel("w-hour", hours, 19, function (v) { tSel.h = v; paintTime(); });
     wMin = buildWheel("w-min", mins, 0, function (v) { tSel.m = v; paintTime(); });
+
+    /* Поддержка шаблона из конструктора (?from=template&preset=gto|ofp|own) */
+    try {
+      var params = new URLSearchParams(location.search);
+      if (params.get('from') === 'template') {
+        var presetId = params.get('preset');
+        var plan = JSON.parse(localStorage.getItem('plan:active') || 'null');
+        if (plan && presetId && TEMPLATES[presetId]) {
+          var tpl = TEMPLATES[presetId];
+          st.type = 'training';
+          st.fmt = 'Личная';
+          st.template = { id: presetId, name: plan.name || tpl.name, tag: plan.tag || tpl.tag, exercises: plan.exercises || [] };
+          /* Заполняем название */
+          $('ev-name').value = st.template.name;
+          /* Заполняем дату на завтра */
+          var tmr = new Date();
+          tmr.setDate(tmr.getDate() + 1);
+          st.date = new Date(tmr.getFullYear(), tmr.getMonth(), tmr.getDate());
+          /* Предзаполняем и переходим к подтверждению */
+          document.querySelectorAll('input[name="evtype"]').forEach(function (r) { r.checked = r.value === 'training'; });
+          renderConfirm();
+          showStep('confirm');
+          return;
+        }
+      }
+    } catch (e) { /* ignore */ }
 
     renderBar();
   }
