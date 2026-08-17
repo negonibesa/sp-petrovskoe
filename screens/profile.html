@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -11,11 +13,9 @@
 <link rel="stylesheet" href="../assets/ds.css">
 <style>
   /* Экран «Профиль» (свой) — пакет профиля §6.6, вход — таб «Профиль»
-     в нижней навигации. Модель: referens/profile-v2.html (альфа) — взят
-     подход (шапка, статы, достижения, друзья, меню), переписан на ДС v2.
-     Компоненты: .hd, .dash-stats, .dash-card, .stat-rating, .gto-badge,
-     .sec/.sec-head, .evd-rows, .mrow, .row, .tabbar, .evd-toast. */
-  .pr-app { background: var(--surface); padding-bottom: 32px; }
+     в нижней навигации. Компоненты: .hd, .dash-stats, .dash-card, .stat-rating,
+     .gto-badge, .sec/.sec-head, .evd-rows, .mrow, .row, .tabbar, .evd-toast. */
+  .pr-app { padding-bottom: 32px; }
 
   a.dash-card { text-decoration: none; }
 
@@ -28,6 +28,14 @@
     display: block; height: 100%; border-radius: inherit;
     background: linear-gradient(90deg, var(--accent), var(--accent-purple));
   }
+
+  /* Точки серии */
+  .streak-dots { display: flex; gap: 4px; margin-top: var(--space-2); }
+  .streak-dots i {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--surface-2);
+  }
+  .streak-dots i.on { background: var(--danger); }
 
   /* Карточка знака ГТО */
   .p-gto {
@@ -43,7 +51,6 @@
   .p-gto-tx { flex: 1; min-width: 0; }
   .p-gto-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
   .p-gto-tx > span { display: block; margin-top: 2px; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
-  .p-gto-pts { flex: none; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* Лента друзей */
   .p-friends { display: flex; align-items: center; padding: var(--space-2) var(--space-1); }
@@ -56,6 +63,28 @@
     font-size: var(--fs-caption); font-weight: 700; font-variant-numeric: tabular-nums;
   }
   .p-friends-sub { padding: var(--space-1) var(--space-1) 0; font-size: var(--fs-caption); color: var(--meta); }
+
+  /* Шит достижения */
+  .ach-sheet .sheet-list { max-height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .ach-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-1); border-radius: var(--radius-md); transition: background var(--motion-fast); }
+  .ach-row.is-open { background: color-mix(in srgb, var(--accent-purple) 5%, var(--surface)); }
+  .ach-ic { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; color: #fff; font-size: 0; }
+  .ach-ic svg { width: 20px; height: 20px; }
+  .ach-ic img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .ach-ic.is-flame { background: linear-gradient(135deg, #ff6b35, #ff9a5c); }
+  .ach-ic.is-star { background: linear-gradient(135deg, #3b7bff, #6fa0ff); }
+  .ach-ic.is-users { background: linear-gradient(135deg, #2ecc71, #58d68d); }
+  .ach-ic.is-medal { background: linear-gradient(135deg, #9b59b6, #c39bd3); }
+  .ach-ic.is-target { background: linear-gradient(135deg, #8e44ad, #bb8fce); }
+  .ach-ic.is-gold { background: linear-gradient(135deg, #f1c40f, #f9e547); }
+  .ach-tx { flex: 1; min-width: 0; }
+  .ach-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .ach-tx span { display: block; font-size: var(--fs-caption); color: var(--meta); margin-top: 1px; }
+  .ach-ok { flex: none; width: 20px; height: 20px; color: var(--accent-purple); opacity: 0.7; }
+  .ach-ok svg { width: 20px; height: 20px; }
+  .ach-more { display: flex; align-items: center; justify-content: center; gap: 4px; padding: var(--space-3) 0 var(--space-1); font-size: var(--fs-meta); font-weight: 600; color: var(--accent); text-decoration: none; cursor: pointer; }
+  .ach-more svg { width: 14px; height: 14px; }
+  .ach-more:hover { text-decoration: underline; }
 
   a.row { text-decoration: none; color: inherit; }
 </style>
@@ -72,11 +101,12 @@
   <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-scan" viewBox="0 0 24 24"><path d="M15.7933 3C17.6814 3.10705 18.876 3.41116 19.7324 4.26758C20.5888 5.124 20.8929 6.31863 21 8.20674M8.20674 3C6.31863 3.10705 5.124 3.41116 4.26758 4.26758C3.41116 5.124 3.10705 6.31863 3 8.20674M21 15.7933C20.8929 17.6814 20.5888 18.876 19.7324 19.7324C18.876 20.5888 17.6814 20.8929 15.7933 21M3 15.7933C3.10705 17.6814 3.41116 18.876 4.26758 19.7324C5.124 20.5888 6.31863 20.8929 8.20674 21M5.36842 12H18.6316" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></symbol>
   <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M4 20l1.2-4.5L16.9 3.8a2.1 2.1 0 0 1 3 3L8.2 18.5 4 20z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M14.8 5.9l3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
-  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
-  <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 2c-1 4 1 6 3 8s4 4 3 8c-1 3-4 4-6 3.5C9 20.5 7 18 7 15c0-2 1-4 2.5-5C10 9.5 11 6 12 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M9.5 15.5c0-1.5.8-2.5 2-3.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
-  <symbol id="ic-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="14" y="4" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="4" y="14" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M18.4834 16.7674C17.8471 16.9195 17.1829 17 16.5 17C11.8056 17 8 13.1944 8 8.50001C8 8.01653 8.04036 7.54249 8.11791 7.08105C8.08172 7.11586 8.04432 7.14792 8.00494 7.17781C7.72433 7.39083 7.37485 7.46991 6.67589 7.62806L6.03954 7.77204C3.57986 8.32856 2.35002 8.60682 2.05742 9.54774C1.76482 10.4887 2.60325 11.4691 4.2801 13.4299L4.71392 13.9372C5.19042 14.4944 5.42868 14.773 5.53586 15.1177C5.64305 15.4624 5.60703 15.8341 5.53498 16.5776L5.4694 17.2544C5.21588 19.8706 5.08912 21.1787 5.85515 21.7602C6.62117 22.3417 7.77267 21.8116 10.0757 20.7512L10.6715 20.4768C11.3259 20.1755 11.6531 20.0249 12 20.0249C12.3469 20.0249 12.6741 20.1755 13.3285 20.4768L13.9243 20.7512C16.2273 21.8116 17.3788 22.3417 18.1449 21.7602C18.9109 21.1787 18.7841 19.8706 18.5306 17.2544L18.4834 16.7674Z" fill="currentColor"></path><path opacity="0.5" d="M9.15316 5.40838L8.82546 5.99623C8.46552 6.64194 8.28555 6.96479 8.00494 7.17781C8.04432 7.14791 8.08172 7.11586 8.11791 7.08105C8.04036 7.54249 8 8.01653 8 8.50001C8 13.1944 11.8055 17 16.5 17C17.1829 17 17.847 16.9195 18.4834 16.7674L18.465 16.5776C18.3929 15.8341 18.3569 15.4624 18.4641 15.1177C18.5713 14.773 18.8095 14.4944 19.286 13.9372L19.7199 13.4299C21.3967 11.4691 22.2351 10.4886 21.9425 9.54773C21.6499 8.60682 20.4201 8.32856 17.9604 7.77203L17.3241 7.62805C16.6251 7.4699 16.2756 7.39083 15.995 7.17781C15.7144 6.96479 15.5344 6.64194 15.1745 5.99624L14.8468 5.40837C13.5801 3.13612 12.9468 2 12 2C11.0531 2 10.4198 3.13613 9.15316 5.40838Z" fill="currentColor"></path></symbol>
+  <symbol id="ic-flame" viewBox="0 0 24 24"><path opacity="0.5" d="M12.832 21.8012C15.958 21.1752 20 18.9262 20 13.1112C20 7.82017 16.127 4.29617 13.342 2.67717C12.723 2.31717 12 2.79018 12 3.50517V5.33318C12 6.77518 11.394 9.40717 9.71 10.5022C8.85 11.0612 7.92 10.2242 7.816 9.20418L7.73 8.36618C7.63 7.39218 6.638 6.80117 5.86 7.39517C4.461 8.46018 3 10.3302 3 13.1102C3 20.2212 8.289 22.0002 10.933 22.0002C11.0877 22.0002 11.249 21.9952 11.417 21.9852C11.863 21.9292 11.417 22.0842 12.832 21.8002" fill="currentColor"></path><path d="M8 18.4444C8 21.0644 10.111 21.8744 11.417 21.9864C11.863 21.9304 11.417 22.0854 12.832 21.8014C13.871 21.4344 15 20.4924 15 18.4444C15 17.1474 14.181 16.3464 13.54 15.9714C13.344 15.8564 13.116 16.0014 13.099 16.2274C13.043 16.9454 12.353 17.5174 11.884 16.9714C11.469 16.4894 11.294 15.7844 11.294 15.3334V14.7434C11.294 14.3894 10.937 14.1534 10.631 14.3354C9.495 15.0084 8 16.3944 8 18.4444Z" fill="currentColor"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-qr" viewBox="0 0 24 24"><g opacity="0.5"><path d="M10.5531 13.4465C10.1294 13.0228 9.60212 12.8501 9.01812 12.7716C8.46484 12.6972 7.76789 12.6972 6.93209 12.6973H5.82717C5.24648 12.6973 4.76184 12.6972 4.36823 12.7347C3.95674 12.7738 3.57325 12.8587 3.22152 13.0742C2.87731 13.2852 2.5879 13.5746 2.37697 13.9188C2.16142 14.2705 2.07653 14.654 2.0374 15.0655C1.99998 15.4591 1.99999 15.9438 2 16.5245V16.5928C1.99999 17.4766 1.99999 18.1893 2.05454 18.7631C2.1108 19.3548 2.22996 19.8703 2.51405 20.3339C2.80168 20.8033 3.19632 21.1979 3.6657 21.4856C4.12929 21.7696 4.64482 21.8888 5.23653 21.9451C5.8103 21.9996 6.52304 21.9996 7.40683 21.9996H7.47507C8.05577 21.9996 8.54048 21.9996 8.9341 21.9622C9.34559 21.9231 9.72907 21.8382 10.0808 21.6226C10.425 21.4117 10.7144 21.1223 10.9254 20.7781C11.1409 20.4263 11.2258 20.0429 11.2649 19.6314C11.3024 19.2378 11.3023 18.7531 11.3023 18.1724V17.0675C11.3024 16.2317 11.3024 15.5348 11.228 14.9815C11.1495 14.3975 10.9768 13.8702 10.5531 13.4465Z" fill="currentColor"></path><path d="M8.9341 2.0374C9.34559 2.07653 9.72907 2.16142 10.0808 2.37697C10.425 2.5879 10.7144 2.87731 10.9254 3.22152C11.1409 3.57325 11.2258 3.95674 11.2649 4.36823C11.3024 4.76183 11.3023 5.24658 11.3023 5.82726V6.93212C11.3024 7.7679 11.3024 8.46484 11.228 9.01812C11.1495 9.60212 10.9768 10.1294 10.5531 10.5531C10.1294 10.9768 9.60212 11.1495 9.01812 11.228C8.46484 11.3024 7.76787 11.3024 6.93209 11.3023H5.82711C5.24643 11.3023 4.76183 11.3024 4.36823 11.2649C3.95674 11.2258 3.57325 11.1409 3.22152 10.9254C2.87731 10.7144 2.5879 10.425 2.37697 10.0808C2.16142 9.72907 2.07653 9.34559 2.0374 8.9341C1.99998 8.54047 1.99999 8.05579 2 7.47506V7.40679C1.99999 6.52302 1.99999 5.81029 2.05454 5.23653C2.1108 4.64482 2.22996 4.12929 2.51405 3.6657C2.80168 3.19632 3.19632 2.80168 3.6657 2.51405C4.12929 2.22996 4.64482 2.1108 5.23653 2.05454C5.81029 1.99999 6.52307 1.99999 7.40684 2H7.4751C8.05583 1.99999 8.54047 1.99998 8.9341 2.0374Z" fill="currentColor"></path><path d="M16.5928 2H16.5245C15.9438 1.99999 15.4591 1.99998 15.0655 2.0374C14.654 2.07653 14.2705 2.16142 13.9188 2.37697C13.5746 2.5879 13.2852 2.87731 13.0742 3.22152C12.8587 3.57325 12.7738 3.95674 12.7347 4.36823C12.6972 4.76185 12.6973 5.24654 12.6973 5.82725V6.93209C12.6972 7.76789 12.6972 8.46484 12.7716 9.01812C12.8501 9.60212 13.0228 10.1294 13.4465 10.5531C13.8702 10.9768 14.3975 11.1495 14.9815 11.228C15.5348 11.3024 16.2317 11.3024 17.0675 11.3023H18.1724C18.7531 11.3023 19.2378 11.3024 19.6314 11.2649C20.0429 11.2258 20.4263 11.1409 20.7781 10.9254C21.1223 10.7144 21.4117 10.425 21.6226 10.0808C21.8382 9.72907 21.9231 9.34559 21.9622 8.9341C21.9996 8.54048 21.9996 8.05587 21.9996 7.47517V7.40683C21.9996 6.52304 21.9996 5.8103 21.9451 5.23653C21.8888 4.64482 21.7696 4.12929 21.4856 3.6657C21.1979 3.19632 20.8033 2.80168 20.3339 2.51405C19.8703 2.22996 19.3548 2.1108 18.7631 2.05454C18.1893 1.99999 17.4766 1.99999 16.5928 2Z" fill="currentColor"></path></g><path opacity="0.5" d="M14.0926 21.3024C14.0926 21.6877 13.7803 22.0001 13.3949 22.0001C13.0096 22.0001 12.6973 21.6877 12.6973 21.3024V18.5117H14.0926V21.3024Z" fill="currentColor"></path><path opacity="0.5" d="M21.3022 12.6982C20.9169 12.6982 20.6045 13.0105 20.6045 13.3958V16.6516H21.9998V13.3958C21.9998 13.0105 21.6875 12.6982 21.3022 12.6982Z" fill="currentColor"></path><path d="M16.0761 16.6173C16 16.8011 16 17.0341 16 17.5C16 17.9659 16 18.1989 16.0761 18.3827C16.1776 18.6277 16.3723 18.8224 16.6173 18.9239C16.8011 19 17.0341 19 17.5 19C17.9659 19 18.1989 19 18.3827 18.9239C18.6277 18.8224 18.8224 18.6277 18.9239 18.3827C19 18.1989 19 17.9659 19 17.5C19 17.0341 19 16.8011 18.9239 16.6173C18.8224 16.3723 18.6277 16.1776 18.3827 16.0761C18.1989 16 17.9659 16 17.5 16C17.0341 16 16.8011 16 16.6173 16.0761C16.3723 16.1776 16.1776 16.3723 16.0761 16.6173Z" fill="currentColor"></path><path opacity="0.5" d="M21.9992 18.5352V18.5117H20.6039C20.6039 18.9547 20.6035 19.252 20.5878 19.4822C20.5725 19.7061 20.5451 19.8152 20.5154 19.8869C20.3974 20.1718 20.171 20.3982 19.8861 20.5162C19.8143 20.546 19.7053 20.5734 19.4813 20.5887C19.2511 20.6044 18.9538 20.6047 18.5109 20.6047H16.6504V22.0001H18.5344C18.9478 22.0001 19.293 22.0001 19.5763 21.9808C19.8713 21.9606 20.1499 21.9173 20.42 21.8054C21.0469 21.5457 21.5449 21.0477 21.8045 20.4209C21.9164 20.1508 21.9598 19.8722 21.9799 19.5772C21.9992 19.2938 21.9992 18.9487 21.9992 18.5352Z" fill="currentColor"></path><path opacity="0.5" d="M12.6973 16.6161V16.6517H14.0926C14.0926 15.984 14.0935 15.5357 14.1282 15.1939C14.1618 14.8638 14.2212 14.7113 14.2886 14.6104C14.3734 14.4834 14.4824 14.3744 14.6094 14.2896C14.7103 14.2222 14.8628 14.1628 15.1929 14.1292C15.5347 14.0944 15.983 14.0936 16.6508 14.0936H18.5112V12.6983H16.6151C15.9922 12.6982 15.4725 12.6982 15.0517 12.741C14.6113 12.7858 14.2025 12.8832 13.8342 13.1294C13.5549 13.316 13.315 13.5558 13.1284 13.8352C12.8823 14.2035 12.7848 14.6123 12.74 15.0527C12.6972 15.4735 12.6973 15.9932 12.6973 16.6161Z" fill="currentColor"></path></symbol>
   <symbol id="ic-trend-up" viewBox="0 0 24 24"><path d="M3.5 17l6-6 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.5 7.5h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
-  <symbol id="ic-medal" viewBox="0 0 24 24"><path d="M9.2 12l-3-6.3 4.4.9M14.8 12l3-6.3-4.4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="13.8" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><path opacity="0.5" d="M12 16C15.866 16 19 12.866 19 9C19 5.13401 15.866 2 12 2C8.13401 2 5 5.13401 5 9C5 12.866 8.13401 16 12 16Z" fill="currentColor"></path><path d="M7.54586 14.4004L7.35086 15.0004L6.71386 17.3234C6.08586 19.6154 5.77186 20.7614 6.19086 21.3884C6.33786 21.6084 6.53486 21.7844 6.76386 21.9014C7.41586 22.2334 8.42386 21.7084 10.4389 20.6584C11.1089 20.3084 11.4449 20.1344 11.8009 20.0964C11.9335 20.0824 12.0662 20.0824 12.1989 20.0964C12.5549 20.1344 12.8899 20.3084 13.5609 20.6584C15.5759 21.7084 16.5839 22.2334 17.2359 21.9014C17.4649 21.7844 17.6619 21.6084 17.8089 21.3884C18.2289 20.7614 17.9139 19.6154 17.2859 17.3234L16.6489 15.0004L16.4539 14.4004C15.2439 15.4004 13.6919 16.0004 11.9999 16.0004C10.3079 16.0004 8.75586 15.4004 7.54586 14.4004Z" fill="currentColor"></path></symbol>
   <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M6 21V4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M6 4c2-1.5 4.5-1 6.5.5S15.5 5 18 4v9c-2.5 1-5 .5-6.5-1S7 10.5 6 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
   <symbol id="ic-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
   <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M15 16l4-4-4-4M19 12H9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
@@ -111,6 +141,7 @@
           <span class="dc-top" style="--c: var(--danger)"><svg aria-hidden="true"><use href="#ic-flame"></use></svg>Серия</span>
           <span class="dc-val">6</span>
           <span class="dc-meta">дней подряд</span>
+          <span class="streak-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
         </span>
       </a>
       <a class="dash-card" href="22-qr-scanner.html" data-od-id="profile-qrstat">
@@ -120,6 +151,13 @@
           <span class="dc-meta">для входа в зал</span>
         </span>
       </a>
+      <button type="button" class="dash-card" id="btn-ach" data-od-id="profile-ach-card">
+        <span class="dash-cell">
+          <span class="dc-top" style="--c: var(--accent-purple)"><svg aria-hidden="true"><use href="#ic-medal"></use></svg>Достижения</span>
+          <span class="dc-val">4</span>
+          <span class="dc-meta">из 15 значков</span>
+        </span>
+      </button>
       <a class="stat-rating is-up" href="rating-details.html" data-od-id="profile-rating">
         <svg class="stat-rating-ic" aria-hidden="true"><use href="#ic-trend-up"></use></svg>
         12-е место в регионе · +2 за неделю
@@ -132,7 +170,7 @@
         <b>Знак ГТО · Серебро</b>
         <span>Ступень VII · сдано 3 из 5 нормативов</span>
       </span>
-      <span class="p-gto-pts">+300</span>
+      <span class="mrow-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+300</span>
       <span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
     </a>
 
@@ -151,41 +189,10 @@
       <p class="p-friends-sub">6 онлайн сейчас · Дмитрий, Мария и ещё 4</p>
     </section>
 
-    <section class="sec" data-od-id="profile-activities">
-      <div class="sec-head">
-        <h2>Активности</h2>
-        <a class="sec-all" href="activities.html" data-od-id="profile-activities-all">Журнал<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
-      </div>
-      <div class="evd-rows">
-        <a class="mrow" href="activities.html" data-od-id="profile-activity-1">
-          <span class="mrow-media is-medal is-silver" aria-hidden="true"><svg><use href="#ic-medal"></use></svg></span>
-          <span class="mrow-tx">
-            <span class="mrow-t">Летний Кубок · 2-е место</span>
-            <span class="mrow-s">Соревнование · 14 августа</span>
-          </span>
-          <span class="mrow-side">
-            <span class="mrow-pts">+75</span>
-            <span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
-          </span>
-        </a>
-        <a class="mrow" href="activities.html" data-od-id="profile-activity-2">
-          <span class="mrow-media" style="--c: var(--accent)" aria-hidden="true"><svg><use href="#ic-dumbbell"></use></svg></span>
-          <span class="mrow-tx">
-            <span class="mrow-t">ОФП · утренний поток</span>
-            <span class="mrow-s">Тренировка · сегодня 07:30</span>
-          </span>
-          <span class="mrow-side">
-            <span class="mrow-pts">+40</span>
-            <span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
-          </span>
-        </a>
-      </div>
-    </section>
-
     <section class="sec" data-od-id="profile-menu">
       <div class="evd-rows">
         <a class="row" href="13-training-constructor.html" data-od-id="profile-plan">
-          <span class="row-ic" style="color: var(--accent)"><svg aria-hidden="true"><use href="#ic-flag"></use></svg></span>
+          <span class="row-ic"><svg aria-hidden="true"><use href="#ic-flag"></use></svg></span>
           <span class="row-tx">План тренировок</span>
           <span class="row-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span>
         </a>
@@ -211,6 +218,24 @@
   <a class="tab" href="community.html" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
   <button class="tab is-on" type="button" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></button>
 </nav>
+
+<div class="scrim" id="ach-scrim" aria-hidden="true"></div>
+<div class="sheet ach-sheet" id="ach-sheet" role="dialog" aria-modal="true" aria-label="Достижения">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Достижения</h3>
+    <button type="button" class="sheet-close" id="ach-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <span class="ach-row is-open"><span class="ach-ic is-flame"><svg aria-hidden="true"><use href="#ic-flame"></use></svg></span><span class="ach-tx"><b>На огне</b><span>Серия 5 дней подряд</span></span><svg class="ach-ok" aria-hidden="true"><use href="#ic-check"></use></svg></span>
+    <span class="ach-row is-open"><span class="ach-ic is-star"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span class="ach-tx"><b>Первые шаги</b><span>Первая тренировка</span></span><svg class="ach-ok" aria-hidden="true"><use href="#ic-check"></use></svg></span>
+    <span class="ach-row is-open"><span class="ach-ic is-users"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span><span class="ach-tx"><b>Командный игрок</b><span>Вступил в клуб</span></span><svg class="ach-ok" aria-hidden="true"><use href="#ic-check"></use></svg></span>
+    <span class="ach-row is-open"><span class="ach-ic is-medal"><img src="../assets/gto/sign-silver.png" alt=""></span><span class="ach-tx"><b>Серебряный знак</b><span>Сдал норматив ГТО</span></span><svg class="ach-ok" aria-hidden="true"><use href="#ic-check"></use></svg></span>
+    <span class="ach-row"><span class="ach-ic is-target"><svg aria-hidden="true"><use href="#ic-target"></use></svg></span><span class="ach-tx"><b>Снайпер</b><span>Выполнил 10 тренировок</span></span></span>
+    <span class="ach-row"><span class="ach-ic is-gold"><svg aria-hidden="true"><use href="#ic-star"></use></svg></span><span class="ach-tx"><b>Золотая звезда</b><span>Набрал 5000 баллов</span></span></span>
+    <a class="ach-more" href="17-achievements.html">Все достижения<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+  </div>
+</div>
 
 <div class="evd-toast" id="toast" role="status" aria-live="polite">
   <div class="toast-row">
@@ -276,6 +301,21 @@
     var profData = JSON.parse(localStorage.getItem('user:profile') || 'null');
     if (profData) prInit(profData);
   } catch (err) {}
+
+  /* Достижения: шит со списком */
+  function openAchSheet() {
+    document.getElementById('ach-scrim').classList.add('open');
+    document.getElementById('ach-sheet').classList.add('open');
+  }
+
+  function closeAchSheet() {
+    document.getElementById('ach-scrim').classList.remove('open');
+    document.getElementById('ach-sheet').classList.remove('open');
+  }
+
+  document.getElementById('btn-ach').addEventListener('click', openAchSheet);
+  document.getElementById('ach-close').addEventListener('click', closeAchSheet);
+  document.getElementById('ach-scrim').addEventListener('click', closeAchSheet);
 })();
 </script>
 </body>

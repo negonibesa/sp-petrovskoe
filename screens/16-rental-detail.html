@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Аренда · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Деталка аренды (product-spec §6.4): полноэкранный экран,
+     повторяет структуру 15-event-marathon.html. Состав:
+     шапка площадки + статус-пилюля + карточки с данными + действия. */
+  .rd-app { background: var(--surface-warm); padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ── Шапка площадки: фото + название + адрес ── */
+  .rd-hero {
+    position: relative; width: 100%; height: 200px; overflow: hidden;
+    background: color-mix(in srgb, var(--type-rental) 12%, var(--surface-warm));
+  }
+  .rd-hero-img { width: 100%; height: 100%; object-fit: cover; }
+  .rd-hero-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: var(--space-4); background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  }
+  .rd-hero-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-title); font-weight: 700; color: #fff; line-height: 1.2; }
+  .rd-hero-addr { margin-top: var(--space-1); font-size: var(--fs-meta); color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: var(--space-1); }
+  .rd-hero-addr svg { width: 14px; height: 14px; }
+
+  /* ── Статус-плашка ── */
+  .rd-status {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface); border-bottom: 1px solid var(--border-soft);
+  }
+  .rd-status-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+  .rd-status-dot.is-confirmed { background: var(--success); }
+  .rd-status-dot.is-pending { background: var(--amber); }
+  .rd-status-dot.is-cancelled { background: var(--danger); }
+  .rd-status-tx { flex: 1; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .rd-status-sub { font-size: var(--fs-caption); color: var(--meta); }
+
+  /* ── Карточки данных ── */
+  .rd-body { padding: var(--space-4); display: grid; gap: var(--space-3); }
+  .rd-card {
+    padding: var(--space-4); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+  }
+  .rd-card-title { margin: 0 0 var(--space-3); font-size: var(--fs-meta); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .rd-rows { display: grid; gap: var(--space-2); }
+  .rd-row { display: flex; align-items: center; gap: var(--space-3); }
+  .rd-row-ic {
+    flex: none; width: 44px; height: 44px; border-radius: var(--radius-md);
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--type-rental) 10%, transparent);
+    color: var(--type-rental);
+  }
+  .rd-row-ic svg { width: 20px; height: 20px; }
+  .rd-row-tx { flex: 1; min-width: 0; display: grid; gap: 1px; }
+  .rd-row-tx b { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .rd-row-tx span { font-size: var(--fs-meta); color: var(--muted); }
+
+  /* ── Стоимость: итого ── */
+  .rd-total {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-top: var(--space-3); border-top: 1px solid var(--border-soft);
+    margin-top: var(--space-2);
+  }
+  .rd-total-l { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .rd-total-r { font-size: var(--fs-title); font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+  /* ── Дополнительно ── */
+  .rd-extras { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .rd-extra {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
+    background: var(--surface-2); font-size: var(--fs-caption); font-weight: 600; color: var(--fg-2);
+  }
+
+  /* ── Дорожка статуса: 3 шага ── */
+  .rd-steps { list-style: none; margin: 0; padding: 0; }
+  .rd-step { display: flex; align-items: center; gap: var(--space-3); min-height: 36px; }
+  .rd-node { position: relative; flex: none; width: 20px; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .rd-node::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 50%;
+    width: 2px; transform: translateX(-50%); background: var(--border-soft);
+  }
+  .rd-step:first-child .rd-node::before { top: 50%; }
+  .rd-step:last-child .rd-node::before { bottom: 50%; }
+  .rd-dot {
+    position: relative; z-index: 1; flex: none; width: 20px; height: 20px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--surface); border: 2px solid var(--border-strong);
+  }
+  .rd-dot svg { width: 11px; height: 11px; color: #fff; }
+  .rd-step.is-done .rd-dot { background: var(--success); border-color: var(--success); }
+  .rd-step.is-current .rd-dot { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .rd-step.is-cancel .rd-dot { border-color: var(--danger); color: var(--danger); font-size: 13px; font-weight: 700; }
+  .rd-step:has(+ .rd-step.is-done) .rd-node::before { top: 50%; bottom: 0; background: var(--success); }
+  .rd-step.is-done + .rd-step .rd-node::before { top: 0; background: var(--success); }
+  .rd-step.is-cancel + .rd-step .rd-node::before { top: 0; background: var(--danger); }
+  .rd-step-name { font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--fg-2); }
+  .rd-step.is-done .rd-step-name { color: var(--fg); }
+  .rd-step.is-current .rd-step-name { color: var(--accent); }
+  .rd-step.is-cancel .rd-step-name { color: var(--danger); }
+
+  /* ── Плашка действий (fixed снизу) ── */
+  .rd-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    background: var(--surface); border-top: 1px solid var(--border-soft);
+    display: flex; gap: var(--space-2); z-index: 10;
+  }
+  .rd-bar .btn { flex: 1; }
+
+  /* ── Тост ── */
+  .rd-toast { bottom: calc(140px + env(safe-area-inset-bottom, 0px)); }
+</style>
+</head>
+<body data-od-id="rental-detail">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M20 17.3702V10.3353C20 9.24543 19.5203 8.21325 18.6935 7.52387L14.249 3.81841C12.9402 2.72719 11.0598 2.7272 9.75099 3.81841L5.30654 7.52387C4.47968 8.21325 4 9.24543 4 10.3353V17.3702C4 19.3749 5.59188 21 7.55556 21H16.4444C18.4081 21 20 19.3749 20 17.3702Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M10 17H14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><path d="M8.4 5.7L7.5 3M15.6 5.7L16.5 3M20.55 9.3H3.45M3 9.9003C3 6.834 5.4174 4.35 8.4 4.35H15.6C18.5826 4.35 21 6.834 21 9.9003V15.4497C21 18.516 18.5826 21 15.6 21H8.4C5.4174 21 3 18.516 3 15.4497V9.9003Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></circle><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-map-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.2-6.5-10.2A6.5 6.5 0 0 1 12 4.3a6.5 6.5 0 0 1 6.5 6.5c0 5-6.5 10.2-6.5 10.2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><circle cx="12" cy="10.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle></symbol>
+  <symbol id="ic-share" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 13v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-rental" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2.2a2.2 2.2 0 0 0 0 5.6V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.2a2.2 2.2 0 0 0 0-5.6V7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 5.5v13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-ruble" viewBox="0 0 24 24"><path d="M7 4h8M7 8h6a3 3 0 0 1 0 6H7M7 14h7a3 3 0 0 1 0 6H7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-users-add" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+</svg>
+
+<div class="app rd-app">
+  <header class="topbar" data-od-id="rd-header">
+    <a class="topbar-ic is-back" href="07-calendar.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h1 class="topbar-tx">Аренда</h1>
+    <button type="button" class="icon-btn" id="btn-share" aria-label="Поделиться"><svg aria-hidden="true"><use href="#ic-share"></use></svg></button>
+    <button type="button" class="icon-btn" id="btn-more" aria-label="Действия"><svg aria-hidden="true"><use href="#ic-dots"></use></svg></button>
+  </header>
+
+  <div class="rd-hero" data-od-id="rd-hero">
+    <img class="rd-hero-img" src="../assets/sports/basketball.png" alt="Игровой зал" id="rd-hero-img">
+    <div class="rd-hero-overlay">
+      <h2 class="rd-hero-title" id="rd-title">Игровой зал</h2>
+      <span class="rd-hero-addr"><svg aria-hidden="true"><use href="#ic-map-pin"></use></svg><span id="rd-addr">ул. Спортивная, 12</span></span>
+    </div>
+  </div>
+
+  <div class="rd-status" data-od-id="rd-status">
+    <span class="rd-status-dot is-confirmed" id="rd-status-dot"></span>
+    <span class="rd-status-tx" id="rd-status-tx">Подтверждено</span>
+    <span class="rd-status-sub" id="rd-status-sub">Бронь #4821</span>
+  </div>
+
+  <main class="body rd-body" data-od-id="rd-body">
+    <div class="rd-card">
+      <h3 class="rd-card-title">Дата и время</h3>
+      <div class="rd-rows">
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-calendar"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-date">Среда, 12 августа</b><span>2026</span></span>
+        </div>
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-clock"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-time">18:00 – 20:00</b><span>2 часа</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-card">
+      <h3 class="rd-card-title">Площадка</h3>
+      <div class="rd-rows">
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-map-pin"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-facility">Игровой зал 12×24 м</b><span>Спорткомплекс «СП Петровское»</span></span>
+        </div>
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-users-add"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-capacity">Вместимость: 20 человек</b><span>Доступно: корзины, мячи, сетка</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-card">
+      <h3 class="rd-card-title">Стоимость</h3>
+      <div class="rd-rows">
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-rental"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-price-per">1 500 ₽ / час</b><span>Игровой зал</span></span>
+        </div>
+        <div class="rd-row">
+          <span class="rd-row-ic"><svg aria-hidden="true"><use href="#ic-ruble"></use></svg></span>
+          <span class="rd-row-tx"><b id="rd-duration">2 часа</b><span>Длительность</span></span>
+        </div>
+      </div>
+      <div class="rd-total">
+        <span class="rd-total-l">Итого</span>
+        <span class="rd-total-r" id="rd-total">3 000 ₽</span>
+      </div>
+    </div>
+
+    <div class="rd-card" id="rd-extras-card">
+      <h3 class="rd-card-title">Дополнительно</h3>
+      <div class="rd-extras" id="rd-extras">
+        <span class="rd-extra">Душевые</span>
+        <span class="rd-extra">Раздевалки</span>
+        <span class="rd-extra">Парковка</span>
+      </div>
+    </div>
+
+    <div class="rd-card">
+      <h3 class="rd-card-title">Статус брони</h3>
+      <ol class="rd-steps" id="rd-steps">
+        <li class="rd-step is-done">
+          <span class="rd-node"><span class="rd-dot"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span></span>
+          <span class="rd-step-name">Заявка создана</span>
+        </li>
+        <li class="rd-step is-done">
+          <span class="rd-node"><span class="rd-dot"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span></span>
+          <span class="rd-step-name">Оплата получена</span>
+        </li>
+        <li class="rd-step is-current">
+          <span class="rd-node"><span class="rd-dot"></span></span>
+          <span class="rd-step-name">Занятие</span>
+        </li>
+      </ol>
+    </div>
+
+    <div class="rd-card" id="rd-invite-card">
+      <h3 class="rd-card-title">Участники</h3>
+      <div class="rd-rows">
+        <div class="rd-row">
+          <span class="mrow-ava is-photo"><img src="../assets/avatars/athlete.png" alt=""></span>
+          <span class="rd-row-tx"><b>Вы</b><span>Организатор</span></span>
+        </div>
+        <div class="rd-row">
+          <span class="mrow-ava is-photo"><img src="../assets/avatars/athlete-f.png" alt=""></span>
+          <span class="rd-row-tx"><b>Мария Ковалёва</b><span>Участник</span></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="rd-bar" data-od-id="rd-bar">
+    <button type="button" class="btn btn-ghost" id="btn-cancel">Отменить</button>
+    <button type="button" class="btn btn-accent" id="btn-change">Изменить дату</button>
+  </footer>
+</div>
+
+<nav class="tabbar tabbar--icons" data-od-id="tabbar" aria-label="Навигация">
+  <a class="tab" href="06-home.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"></use></svg></span></a>
+  <a class="tab is-on" href="07-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"></use></svg></span></a>
+  <a class="tab" href="activities.html" aria-label="Активности"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"></use></svg></span></a>
+  <a class="tab" href="community.html" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span></a>
+  <a class="tab" href="profile.html" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"></use></svg></span></a>
+</nav>
+
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+
+<div class="sheet" id="menu-sheet" role="dialog" aria-modal="true" aria-label="Действия">
+  <span class="sheet-grab" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h3 class="sheet-title">Действия</h3>
+    <button type="button" class="sheet-close js-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"></use></svg></button>
+  </div>
+  <div class="sheet-list">
+    <button type="button" class="sheet-item js-close" id="menu-share">
+      <span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-share"></use></svg></span>
+      <span class="sheet-il">Поделиться бронью</span>
+    </button>
+    <button type="button" class="sheet-item js-close" id="menu-invite">
+      <span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-users-add"></use></svg></span>
+      <span class="sheet-il">Пригласить друга</span>
+    </button>
+    <button type="button" class="sheet-item is-danger js-close" id="menu-cancel">
+      <span class="sheet-ic"><svg aria-hidden="true"><use href="#ic-x"></use></svg></span>
+      <span class="sheet-il">Отменить бронь</span>
+    </button>
+  </div>
+  <button type="button" class="sheet-cancel js-close">Отмена</button>
+</div>
+
+<div class="evd-toast" id="rd-toast" role="status" aria-live="polite">
+  <div class="toast-row">
+    <div class="toast toast-info"><span class="t-ico"><svg aria-hidden="true"><use href="#ic-check"></use></svg></span><span id="rd-toast-tx">Готово</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+  var toastTimer;
+
+  function toast(msg) {
+    $('rd-toast-tx').textContent = msg;
+    $('rd-toast').classList.add('open');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('rd-toast').classList.remove('open'); }, 2400);
+  }
+
+  /* Меню «⋯» */
+  var menuOpen = false;
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+    $('menu-sheet').classList.toggle('open', menuOpen);
+    $('scrim').classList.toggle('open', menuOpen);
+  }
+  $('btn-more').addEventListener('click', toggleMenu);
+  $('btn-share').addEventListener('click', function () { toast('Ссылка скопирована'); });
+  document.querySelectorAll('.js-close').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (menuOpen) toggleMenu();
+    });
+  });
+  $('scrim').addEventListener('click', function () {
+    if (menuOpen) toggleMenu();
+  });
+
+  /* Действия */
+  $('btn-cancel').addEventListener('click', function () {
+    toast('Бронь отменена');
+    $('rd-status-dot').className = 'rd-status-dot is-cancelled';
+    $('rd-status-tx').textContent = 'Отменено';
+    $('rd-status-sub').textContent = 'Возврат средств в течение 3 дней';
+  });
+  $('btn-change').addEventListener('click', function () {
+    toast('Выберите новую дату в календаре');
+  });
+  $('menu-cancel').addEventListener('click', function () {
+    $('btn-cancel').click();
+  });
+  $('menu-share').addEventListener('click', function () {
+    toast('Ссылка скопирована');
+  });
+  $('menu-invite').addEventListener('click', function () {
+    toast('Приглашение отправлено');
+  });
+})();
+</script>
+</body>
+</html>

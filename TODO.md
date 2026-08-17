@@ -7,45 +7,47 @@
 Главный экран **`screens/activities.html`** — эталон. Ниже — зафиксированные расхождения, которые сводим к канону `assets/ds.css` (раздел «эталон» в `design-system-v2.html`).
 
 ### 1. Бейдж «+N баллов» — минимум 3 визуальных варианта
+- [x] **Сделано.** Канон — `.mrow-pts` (ds.css): звёздочка `ic-star` 12px + число `--accent` 700/`--fs-meta`, `.is-neg` — `--danger`. Сведены локальные классы: `.jr-pts` (rating-details, журнал), `.ms-pts` (challenge), `.p-gto-pts` (profile), `.pv-gto-pts` (profile-view) — заменены на `.mrow-pts` со звездой, локальный CSS удалён. `.lb-pts` (лидерборд) оставлен нейтральным намеренно — это стояние («4 120», без «+»), не награда. `.st-delta` (пилюля) и `.ev-fact-tx` (текст) — другие компоненты, не трогали. `.ev-pts`/`.al-pts` (activities) — уже канон.
 | Стиль | Где | Как выглядит |
 |---|---|---|
-| `.st-delta` (канон, ds.css:549) | `06-home.html:101,107` | пилюля success: «+125» на зелёном |
-| `.ev-pts` / `.al-pts` (локально) | `activities.html:59-60,90-91` | звёздочка `ic-star` + «+N» **акцентом**, 12px |
-| `.mrow-pts` (канон, ds.css:1351) | `profile.html:167,178`, `profile-view.html:143,151`, `26-gto-result.html:139` | просто «+75» цветом `--fg`, **без звёздочки** |
-| `.jr-pts` (локально) | `rating-details.html:80-81` | «+40» жирный `--fg`, `.is-neg` `--danger` |
-| `.lb-pts` (локально) | `rating-details.html:131` | «+N» мелкий `--fg-2` |
-| `.ms-pts` (локально) | `challenge.html:61` | «+35» `--fg-2` |
-| `.pv-gto-pts` / `.p-gto-pts` (локально) | `profile.html:46`, `profile-view.html:42` | «+300» **акцентом** (знак ГТО) |
-| `.ev-fact-tx` (локально) | `15-event-marathon.html:550` | «+100 баллов к цели <название>» текстом |
+| `.st-delta` (канон, ds.css:549) | `06-home.html:101,107` | пилюля success: «+125» на зелёном (другой компонент — сохраняем) |
+| `.ev-pts` / `.al-pts` (канон) | `activities.html:59-60,90-91` | звёздочка `ic-star` + «+N» **акцентом**, 12px |
+| `.mrow-pts` (канон, ds.css) | `profile`, `profile-view`, `rating-details` (журнал), `challenge` (вехи) | звёздочка `ic-star` 12px + «+N» акцентом 700/`--fs-meta`; `.is-neg` — `--danger` |
+| `.lb-pts` (локально) | `rating-details.html` (лидерборд) | «4 120» мелкий `--fg-2` — стояние баллов, не награда (намеренно) |
+| `.ev-fact-tx` (локально) | `15-event-marathon.html:550` | «+100 баллов к цели <название>» текстом (другой компонент — сохраняем) |
 | Тост `toast-warn` | `activities.html:204`, `15-event-marathon.html:372`, `24-gto-workout.html:177`, `goal.html:320` | «+N баллов» в warn-тосте (эталон фикс-уведомления) |
 
 ### 2. Аватары — 3 схемы вместо одной
+- [x] **Сделано.** Канон tint 14%: `.is-tint` — подложка `color-mix(in srgb, var(--c, var(--accent)) 14%, var(--surface))`, текст `color-mix(in oklab, var(--c, var(--accent)) 55%, var(--fg))`. `07-search` (`.sr-ava` удалён → `mrow-ava is-tint`), `friends` (`.fl-ava` удалён → `mrow-ava is-tint` / фото `is-photo`), `rating-details` (`.lb-ava` удалён → `avatar-sm is-tint`). Осталось (не канон, но отдельный класс): `.club-ic`/`.cl-ic` — см. п.3.
 | Схема | Где |
 |---|---|
 | Фото `.avatar.is-photo` (канон) | `06-home:52`, `community:50`, `profile:88,145-148`, `profile-view:78,236` |
 | Буквы на **accent** (канон, ds.css:449-467) | дефолт `.avatar-sm`, `club:248-249`, `15-event-marathon` |
-| **Сплошной `--c`** + белый текст | `07-search.html:63,279-290` (`.sr-ava`) |
-| **Tint 14% + oklab-текст** | `friends.html:46-53` (`.fl-ava`), `rating-details.html:120-127` (`.lb-ava`) |
+| **Tint 14% + oklab-текст** (канон, `.is-tint`) | `07-search` (люди), `friends`, `rating-details` (лидерборд) |
 
 ### 3. Иконка-тайл «в квадратике» — 5 размеров в каноне + свои на экранах
-- В ds.css уже 5 тайлов: `.n-ic` 42, `.pick-media` 48, `.evd-type-ic` 40, `.mrow-media` 44, `.row-ic` 34.
-- Свои: `club.html` `.cl-ic` (56/34, дубль `.club-ic`), `03-role.html` 56px, `challenge.html` `.ch-hero-ic` (сплошной `--tone`), `07-search.html` `.sr-media` (tint) — **в одной строке поиска `.sr-media` tint и `.sr-ava` сплошной**, `profile.html:188` `.row-ic` с `color:var(--accent)` при соседних строках `fg-2`.
+- [x] **Сделано (фокус на заливках).** `challenge.html` `.ch-hero-ic`: сплошной `--tone` + белый → tint 14% (`color-mix` 14%) + `var(--tone)` цветом (единообразно с `.is-tint`-аватарами и `.sr-media`). `07-search .sr-media` — уже tint поверх `.mrow-commons`. `club.html` `.cl-ic` (64px, tint, логотип клуба) — отдельный компонент (квадратный avatar для клуба, не generic tile), оставлен. `03-role.html` 56px — intentional size-variant `.pick-media` (hero-выбор роли, не list tile), оставлен. В ds.css 5 тайлов (`.n-ic` 42, `.pick-media` 48, `.evd-type-ic` 40, `.mrow-media` 44, `.row-ic` 34) — канон по-прежнему.
 
 ### 4. Имя в рейтинге/списках — 4 формата
-- `rating-details.html:509-521` — полное имя `.lb-tx b` + инициалы `.lb-ava` + место `.lb-pos`.
-- `15-event-marathon.html:717-727` — `.mrow.is-static` с `.r-place`, **без аватаров**.
-- `club.html:239-249` — инициалы в `.avatar-sm`.
-- `07-add-event.html:766,1044` и `26-gto-result.html:139` — `.mrow-ava` **без `--c`** (дефолт accent), хотя поиск ставит `--c`.
+- [x] **Сделано (аватары приведены к tint).** Единый формат person-row: `avatar-sm/mrow-ava is-tint + имя + подпись/место`. `07-add-event` (тренер+люди), `15-event-marathon` (участники), `26-gto-result` — `.mrow-ava` → `.mrow-ava is-tint`. `15-event-marathon` результаты: добавлен `avatar-sm is-tint` между `.r-place` и `.mrow-tx` (структура как в лидерборде `rating-details`). Лидерборд, друзья, поиск — уже tint после п.2. Вариант формата (с аватаром + без) определён контекстом: rankings/списки людей → с аватаром;单纯 текстовые строки (уведомления, факты) → без.
+| Контекст | Формат | Статус |
+|---|---|---|
+| `rating-details` лидерборд | `.lb-pos` + `.avatar-sm is-tint` + полное имя + meta + pts | ✅ |
+| `15-event-marathon` результаты | `.r-place` + `.avatar-sm is-tint` + имя + тайм/тег | ✅ |
+| `15-event-marathon` участники | `.mrow-ava is-tint` + имя + статус/тег | ✅ |
+| `club` участники | `.avatar-sm is-tint` (уже по п.2) | ✅ |
+| `07-add-event` тренер/люди | `.mrow-ava is-tint` + имя + meta | ✅ |
 
 ### 5. Разнобой в одном экране
+- [x] **Сделано.** `profile.html:188` — убран inline `style="color:var(--accent)"` с `.row-ic` (иконка «План тренировок»); строка единообразна с соседними (`--fg-2`).
 - `profile.html:188` — `.row-ic` + `style="color:var(--accent)"` при соседних строках без override.
 
-### План причёсывания (после пушa функционала)
-1. Свести бейджи «+N» к одному компоненту (эталон — `activities.html`: звёздочка + accent) с тоном по контексту (success/neutral).
-2. Аватары: одна схема для цветных (solid `--c`+белый ИЛИ tint — выбрать), фото-канон оставить.
-3. Тайлы: канонизировать размеры, убрать сплошные заливки кроме состояний.
-4. Рейтинги: единая строка (аватар + имя + место/результат).
-5. Пройти все экраны по одному, сверяя с `design-system-v2.html`.
+### План причёсывания (после пушa функционала) — **выполнен (пункты 1–4 закрыты в каталоге выше)**
+- [x] 1. Бейджи «+N» → `.mrow-pts` (ic-star + accent, `.is-neg` danger). `.lb-pts` (лидерборд) — намеренно нейтральный (стояние, не награда).
+- [x] 2. Аватары → tint 14% (`.is-tint`) + фото (`.is-photo`). Сплошная заливка удалена.
+- [x] 3. Тайлы → solid-заливки заменены на tint (`.ch-hero-ic` challenge); club emblem 64px — отдельный компонент, оставлен.
+- [x] 4. Рейтинги → единый формат: avatar-sm/mrow-ava is-tint + имя + meta/место.
+- [ ] 5. Полный проход экран за экраном с DS v2 (осталось: мелкие косметические нестыковки, если найдём).
 
 ## Время тренировки (вопрос из рефлексии «где фиксируется»)
 
@@ -232,3 +234,41 @@
 7. Открытые вопросы в product-spec §8.4/§8.6/§8.11.
 8. Визуальная проверка глазами пользователя — пакеты «Профиль и сервис», «Сообщество», конструктор, состояния S1–S4 после сборки.
 9. **После пуша:** причёсывание дизайна по одному экрану (каталог несоответствий вверху), утверждение ДС; экран «Спорткомплекс» для карточки «СП Петровское» (`06-home.html:61`, решение: Экран Комплекс + схема поселения, канон — ДС §27–28, компоненты `.zone-card`/`.scheme`/`.feat-row` в ds.css v2 ещё не перенесены).
+
+## План полной пересборки Design System (после утверждения клиентом)
+
+**Когда:** после того как клиент скажет «всё ок, можно причесывать».
+
+### 1. Контейнеры иконок — убрать 7 дублирующих классов
+- **Сейчас:** `.n-ic` (42px), `.pick-media` (48px), `.evd-type-ic` (40px), `.evd-ric` (36px), `.mrow-media` (44px), `.sheet-ic` (36px), `.recap-ic` (40px) — все делают одно и то же, разные размеры и отступы.
+- **Стало:** один generic `.icon-tile` с CSS-переменными `--size` и `--gap`, опционально `.is-medal`/`.is-next`. Или оставить `.mrow-media` как единственный 44px тайл и удалить остальные.
+- **Файлы:** `ds.css` (все 7 классов), все экраны которые их используют.
+
+### 2. Строки людей — 8 кастомных классов → `.mrow`
+- **Сейчас:** `.fl` (friends.html), `.lb` (rating-details.html), `.rd-row` (16-rental-detail.html), `.evd-org` (15-event-marathon.html), `.ach-row` (deleted), `.res-row` (22-qr-scanner.html), `.fr-req` (friends.html), `.evd-pod` (15-event-marathon.html).
+- **Стало:** все на `.mrow` + `.mrow-ava.is-tint` + `.mrow-tx` + `.mrow-side`.
+- **Файлы:** `friends.html`, `rating-details.html`, `16-rental-detail.html`, `15-event-marathon.html`, `22-qr-scanner.html`.
+
+### 3. Спрайты иконок — перестать дублировать
+- **Сейчас:** каждый экран копирует `<svg>` с `<symbol>` внутри (17 файлов × ~30 иконок = ~500 строк дублирования).
+- **Стало:** один `assets/ds-icons.svg` загружается через `<svg><use href="../assets/ds-icons.svg#ic-user"></use></svg>`. Все локальные `<symbol>` удалены.
+- **Файлы:** все 17 экранов с локальными спрайтами.
+
+### 4. Календарные иконки — унифицировать `ic-cal`/`ic-events`
+- **Сейчас:** `07-notifications.html` использует `ic-events`, `15-event-marathon.html` — `ic-cal`. Разные SVG paths.
+- **Стало:** одна каноничная иконка, выбрать одну.
+- **Файлы:** `ds-icons.svg`, `07-notifications.html`, `15-event-marathon.html`.
+
+### 5. Иконка `ic-user` — проверить все экраны
+- **Сделано (быстро):** `07-add-event.html` и `22-qr-scanner.html` заменены на каноничную.
+- **Осталось:** визуально проверить что все 17 экранов рендерят одинаково.
+
+### 6. Порядок выполнения
+1. Выбрать подход к контейнерам иконок (generic или оставить .mrow-media)
+2. Заменить кастомные строки на `.mrow` (экран за экраном)
+3. Удалить локальные `<symbol>` из HTML, переключить на `ds-icons.svg`
+4. Унифицировать `ic-cal`/`ic-events`
+5. Визуально проверить каждый экран
+6. Обновить `design-system-v2.html` (каталог компонентов)
+
+**Оценка времени:** 4–6 часов на полную пересборку.

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Достижения · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  /* Полный список достижений: фильтры + список.
+     Компоненты: .topbar, .chips, .fchip, .mrow (канон ДС). */
+  .ach-app { background: var(--surface); padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ── Фильтры ── */
+  .ach-filters { padding: 0 var(--space-4); }
+  .ach-filters .chips { margin: 0; }
+
+  /* ── Счётчик ── */
+  .ach-count {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-meta); color: var(--meta);
+  }
+  .ach-count b { color: var(--fg); }
+
+  /* ── Секции ── */
+  .ach-sec { padding: 0 var(--space-4); }
+  .ach-sec + .ach-sec { margin-top: var(--space-3); }
+  .ach-sec-head {
+    font-size: var(--fs-caption); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--muted);
+    padding: var(--space-2) 0 var(--space-1);
+  }
+
+  /* ── Карточка достижения (канон .mrow-паттерн) ── */
+  .ach-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-1);
+    border-radius: var(--radius-md);
+    transition: background var(--motion-fast) var(--ease-standard);
+  }
+  .ach-row:hover { background: var(--surface-warm); }
+
+  /* Медали ГТО — канон .gto-badge с реальными изображениями */
+  .ach-row .gto-badge { width: 40px; height: 40px; }
+  .ach-row .gto-badge img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Прочие достижения — иконки через SVG */
+  .ach-ic {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    color: #fff;
+  }
+  .ach-ic svg { width: 20px; height: 20px; }
+  .ach-ic.is-success { background: linear-gradient(135deg, #2ecc71, #58d68d); }
+  .ach-ic.is-amber { background: linear-gradient(135deg, #f1c40f, #f9e547); }
+  .ach-ic.is-flame { background: linear-gradient(135deg, #ff6b35, #ff9a5c); }
+  .ach-ic.is-star { background: linear-gradient(135deg, #3b7bff, #6fa0ff); }
+  .ach-ic.is-users { background: linear-gradient(135deg, #2ecc71, #58d68d); }
+  .ach-ic.is-medal { background: linear-gradient(135deg, #9b59b6, #c39bd3); }
+  .ach-ic.is-target { background: linear-gradient(135deg, #8e44ad, #bb8fce); }
+
+  /* Текст */
+  .ach-tx { flex: 1; min-width: 0; }
+  .ach-name { display: block; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+  .ach-desc { display: block; margin-top: 1px; font-size: var(--fs-caption); color: var(--meta); }
+
+  /* Заблокированные */
+  .ach-row.is-locked { opacity: 0.5; }
+  .ach-row.is-locked .ach-name { color: var(--fg-2); }
+
+  /* Прогресс */
+  .ach-progress {
+    flex: none; width: 48px; display: grid; gap: 2px; text-align: right;
+  }
+  .ach-progress-pct { font-size: var(--fs-caption); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ach-progress-bar { height: 3px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+  .ach-progress-fill { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+
+  /* Кнопка «Показать ещё» */
+  .ach-more {
+    display: flex; margin: var(--space-2) auto 0; padding: var(--space-2) var(--space-4);
+    border: none; background: none; border-radius: var(--radius-pill);
+    font: inherit; font-size: var(--fs-meta); font-weight: 600; color: var(--accent);
+    cursor: pointer; transition: background var(--motion-fast) var(--ease-standard);
+  }
+  .ach-more:hover { background: var(--surface-warm); }
+  .ach-more:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+</style>
+</head>
+<body data-od-id="achievements-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 5.5H5v1.5A3 3 0 0 0 8 10M16 5.5h3V7a3 3 0 0 1-3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 13v3M8.5 20h7M9.5 16h5l.5 4h-6l.5-4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-running" viewBox="0 0 24 24"><circle cx="13.5" cy="3.5" r="2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M7 21l3-7 2.5 2v4M10 14l-2.5-2.5L5 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14.5 10.5L18 8l1.5 3-3 2-2 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-swim" viewBox="0 0 24 24"><path d="M2 20c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1 2.5-1 4-1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path><path d="M4 16l2-4 3 2 3-4 3 2 2-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 2c-1 4 1 6 3 8s4 4 3 8c-1 3-4 4-6 3.5C9 20.5 7 18 7 15c0-2 1-4 2.5-5C10 9.5 11 6 12 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><path d="M9.5 15.5c0-1.5.8-2.5 2-3.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4-4 5.6-.8z" fill="currentColor"></path></symbol>
+</svg>
+
+<div class="app ach-app">
+  <header class="topbar" data-od-id="ach-header">
+    <a class="topbar-ic is-back" href="profile.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <h1 class="topbar-tx">Достижения</h1>
+  </header>
+
+  <main class="body" data-od-id="ach-body">
+    <div class="ach-filters" data-od-id="ach-filters">
+      <div class="chips" role="group">
+        <button type="button" class="fchip is-on" data-filter="all">Все</button>
+        <button type="button" class="fchip" data-filter="gto">ГТО</button>
+        <button type="button" class="fchip" data-filter="sport">Спорт</button>
+        <button type="button" class="fchip" data-filter="streak">Серия</button>
+        <button type="button" class="fchip" data-filter="locked">Ещё не получены</button>
+      </div>
+    </div>
+
+    <div class="ach-count" data-od-id="ach-count">
+      <span>Получено: <b id="ach-done">5</b> из <b id="ach-total">15</b></span>
+      <span id="ach-pts">+1 250 баллов</span>
+    </div>
+
+    <div id="ach-grid" data-od-id="ach-grid"></div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var ACHIEVEMENTS = [
+    { id: 'gto-silver', group: 'ГТО', name: 'Знак ГТО · Серебро', desc: 'Ступень VII · сдано 3 из 5 нормативов', gto: 'sign-silver.png', cat: 'gto', done: true, date: '12 авг 2026' },
+    { id: 'gto-gold', group: 'ГТО', name: 'Знак ГТО · Золото', desc: 'Сдайте ещё 2 норматива', gto: 'sign-gold.png', cat: 'gto', done: false, pct: 60 },
+    { id: 'gto-bronze', group: 'ГТО', name: 'Знак ГТО · Бронза', desc: 'Ступень VII · сдано 1 норматив', gto: 'sign-bronze.png', cat: 'gto', done: true, date: '15 июля 2026' },
+    { id: '100-trainings', group: 'Спорт', name: '100 тренировок', desc: 'Пройдено за сезон', icon: 'ic-dumbbell', tone: 'is-star', cat: 'sport', done: true, date: '5 авг 2026' },
+    { id: '7-day-streak', group: 'Серия', name: 'Серия 7 дней', desc: 'Тренировались каждый день', icon: 'ic-flame', tone: 'is-flame', cat: 'streak', done: true, date: '10 авг 2026' },
+    { id: '30-day-streak', group: 'Серия', name: 'Серия 30 дней', desc: 'Тренировались каждый день месяц', icon: 'ic-flame', tone: 'is-flame', cat: 'streak', done: false, pct: 20 },
+    { id: 'marathon-finish', group: 'Спорт', name: 'Финиш марафона', desc: 'Завершили марафон', icon: 'ic-running', tone: 'is-star', cat: 'sport', done: true, date: '14 авг 2026' },
+    { id: 'first-place', group: 'Спорт', name: '1-е место', desc: 'Заняли первое место на соревновании', icon: 'ic-trophy', tone: 'is-amber', cat: 'sport', done: false, pct: 0 },
+    { id: 'swim-1km', group: 'Спорт', name: '1 км заплывом', desc: 'Проплыли 1 км без остановки', icon: 'ic-swim', tone: 'is-star', cat: 'sport', done: true, date: '3 авг 2026' },
+    { id: 'run-10km', group: 'Спорт', name: '10 км бегом', desc: 'Пробежали 10 км', icon: 'ic-running', tone: 'is-star', cat: 'sport', done: false, pct: 70 },
+    { id: '20-trainings', group: 'Спорт', name: '20 тренировок', desc: 'Пройдено за месяц', icon: 'ic-dumbbell', tone: 'is-star', cat: 'sport', done: true, date: '1 авг 2026' },
+    { id: 'friend-invite', group: 'Спорт', name: 'Пригласи друга', desc: 'Привели друга в приложение', icon: 'ic-users', tone: 'is-users', cat: 'sport', done: false, pct: 0 },
+    { id: 'early-bird', group: 'Серия', name: 'Ранняя пташка', desc: '5 тренировок до 7 утра', icon: 'ic-flame', tone: 'is-flame', cat: 'streak', done: true, date: '20 июля 2026' },
+    { id: 'crossfit', group: 'Спорт', name: 'Кроссфитер', desc: 'Попробуйте 5 разных видов спорта', icon: 'ic-target', tone: 'is-target', cat: 'sport', done: false, pct: 60 },
+    { id: 'rental-10', group: 'Спорт', name: '10 аренд', desc: 'Забронируйте 10 площадок', icon: 'ic-dumbbell', tone: 'is-star', cat: 'sport', done: false, pct: 40 }
+  ];
+
+  var grid = document.getElementById('ach-grid');
+  var filterBtns = document.querySelectorAll('.fchip[data-filter]');
+  var currentFilter = 'all';
+
+  function render(filter) {
+    var filtered = filter === 'all' ? ACHIEVEMENTS
+      : filter === 'locked' ? ACHIEVEMENTS.filter(function (a) { return !a.done; })
+      : ACHIEVEMENTS.filter(function (a) { return a.cat === filter; });
+
+    var done = ACHIEVEMENTS.filter(function (a) { return a.done; }).length;
+    document.getElementById('ach-done').textContent = done;
+    document.getElementById('ach-total').textContent = ACHIEVEMENTS.length;
+
+    var groups = {};
+    filtered.forEach(function (a) {
+      if (!groups[a.group]) groups[a.group] = [];
+      groups[a.group].push(a);
+    });
+
+    var html = '';
+    Object.keys(groups).forEach(function (g) {
+      html += '<div class="ach-sec"><div class="ach-sec-head">' + g + '</div>';
+      groups[g].forEach(function (a) {
+        var locked = !a.done ? ' is-locked' : '';
+        html += '<div class="ach-row' + locked + '" data-od-id="ach-' + a.id + '">';
+        if (a.gto) {
+          html += '<span class="gto-badge" aria-hidden="true"><img src="../assets/gto/' + a.gto + '" alt=""></span>';
+        } else {
+          html += '<span class="ach-ic ' + (a.tone || '') + '" aria-hidden="true"><svg><use href="#' + a.icon + '"></use></svg></span>';
+        }
+        html += '<span class="ach-tx"><span class="ach-name">' + a.name + '</span><span class="ach-desc">';
+        html += a.done ? 'Получено ' + a.date : a.desc;
+        html += '</span></span>';
+        if (!a.done && a.pct != null) {
+          html += '<span class="ach-progress"><span class="ach-progress-pct">' + a.pct + '%</span>';
+          html += '<span class="ach-progress-bar"><span class="ach-progress-fill" style="width:' + a.pct + '%"></span></span></span>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    if (filtered.length === 0) {
+      html = '<div class="empty" style="padding: var(--space-8) 0; text-align: center;"><span class="empty-ic" aria-hidden="true"><svg><use href="#ic-target"></use></svg></span><b>Нет достижений</b><span>В этом разделе пока пусто</span></div>';
+    }
+
+    grid.innerHTML = html;
+  }
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filterBtns.forEach(function (b) { b.classList.remove('is-on'); });
+      btn.classList.add('is-on');
+      currentFilter = btn.getAttribute('data-filter');
+      render(currentFilter);
+    });
+  });
+
+  render('all');
+})();
+</script>
+</body>
+</html>

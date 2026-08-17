@@ -120,6 +120,44 @@
   --ease-out: cubic-bezier(0.23,1,0.32,1);
 
   --container-max: 700px;
+
+  /* Семантические цвета — категории событий (ЭТАП 3):
+     --type-training · зелёный    — тренировка (личная / с тренером / групповая / онлайн)
+     --type-event    · красный    — глобальное событие СП (заводит админ: чемпионаты, челленджи)
+     --type-rental   · синий      — аренда площадки (создаю я / зовут друзья)
+     --type-club     · фиолетовый — клубное событие (клубы = сообщества по видам спорта) */
+  --type-training: #3ab5ad;
+  --type-event: #ff5a5a;
+  --type-club: #9175e8;
+  --type-rental: #3b7bff;
+
+  /* Статусы */
+  --st-confirmed: var(--success);
+  --st-pending: var(--amber);
+  --st-open: var(--accent);
+  --st-ongoing: #2fb86b;
+  --st-done: var(--meta);
+  --st-cancelled: var(--danger);
+
+  /* ГТО и рейтинг */
+  --gto-bronze: #c9a06b;
+  --gto-silver: #a9b6c9;
+  --gto-gold: #fbbf24;
+  --rating: #9175e8;
+
+  /* Виды спорта */
+  --sport-run: #ff5a5a;
+  --sport-swim: #3b7bff;
+  --sport-bike: #3ab5ad;
+  --sport-ofp: #9175e8;
+  --sport-strength: #f472b6;
+  --sport-gto: #c9a06b;
+  --sport-general: var(--type-training);
+
+  /* Размеры текста кнопок */
+  --fs-btn-sm: var(--fs-meta);
+  --fs-btn: var(--fs-body);
+  --fs-btn-lg: var(--fs-body);
 }
 
 /* ────────────────────────────────────────────────
@@ -138,7 +176,7 @@ body {
   padding: 0 0 80px;
 }
 button { font-family: inherit; }
-a { color: inherit; }
+a { color: inherit; text-decoration: none; }
 
 .ds { max-width: 1040px; margin: 0 auto; padding: 0 var(--space-5); }
 .ds-hero { padding: 44px 0 28px; border-bottom: 1px solid var(--border); }
@@ -226,46 +264,6 @@ a { color: inherit; }
   border-radius: var(--radius-md);
   background: var(--surface);
   overflow: hidden;
-}
-
-/* ────────────────────────────────────────────────
-   ЭТАП 3 · Цветовые токены
-   Базовые цвета — в ЭТАПЕ 1. Здесь — семантические
-   токены цвета: категории, статусы, ГТО, виды спорта.
-   ──────────────────────────────────────────────── */
-:root {
-  /* Категории событий — не декор, а семантика: цвет задаёт тип события.
-     --type-training · зелёный    — тренировка (личная / с тренером / групповая / онлайн)
-     --type-event    · красный    — глобальное событие СП (заводит админ: чемпионаты, челленджи)
-     --type-rental   · синий      — аренда площадки (создаю я / зовут друзья)
-     --type-club     · фиолетовый — клубное событие (клубы = сообщества по видам спорта) */
-  --type-training: #3ab5ad;
-  --type-event: #ff5a5a;
-  --type-club: #9175e8;
-  --type-rental: #3b7bff;
-
-  /* Статусы */
-  --st-confirmed: var(--success);
-  --st-pending: var(--amber);
-  --st-open: var(--accent);
-  --st-ongoing: #2fb86b;
-  --st-done: var(--meta);
-  --st-cancelled: var(--danger);
-
-  /* ГТО и рейтинг */
-  --gto-bronze: #c9a06b;
-  --gto-silver: #a9b6c9;
-  --gto-gold: #fbbf24;
-  --rating: #9175e8;
-
-  /* Виды спорта */
-  --sport-run: #ff5a5a;
-  --sport-swim: #3b7bff;
-  --sport-bike: #3ab5ad;
-  --sport-ofp: #9175e8;
-  --sport-strength: #f472b6;
-  --sport-gto: #c9a06b;
-  --sport-general: var(--type-training);
 }
 
 /* ────────────────────────────────────────────────
@@ -419,12 +417,6 @@ a { color: inherit; }
    время/цифры — через tabular-nums.
    ──────────────────────────────────────────────── */
 
-:root {
-  --fs-btn-sm: var(--fs-meta);
-  --fs-btn: var(--fs-body);
-  --fs-btn-lg: var(--fs-body);
-}
-
 /* Текстовые стили поверх шкалы */
 .t-display { font-size: var(--fs-display); font-weight: 700; line-height: 1.05; letter-spacing: var(--tracking-display); text-transform: uppercase; }
 .t-title { font-size: var(--fs-title); font-weight: 600; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -465,6 +457,14 @@ a { color: inherit; }
   box-shadow: 0 0 0 2px var(--border-strong);
 }
 .ava-72.is-photo { padding: 4px; box-shadow: 0 0 0 3px var(--border-strong); }
+
+/* Цветные аватары без фото (роль, друг, участник) — канон tint:
+   подложка 14% цвета роли + текст цвета роли (вместо сплошной заливки).
+   Цвет задаётся --c у элемента. */
+.avatar.is-tint, .avatar-sm.is-tint, .ava-72.is-tint, .mrow-ava.is-tint {
+  background: color-mix(in srgb, var(--c, var(--accent)) 14%, var(--surface));
+  color: color-mix(in oklab, var(--c, var(--accent)) 55%, var(--fg));
+}
 
 /* ────────────────────────────────────────────────
    ЭТАП 6 · Главная: шапка, блоки, таб-бар
@@ -531,6 +531,30 @@ a { color: inherit; }
 .goal-meta { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-top: auto; padding-top: var(--space-4); }
 .goal-meta-note { font-size: var(--fs-meta); font-weight: 500; color: var(--muted); }
 
+/* Пустое состояние карточки цели (goal:active нет): иконка-тайл + заголовок + CTA */
+.goal-card.is-empty { min-height: 196px; }
+.goal-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: 4px 0 0; text-align: center; color: var(--meta); }
+.goal-empty .empty-ic { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--radius-md); color: var(--muted); background: var(--surface-2); }
+.goal-empty .empty-ic svg { width: var(--icon-lg); height: var(--icon-lg); }
+.goal-empty b { font-size: var(--fs-body); font-weight: 600; color: var(--fg-2); }
+.goal-empty > span:not(.empty-ic):not(.btn) { font-size: var(--fs-meta); max-width: 300px; }
+.goal-empty .btn { margin-top: var(--space-2); pointer-events: none; }
+
+/* Кап активной цели: компактная строка «Цель: … · 4/5» с иконкой-мишенью и шевроном.
+   Используется в «Плане на сегодня» (activities.html) и может быть в любом экране
+   с привязкой к goal:active. */
+.trn-goal {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin: 0 0 var(--space-3); padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--accent);
+  font-size: var(--fs-meta); font-weight: 600; text-decoration: none;
+}
+.trn-goal:hover { border-color: var(--border-strong); }
+.trn-goal > svg:first-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); }
+.trn-goal > svg:last-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); color: var(--meta); }
+.trn-goal .tg-tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); }
+
 /* Статистика главной · канон home-v2: плитки-кнопки .cv.cv-a.dash-card,
    внутри ячейка .dash-cell (.dc-top → .dc-val → .dc-meta), цвет через --c.
    В демо/экранах: <button class="cv cv-a dash-card" style="--c:var(--amber)"> */
@@ -553,6 +577,34 @@ a { color: inherit; }
 .stat-rating-ic { flex: none; width: var(--icon-md); height: var(--icon-md); color: var(--accent); }
 .stat-rating.is-up .stat-rating-ic { color: var(--success); }
 .stat-rating.is-down .stat-rating-ic { color: var(--danger); }
+
+/* Журнал-лента (activity log): хронология «что делал · когда · что дало».
+   Используется в activities.html (журнал активностей) и может быть
+   в профиле / деталке для списка фактов. */
+.al-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.al-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid color-mix(in srgb, var(--c, var(--border)) 42%, var(--surface));
+  border-radius: var(--radius-md);
+  background: var(--surface); cursor: pointer; text-align: left;
+  transition: transform var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+}
+.al-row:hover { border-color: var(--border-strong); }
+.al-row:active { transform: scale(0.985); }
+.al-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.al-when { flex: none; display: flex; flex-direction: column; gap: 2px; width: 64px; }
+.al-day { font-size: var(--fs-caption); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+.al-time { font-size: var(--fs-caption); color: var(--meta); font-variant-numeric: tabular-nums; }
+.al-body { flex: 1; min-width: 0; }
+.al-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
+.al-sub { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-caption); color: var(--meta); }
+.al-pts { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.al-pts svg { flex: none; width: 12px; height: 12px; }
+.al-row { animation: trn-rise 340ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
+@keyframes trn-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .al-row { animation: none; } }
 
 /* Промо-баннер: дефолт — тёплая пастель #fdebcf (фолбэк); на странице
    фон/картинка/текст меняются случайно из набора BANNERS (home-v2.html) */
@@ -1317,19 +1369,15 @@ select.input:invalid { color: var(--muted); }
 .mrow.is-static { cursor: default; }
 .mrow.is-static:hover { background: none; }
 
-.mrow-ava {
-  flex: none; width: 44px; height: 44px;
-  font-size: var(--fs-title-sm);
-}
-
 .mrow-media {
   flex: none; width: 44px; height: 44px;
   display: grid; place-items: center; overflow: hidden;
   border-radius: var(--radius-md);
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--c, var(--accent)) 14%, var(--surface));
+  color: var(--c, var(--accent));
 }
 .mrow-media img { width: 100%; height: 100%; object-fit: cover; }
-.mrow-media svg { width: var(--icon-lg); height: var(--icon-lg); color: var(--fg-2); }
+.mrow-media svg { width: var(--icon-lg); height: var(--icon-lg); color: inherit; }
 .mrow-media.is-medal { background: var(--gto-gold); color: var(--yellow-ink-strong); }
 .mrow-media.is-medal.is-silver { background: var(--gto-silver); color: var(--accent-on); }
 .mrow-media.is-medal.is-bronze { background: var(--gto-bronze); color: var(--accent-on); }
@@ -1348,7 +1396,11 @@ select.input:invalid { color: var(--muted); }
 .mrow-side { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); }
 .mrow-chev { flex: none; display: grid; place-items: center; color: var(--meta); }
 .mrow-chev svg { width: var(--icon-sm); height: var(--icon-sm); }
-.mrow-pts { flex: none; font-size: var(--fs-meta); font-weight: 500; color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Бейдж «+N баллов» — канон (эталон activities.html): акцентная звезда ic-star + число акцентом.
+   Тон по контексту: .is-neg — списание (danger); нейтральный — только точки-состояние (лидерборд). */
+.mrow-pts { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mrow-pts svg { flex: none; width: 12px; height: 12px; }
+.mrow-pts.is-neg { color: var(--danger); }
 
 /* ────────────────────────────────────────────────
    ЭТАП 14 · Барабан выбора даты (.wheel, референс — iOS)
@@ -1432,7 +1484,6 @@ select.input:invalid { color: var(--muted); }
 /* Второй этаж — подфильтр (например, тип тренировки).
    Edge-to-edge как .chips, появляется только при активном основном фильтре. */
 .chips-sub { padding-bottom: var(--space-2); }
-.chips[hidden] { display: none; }
 
 /* Карточка календаря */
 .cal-card {
@@ -1484,7 +1535,6 @@ select.input:invalid { color: var(--muted); }
 .day-head { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-1) var(--space-4); }
 .day-head h2 { flex: 1; min-width: 0; margin: 0; font-family: var(--font-body); font-size: var(--fs-title-sm); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--fg); }
 .sec-count { flex: none; font-size: var(--fs-caption); font-weight: 600; color: var(--meta); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); font-variant-numeric: tabular-nums; }
-.cards { display: grid; gap: var(--space-3); }
 .day-empty { padding: var(--space-8) var(--space-6); text-align: center; font-size: var(--fs-meta); line-height: 1.5; color: var(--meta); background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); }
 .day-empty svg { width: var(--icon-lg); height: var(--icon-lg); color: var(--border-strong); margin-bottom: var(--space-2); }
 

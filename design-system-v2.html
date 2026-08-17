@@ -443,6 +443,80 @@
       </span>
     </button>
 
+    <h3 class="ds-sub">Карточка цели · пустое состояние · goal-card.is-empty</h3>
+    <button class="cv cv-a goal-card is-empty" type="button" style="max-width: 480px">
+      <span class="cv-a-head">
+        <span class="cv-a-title">Моя цель</span>
+        <span class="cv-go" aria-hidden="true"><svg><use href="#ic-chev"></use></svg></span>
+      </span>
+      <span class="goal-empty">
+        <span class="empty-ic" aria-hidden="true"><svg><use href="#ic-target"></use></svg></span>
+        <b>Пока не выбрана</b>
+        <span>Цель поможет следить за прогрессом</span>
+      </span>
+    </button>
+    <p class="ds-note">Пустое состояние: без прогресс-бара, без бейджа. Иконка <code>.empty-ic</code> 48px + заголовок <code>&lt;b&gt;</code> + описание <code>&lt;span&gt;</code>. Призыв к действию через chevron.</p>
+
+    <h3 class="ds-sub">Карточка цели · только заметка · goal-card (note)</h3>
+    <button class="cv cv-a goal-card" type="button" style="max-width: 480px">
+      <span class="cv-a-head">
+        <span class="cv-a-title">Моя цель</span>
+        <span class="gchip is-sign" style="--c: var(--gto-silver)"><span class="dot" aria-hidden="true"></span>Цель на серебро</span>
+        <span class="cv-go" aria-hidden="true"><svg><use href="#ic-chev"></use></svg></span>
+      </span>
+      <span class="goal-meta">
+        <span class="goal-meta-note">Осталась неделя до ГТО.</span>
+        <span class="goal-count" aria-hidden="true"><span class="goal-count-n">4</span>/ 5 нормативов</span>
+      </span>
+    </button>
+    <p class="ds-note">Без прогресс-бара — показывается только когда прогресс неизвестен (нет данных о сданных нормативах).</p>
+
+    <h3 class="ds-sub">План на сегодня · trn-goal</h3>
+    <a class="trn-goal" href="#" style="max-width: 480px" data-od-id="ds-trn-goal">
+      <svg aria-hidden="true"><use href="#ic-target"></use></svg>
+      <span class="tg-tx">Бег 1 км за 5:30</span>
+      <svg aria-hidden="true"><use href="#ic-chev"></use></svg>
+    </a>
+    <p class="ds-note">Компактный линк на активную цель из экрана «Активности» (<code>activities.html</code>). Тап ведёт на <code>goal.html</code>. Стрелка-шеврон справа, иконка-мишень слева.</p>
+
+    <h3 class="ds-sub">Журнал-лента · al-* (история тренировок)</h3>
+    <div class="al-list" style="max-width: 480px">
+      <div class="al-row" style="--c:var(--type-training); animation:none">
+        <div class="al-when">
+          <span class="al-day">12 авг</span>
+          <span class="al-time">18:30</span>
+        </div>
+        <div class="al-body">
+          <span class="al-title">Утренняя растяжка</span>
+          <span class="al-sub">30 мин · йога</span>
+        </div>
+        <span class="al-pts"><svg aria-hidden="true"><use href="#ic-star-solar"></use></svg>+80</span>
+      </div>
+      <div class="al-row" style="--c:var(--sport-run); animation:none">
+        <div class="al-when">
+          <span class="al-day">11 авг</span>
+          <span class="al-time">07:00</span>
+        </div>
+        <div class="al-body">
+          <span class="al-title">Бег 5 км</span>
+          <span class="al-sub">28 мин · кардио</span>
+        </div>
+        <span class="al-pts"><svg aria-hidden="true"><use href="#ic-star-solar"></use></svg>+120</span>
+      </div>
+      <div class="al-row" style="--c:var(--sport-swim); animation:none">
+        <div class="al-when">
+          <span class="al-day">10 авг</span>
+          <span class="al-time">19:00</span>
+        </div>
+        <div class="al-body">
+          <span class="al-title">Плавание 1 км</span>
+          <span class="al-sub">45 мин · бассейн</span>
+        </div>
+        <span class="al-pts"><svg aria-hidden="true"><use href="#ic-star-solar"></use></svg>+150</span>
+      </div>
+    </div>
+    <p class="ds-note">Хронологическая лента из экрана «Активности» (<code>activities.html</code>). Каждая строка — компактный факт: день/время + название + категория + баллы. Анимация <code>trn-rise</code> появления с задержкой через CSS-переменную <code>--i</code>. Цвет левой границы — <code>--c</code> (цвет категории).</p>
+
     <h3 class="ds-sub">Статистика · dash-stats (канон главной)</h3>
     <div class="dash-stats" style="max-width: 480px" data-od-id="ds-dash-stats">
       <button class="cv cv-a dash-card" type="button" style="--c:var(--amber)" data-od-id="ds-stats-points">

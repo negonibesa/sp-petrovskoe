@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -28,22 +30,9 @@
      Тёплый фон --surface-warm (не повторяет референс). Типографика — Inter,
      цифры — tabular-nums (канон ДС v2). */
   .trn-app { background: var(--surface-warm); padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
-  .trn-body { padding-top: 4px; }
+   .trn-body { padding-top: 4px; }
 
-  /* ── Кап активной цели: часть «Плана на сегодня» (goal:active из goal.html) ── */
-  .trn-goal {
-    display: flex; align-items: center; gap: var(--space-2);
-    margin: 0 0 var(--space-3); padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--border-soft); border-radius: var(--radius-md);
-    background: var(--surface); color: var(--accent);
-    font-size: var(--fs-meta); font-weight: 600; text-decoration: none;
-  }
-  .trn-goal:hover { border-color: var(--border-strong); }
-  .trn-goal > svg:first-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); }
-  .trn-goal > svg:last-child { flex: none; width: var(--icon-sm); height: var(--icon-sm); color: var(--meta); }
-  .trn-goal .tg-tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); }
-
-  /* ── «План на сегодня»: стопка ev-card (как «Ближ. События» на главной) ── */
+   /* ── «План на сегодня»: стопка ev-card (как «Ближ. События» на главной) ── */
   .trn-today-meta { margin: 0 0 var(--space-3); font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
   .trn-today .ev-card { cursor: pointer; transition: transform var(--motion-fast) var(--ease-standard); }
   .trn-today .ev-card:active { transform: scale(0.985); }
@@ -63,38 +52,12 @@
   .trn-today .ev-goal-n { font-size: 11px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
   .trn-today .ev-goal:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
   .trn-today .ev-goal:active { transform: scale(0.92); }
-  .trn-today .ev-goal:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+   .trn-today .ev-goal:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-  /* ── Журнал-лента: хронология «что делал · когда · что дало». Каждая строка —
-     компактный факт: день, время, название, результат, баллы. Без групп по
-     неделям (лента = одна история), без статуса «Завершено» (он очевиден). */
-  .al-list { display: flex; flex-direction: column; gap: var(--space-2); }
-  .al-row {
-    display: flex; align-items: center; gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--border-soft);
-    border-left: 3px solid color-mix(in srgb, var(--c, var(--border)) 42%, var(--surface));
-    border-radius: var(--radius-md);
-    background: var(--surface); cursor: pointer; text-align: left;
-    transition: transform var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
-  }
-  .al-row:hover { border-color: var(--border-strong); }
-  .al-row:active { transform: scale(0.985); }
-  .trn-log .seg { margin: 0 0 var(--space-3); }
-  .al-when { flex: none; display: flex; flex-direction: column; gap: 2px; width: 64px; }
-  .al-day { font-size: var(--fs-caption); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
-  .al-time { font-size: var(--fs-caption); color: var(--meta); font-variant-numeric: tabular-nums; }
-  .al-body { flex: 1; min-width: 0; }
-  .al-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-meta); font-weight: 600; color: var(--fg); }
-  .al-sub { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-caption); color: var(--meta); }
-  .al-pts { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-  .al-pts svg { flex: none; width: 12px; height: 12px; }
-  .al-row:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .al-row { animation: trn-rise 340ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
-  @keyframes trn-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .al-row { animation: none; } }
+   /* Локальные оверрайды */
+   .trn-log .seg { margin: 0 0 var(--space-3); }
 
-  /* ── Деталка тренировки: нижний лист .sheet (канон ДС v2) ── */
+   /* ── Деталка тренировки: нижний лист .sheet (канон ДС v2) ── */
   .td-body { padding-top: var(--space-1); }
   .td-sub { font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
   .td-marker { display: inline-flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); font-size: var(--fs-caption); font-weight: 600; color: var(--meta); }

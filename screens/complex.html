@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>СП Петровское</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  .cx-gallery { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-left: var(--space-4); padding-right: var(--space-4); margin-right: calc(-1 * var(--space-4)); }
+  .cx-gallery::-webkit-scrollbar { display: none; }
+  .cx-gallery .cx-photo { flex: 0 0 calc(100% - 48px); scroll-snap-align: start; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 16/9; position: relative; }
+  .cx-gallery .cx-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cx-gallery .cx-photo span { position: absolute; bottom: 8px; left: 8px; font-size: var(--fs-meta); font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); background: rgba(0,0,0,.35); padding: 2px 8px; border-radius: var(--radius-pill); }
+  .cx-nav { display: flex; justify-content: center; gap: 6px; margin-top: var(--space-2); }
+  .cx-nav i { width: 6px; height: 6px; border-radius: 50%; background: var(--surface-2); }
+  .cx-nav i.on { background: var(--accent); width: 18px; border-radius: 3px; }
+  .cx-info { display: flex; flex-direction: column; gap: 0; }
+  .cx-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+  .cx-row:last-child { border-bottom: none; }
+  .cx-row-ic { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--surface-2); color: var(--muted); }
+  .cx-row-ic svg { width: var(--icon-md); height: var(--icon-md); }
+  .cx-row-tx { flex: 1; min-width: 0; }
+  .cx-row-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .cx-row-tx span { display: block; font-size: var(--fs-meta); color: var(--muted); }
+  .cx-venues { display: flex; flex-direction: column; gap: var(--space-3); }
+  .cx-venue { display: flex; gap: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-3); text-decoration: none; color: inherit; transition: border-color var(--motion-fast) var(--ease-standard); }
+  .cx-venue:hover { border-color: var(--border-strong); }
+  .cx-venue-img { flex: none; width: 80px; height: 80px; border-radius: var(--radius-md); overflow: hidden; }
+  .cx-venue-img img { width: 100%; height: 100%; object-fit: cover; }
+  .cx-venue-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+  .cx-venue-name { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+  .cx-venue-meta { font-size: var(--fs-meta); color: var(--muted); }
+  .cx-venue-tags { display: flex; gap: 4px; margin-top: 4px; }
+  .cx-tag { font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--meta); }
+  .cx-venue-price { font-size: var(--fs-caption); font-weight: 600; color: var(--accent); margin-top: 2px; }
+</style>
+
+</head>
+<body data-od-id="complex">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M2.40039 22.8002C2.67639 19.3166 5.61759 16.4066 9.22599 16.2362C9.52999 16.2218 9.85479 16.2098 10.2004 16.2002L11.17 16.2626C12.8062 16.3624 14.3637 16.9998 15.6004 18.0758M17.4004 11.9954C18.9596 12.1416 20.4312 12.7824 21.6004 13.8242M17.986 8.4002C18.5424 8.04805 19.0006 7.56074 19.3179 6.98371C19.6352 6.40667 19.8012 5.7587 19.8004 5.1002C19.8004 2.9462 18.0604 1.2002 15.9124 1.2002C14.8576 1.2002 13.9012 1.6214 13.2004 2.3054M14.1004 9.3002C14.1004 10.3345 13.6895 11.3265 12.9581 12.0579C12.2267 12.7893 11.2347 13.2002 10.2004 13.2002C9.16605 13.2002 8.17407 12.7893 7.44267 12.0579C6.71128 11.3265 6.30039 10.3345 6.30039 9.3002C6.30039 8.26585 6.71128 7.27387 7.44267 6.54248C8.17407 5.81109 9.16605 5.4002 10.2004 5.4002C11.2347 5.4002 12.2267 5.81109 12.9581 6.54248C13.6895 7.27387 14.1004 8.26585 14.1004 9.3002Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path></symbol>
+  <symbol id="ic-like" viewBox="0 0 24 24"><path d="M7 10v12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><circle cx="12" cy="12" r="1.1" fill="currentColor"></circle></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></symbol>
+</svg>
+<div class="app">
+  <header class="hd">
+    <a class="topbar-ic is-back" href="06-home.html" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
+    <span class="hd-txt"><h1>СП Петровское</h1></span>
+    <span class="hd-acts"></span>
+  </header>
+  <main class="body">
+    <div class="cx-gallery" data-od-id="cx-gallery">
+      <div class="cx-photo" style="position:relative"><img src="../assets/facilities/gym1-1.png" alt="Спортзал №1"><span>Спортзал №1</span></div>
+      <div class="cx-photo" style="position:relative"><img src="../assets/facilities/pool-2.png" alt="Бассейн"><span>Бассейн</span></div>
+      <div class="cx-photo" style="position:relative"><img src="../assets/facilities/fit-1.png" alt="Фитнес-зал"><span>Фитнес-зал</span></div>
+      <div class="cx-photo" style="position:relative"><img src="../assets/facilities/gym2-1.png" alt="Спортзал №2"><span>Спортзал №2</span></div>
+      <div class="cx-photo" style="position:relative"><img src="../assets/facilities/tennis-1.png" alt="Теннисные корты"><span>Теннисные корты</span></div>
+    </div>
+    <div class="cx-nav" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <section class="sec">
+      <div class="sec-head"><h2>О комплексе</h2></div>
+      <p style="font-size: var(--fs-body); color: var(--fg-2); line-height: 1.5;">
+        Спортивный комплекс «Петровское» — современная площадка для занятий спортом и отдыха. 
+        Бассейн, крытые залы, стадион, теннисные корты и зал единоборств на одной территории.
+      </p>
+      <div class="cx-info">
+        <div class="cx-row">
+          <span class="cx-row-ic"><svg aria-hidden="true"><use href="#ic-target"></use></svg></span>
+          <span class="cx-row-tx"><b>Адрес</b><span>ул. Спортивная, 12 · Петровское</span></span>
+        </div>
+        <div class="cx-row">
+          <span class="cx-row-ic"><svg aria-hidden="true"><use href="#ic-clock"></use></svg></span>
+          <span class="cx-row-tx"><b>Режим работы</b><span>Пн–Вс · 06:00 – 23:00</span></span>
+        </div>
+        <div class="cx-row">
+          <span class="cx-row-ic"><svg aria-hidden="true"><use href="#ic-users"></use></svg></span>
+          <span class="cx-row-tx"><b>Контакты</b><span>+7 (495) 123-45-67 · info@petrovskoe-sp.ru</span></span>
+        </div>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-head">
+        <h2>Площадки</h2>
+        <span class="sec-all">6</span>
+      </div>
+      <div class="cx-venues" data-od-id="cx-venues">
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-gym1">
+          <div class="cx-venue-img"><img src="../assets/facilities/gym1-1.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Спортзал №1</span>
+            <span class="cx-venue-meta">1 этаж · до 24 чел</span>
+            <span class="cx-venue-tags"><span class="cx-tag">баскетбол</span><span class="cx-tag">волейбол</span></span>
+            <span class="cx-venue-price">от 400 ₽/ч</span>
+          </div>
+        </a>
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-gym2">
+          <div class="cx-venue-img"><img src="../assets/facilities/gym2-1.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Спортзал №2</span>
+            <span class="cx-venue-meta">1 этаж · до 16 чел</span>
+            <span class="cx-venue-tags"><span class="cx-tag">единоборства</span><span class="cx-tag">функциональный</span></span>
+            <span class="cx-venue-price">от 350 ₽/ч</span>
+          </div>
+        </a>
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-fit">
+          <div class="cx-venue-img"><img src="../assets/facilities/fit-1.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Фитнес-зал</span>
+            <span class="cx-venue-meta">2 этаж · до 12 чел</span>
+            <span class="cx-venue-tags"><span class="cx-tag">тренажёры</span><span class="cx-tag">кроссфит</span></span>
+            <span class="cx-venue-price">от 300 ₽/ч</span>
+          </div>
+        </a>
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-pool">
+          <div class="cx-venue-img"><img src="../assets/facilities/pool-2.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Бассейн</span>
+            <span class="cx-venue-meta">25 м · 6 дорожек</span>
+            <span class="cx-venue-tags"><span class="cx-tag">плавание</span><span class="cx-tag">аквааэробика</span></span>
+            <span class="cx-venue-price">от 500 ₽/ч</span>
+          </div>
+        </a>
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-tennis">
+          <div class="cx-venue-img"><img src="../assets/facilities/tennis-1.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Теннисные корты</span>
+            <span class="cx-venue-meta">2 корта · крытые</span>
+            <span class="cx-venue-tags"><span class="cx-tag">теннис</span><span class="cx-tag">padel</span></span>
+            <span class="cx-venue-price">от 600 ₽/ч</span>
+          </div>
+        </a>
+        <a class="cx-venue" href="07-calendar.html" data-od-id="cx-v-stadion">
+          <div class="cx-venue-img"><img src="../assets/banners/Athletics.png" alt=""></div>
+          <div class="cx-venue-body">
+            <span class="cx-venue-name">Стадион «Труд»</span>
+            <span class="cx-venue-meta">открытый · беговая дорожка</span>
+            <span class="cx-venue-tags"><span class="cx-tag">лёгкая атлетика</span><span class="cx-tag">футбол</span></span>
+            <span class="cx-venue-price">бесплатно</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

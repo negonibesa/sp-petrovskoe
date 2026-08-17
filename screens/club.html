@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Клуб</title>
@@ -237,7 +239,7 @@
     var per = PEOPLE[id];
     var ava = per.p
       ? '<span class="avatar-sm is-photo" aria-hidden="true"><img src="../assets/avatars/' + per.p + '" alt=""></span>'
-      : '<span class="avatar-sm" style="--c:var(--accent)" aria-hidden="true">' + esc(initials(per.n)) + '</span>';
+      : '<span class="avatar-sm is-tint" style="--c:var(--accent)" aria-hidden="true">' + esc(initials(per.n)) + '</span>';
     return '<a class="mrow" href="profile-view.html?id=' + id + '" data-od-id="club-part-' + id + '">' +
       ava + '<span class="mrow-tx"><span class="mrow-t">' + esc(per.n) + '</span><span class="mrow-s">Участник клуба</span></span>' +
       '<span class="mrow-chev"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></span></a>';
@@ -246,7 +248,7 @@
   var coach = club.coach;
   var coachAva = coach.p
     ? '<span class="avatar-sm is-photo" aria-hidden="true"><img src="../assets/avatars/' + coach.p + '" alt=""></span>'
-    : '<span class="avatar-sm" style="--c:var(--accent)" aria-hidden="true">' + esc(initials(coach.n)) + '</span>';
+    : '<span class="avatar-sm is-tint" style="--c:var(--accent)" aria-hidden="true">' + esc(initials(coach.n)) + '</span>';
   $('cl-coach-row').innerHTML =
     '<div class="mrow is-static" data-od-id="club-coach">' +
       coachAva +

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -43,14 +45,6 @@
   }
   .fl:hover { background: var(--surface-2); }
   .fl:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .fl-ava {
-    flex: none; width: var(--h-base); height: var(--h-base); border-radius: 50%;
-    display: grid; place-items: center;
-    background: color-mix(in srgb, var(--c, var(--accent)) 14%, var(--surface));
-    color: color-mix(in oklab, var(--c, var(--accent)) 55%, var(--fg));
-    font-size: var(--fs-body); font-weight: 700;
-  }
-  .fl-ava img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .fl-tx { flex: 1; min-width: 0; }
   .fl-tx b { display: block; font-size: var(--fs-body); font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fl-tx span { display: block; margin-top: 1px; font-size: var(--fs-meta); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -166,8 +160,8 @@
 
   function friendRow(f) {
     var ava = f.photo
-      ? '<span class="fl-ava" aria-hidden="true"><img src="../assets/avatars/' + f.photo + '" alt=""></span>'
-      : '<span class="fl-ava" style="--c: var(--accent)" aria-hidden="true">' + esc(initials(f.n)) + '</span>';
+      ? '<span class="mrow-ava is-photo" aria-hidden="true"><img src="../assets/avatars/' + f.photo + '" alt=""></span>'
+      : '<span class="mrow-ava is-tint" style="--c: var(--accent)" aria-hidden="true">' + esc(initials(f.n)) + '</span>';
     var tag = f.online
       ? '<span class="fl-tag is-on">Онлайн</span>'
       : (f.gto ? '<span class="fl-tag is-gto">ГТО</span>' : '');
@@ -182,7 +176,7 @@
     if (scope === 'requests') {
       list = REQ.map(function (r, i) {
         return '<div class="fr-req" data-od-id="request-row-' + i + '">' +
-          '<span class="fl-ava" style="--c: var(--accent-purple)" aria-hidden="true">' + esc(r.init) + '</span>' +
+          '<span class="mrow-ava is-tint" style="--c: var(--accent-purple)" aria-hidden="true">' + esc(r.init) + '</span>' +
           '<span class="fl-tx"><b>' + esc(r.n) + '</b><span>' + esc(r.sub) + '</span></span>' +
           '<span class="fr-req-acts">' +
           '<button class="btn btn-success btn-sm" type="button" data-accept="' + i + '" data-od-id="req-accept-' + i + '">Принять</button>' +

@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>«Петровское СП» — Мануал по приложению</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #3b7bff;
+    --accent-purple: #8b5cf6;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --amber: #f59e0b;
+    --bg: #f5f7fc;
+    --surface: #fff;
+    --fg: #1a1d26;
+    --fg-2: #4b5563;
+    --meta: #9ca3af;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  .page { max-width: 800px; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: var(--space-2); }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 15px; color: var(--fg-2); margin-bottom: var(--space-8); }
+
+  h2 { font-size: 20px; font-weight: 700; margin: var(--space-8) 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 2px solid var(--border); }
+  h3 { font-size: 16px; font-weight: 700; margin: var(--space-5) 0 var(--space-2); color: var(--fg); }
+  h4 { font-size: 14px; font-weight: 600; margin: var(--space-4) 0 var(--space-2); color: var(--fg-2); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  p { margin-bottom: var(--space-3); font-size: 14px; color: var(--fg-2); }
+  p strong { color: var(--fg); font-weight: 600; }
+
+  ul, ol { margin: 0 0 var(--space-3) var(--space-5); font-size: 14px; color: var(--fg-2); }
+  li { margin-bottom: var(--space-1); }
+  li strong { color: var(--fg); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: var(--space-5); margin-bottom: var(--space-4);
+  }
+  .card-title { font-size: 16px; font-weight: 700; margin-bottom: var(--space-2); }
+  .card p:last-child { margin-bottom: 0; }
+
+  .highlight {
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    border-left: 3px solid var(--accent);
+    padding: var(--space-4); border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: var(--space-4);
+  }
+  .highlight p { margin-bottom: 0; color: var(--fg); }
+  .highlight strong { color: var(--accent); }
+
+  .warn {
+    background: color-mix(in srgb, var(--amber) 8%, var(--surface));
+    border-left: 3px solid var(--amber);
+    padding: var(--space-4); border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: var(--space-4);
+  }
+  .warn p { margin-bottom: 0; color: var(--fg); }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: var(--space-4); font-size: 14px; }
+  th { text-align: left; font-weight: 600; padding: var(--space-2) var(--space-3); background: var(--surface-2, #f9fafb); border-bottom: 2px solid var(--border); }
+  td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+
+  .tab { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 12px; font-size: 12px; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .flow { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); flex-wrap: wrap; }
+  .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .flow-arrow { color: var(--meta); font-size: 16px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+  @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .icon-circle {
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-5); margin-bottom: var(--space-6); }
+  .toc-title { font-size: 14px; font-weight: 700; margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: 0.04em; color: var(--meta); }
+  .toc ol { margin: 0; padding-left: var(--space-5); }
+  .toc li { font-size: 14px; margin-bottom: var(--space-1); }
+  .toc a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+
+  .screen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .screen-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: var(--space-3); font-size: 13px; }
+  .screen-item code { display: block; font-size: 11px; color: var(--meta); margin-bottom: 2px; }
+  .screen-item b { display: block; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>«<span>Петровское СП</span>» — Мануал по приложению</h1>
+<p class="subtitle">Мобильное приложение для спорткомплекса: тренировки, ГТО, рейтинг, сообщество</p>
+
+<!-- ============================== ОГЛАВЛЕНИЕ ============================== -->
+
+<div class="toc">
+  <div class="toc-title">Оглавление</div>
+  <ol>
+    <li><a href="#logic">Архитектура и логика приложения</a></li>
+    <li><a href="#nav">Навигация</a></li>
+    <li><a href="#home">Главная</a></li>
+    <li><a href="#calendar">Расписание (Календарь)</a></li>
+    <li><a href="#activities">Активности (Журнал)</a></li>
+    <li><a href="#calendar-vs-activities">Календарь vs Активности — зачем два экрана</a></li>
+    <li><a href="#community">Сообщество</a></li>
+    <li><a href="#profile">Профиль</a></li>
+    <li><a href="#gto">ГТО — полный флоу</a></li>
+    <li><a href="#constructor">Конструктор тренировок</a></li>
+    <li><a href="#events">События</a></li>
+    <li><a href="#rating">Баллы и рейтинг</a></li>
+    <li><a href="#achievements">Достижения</a></li>
+    <li><a href="#qr">QR-код</a></li>
+    <li><a href="#onboarding">Онбординг</a></li>
+    <li><a href="#points">Таблица баллов</a></li>
+  </ol>
+</div>
+
+<!-- ============================== 1. АРХИТЕКТУРА ============================== -->
+
+<h2 id="logic">1. Архитектура и логика приложения</h2>
+
+<div class="highlight">
+  <p><strong>Ключевая идея:</strong> приложение объединяет три роли — <strong>спортсмен</strong> (ходит на тренировки, сдаёт ГТО), <strong>тренер</strong> (подтверждает посещения, планирует нагрузку) и <strong>админ</strong> (управляет комплексом, проводит соревнования). Всё вертикально интегрировано: от QR-отметки на входе до рейтинга и знаков ГТО.</p>
+</div>
+
+<h3>Зачем это нужно</h3>
+
+<p>«Петровское СП» — это не просто справочник спорткомплекса. Это <strong> gamification-платформа</strong>, которая мотивирует пользователей регулярно заниматься спортом через:</p>
+
+<ul>
+  <li><strong>Баллы и уровни</strong> — начисляются за каждое посещение, тренировку, соревнование. Новичок → Активный → Мастер.</li>
+  <li><strong>Серии (стреки)</strong> — чем дольше пользователь тренируется без перерыва, тем больше бонусов.</li>
+  <li><strong>ГТО</strong> — интеграция с государственной системой «Готов к труду и обороне». Пользователь сдаёт нормативы, получает знаки (бронза/серебро/золото).</li>
+  <li><strong>Рейтинг</strong> — соревнование между пользователями: кто больше тренируется, тот выше в таблице.</li>
+  <li><strong>Сообщество</strong> — клубы, новости, совместные мероприятия.</li>
+</ul>
+
+<h3>Как данные движутся</h3>
+
+<div class="card">
+  <div class="card-title">Путь данных: от QR-кметки до рейтинга</div>
+  <p>1. Пользователь приходит в спорткомплекс</p>
+  <p>2. Сканирует QR-код на входе → <strong>+40 баллов</strong></p>
+  <p>3. Тренер подтверждает посещение → статус «Подтверждено»</p>
+  <p>4. Баллы суммируются → растёт уровень</p>
+  <p>5. Если тренировался каждый день → растёт серия → бонусные баллы</p>
+  <p>6. Рейтинг обновляется ежедневно → позиция в таблице</p>
+</div>
+
+<div class="card">
+  <div class="card-title">Путь данных: от тренировки до ГТО-знака</div>
+  <p>1. Пользователь выбирает цель: сдать норматив ГТО</p>
+  <p>2. Проходит план подготовки (несколько недель тренировок)</p>
+  <p>3. Каждая тренировка → фиксируется в журнале</p>
+  <p>4. Сдаёт норматив → результат проверяется</p>
+  <p>5. Если сдал → получает знак → +150/300/500 баллов</p>
+  <p>6. Знак отображается в профиле и на странице достижений</p>
+</div>
+
+<h3>Роли пользователей</h3>
+
+<table>
+  <tr><th>Роль</th><th>Возможности</th></tr>
+  <tr><td><strong>Спортсмен</strong></td><td>Тренировки, QR-отметка, ГТО, рейтинг, сообщество</td></tr>
+  <tr><td><strong>Тренер</strong></td><td>Всё то же + подтверждение посещений, планирование групповых тренировок</td></tr>
+  <tr><td><strong>Админ</strong></td><td>Всё то же + управление комплексом, создание мероприятий, модерация</td></tr>
+</table>
+
+<!-- ============================== 2. НАВИГАЦИЯ ============================== -->
+
+<h2 id="nav">2. Навигация</h2>
+
+<p>Нижний таб-бар (5 вкладок) доступен на главных экранах:</p>
+
+<table>
+  <tr><th>#</th><th>Вкладка</th><th>Экран</th><th>Назначение</th></tr>
+  <tr><td>1</td><td><strong>Главная</strong></td><td><code>06-home.html</code></td><td>Обзор: дашборд, расписание, клубы, новости</td></tr>
+  <tr><td>2</td><td><strong>Расписание</strong></td><td><code>07-calendar.html</code></td><td>Календарь событий с фильтрами</td></tr>
+  <tr><td>3</td><td><strong>Активности</strong></td><td><code>activities.html</code></td><td>Журнал тренировок и посещений</td></tr>
+  <tr><td>4</td><td><strong>Сообщество</strong></td><td><code>community.html</code></td><td>Лента новостей и клубы</td></tr>
+  <tr><td>5</td><td><strong>Профиль</strong></td><td><code>profile.html</code></td><td>Личный кабинет, настройки, друзья</td></tr>
+</table>
+
+<!-- ============================== 3. ГЛАВНАЯ ============================== -->
+
+<h2 id="home">3. Главная</h2>
+
+<p><code>06-home.html</code> — центральный экран. Здесь пользователь видит всё ключевое на одном экране:</p>
+
+<ul>
+  <li><strong>Карточка спорткомплекса</strong> — фото, адрес, график работы → <code>complex.html</code></li>
+  <li><strong>Баннер мероприятия</strong> — карусель промо (5 баннеров) → детали события</li>
+  <li><strong>Моя цель</strong> — текущий норматив ГТО или произвольная цель → <code>goal.html</code></li>
+  <li><strong>Дашборд (5 карточек):</strong>
+    <ul>
+      <li>Баллы + полоса прогресса → <code>rating-details.html</code></li>
+      <li>Серия (●●●●●●○) → <code>activities.html</code></li>
+      <li>Мой QR → <code>22-qr-scanner.html</code></li>
+      <li>Достижения → popup-лист</li>
+      <li>Рейтинг → <code>rating-details.html</code></li>
+    </ul>
+  </li>
+  <li><strong>Расписание</strong> — ближайшие события → <code>07-calendar.html</code></li>
+  <li><strong>Клубы</strong> — рекомендованные → <code>community.html</code></li>
+  <li><strong>Новости</strong> — последние → <code>community.html</code></li>
+</ul>
+
+<!-- ============================== 4. РАСПИСАНИЕ ============================== -->
+
+<h2 id="calendar">4. Расписание (Календарь)</h2>
+
+<p><code>07-calendar.html</code> — <strong>планировщик</strong>. Здесь пользователь видит, что его ждёт впереди и может записаться на события.</p>
+
+<h3>Фильтры</h3>
+<p>Пять горизонтальных чипсов для фильтрации по типу:</p>
+<ul>
+  <li><strong>Все</strong> — показать всё</li>
+  <li><strong>Тренировки</strong> — личные, с тренером, групповые</li>
+  <li><strong>Мероприятия СП</strong> — марафоны, соревнования</li>
+  <li><strong>Клубы</strong> — события клубов</li>
+  <li><strong>Аренда</strong> — бронирование площадок</li>
+</ul>
+
+<h3>Создание события</h3>
+<p>Кнопка «+» (FAB) → <code>07-add-event.html</code> — форма создания личного события (тип, дата, время).</p>
+
+<h3>Навигация из календаря</h3>
+<ul>
+  <li>Карточка марафона → <code>15-event-marathon.html</code></li>
+  <li>Карточка аренды → <code>16-rental-detail.html</code></li>
+  <li>Карточка тренировки → <code>activities.html</code></li>
+</ul>
+
+<!-- ============================== 5. АКТИВНОСТИ ============================== -->
+
+<h2 id="activities">5. Активности (Журнал)</h2>
+
+<p><code>activities.html</code> — <strong>журнал свершений</strong>. Здесь пользователь видит, что уже сделал сегодня и что делал раньше.</p>
+
+<h3>Сегодняшний план</h3>
+<p>Карточки запланированных на сегодня тренировок. Каждая карточка содержит:</p>
+<ul>
+  <li>Название тренировки</li>
+  <li>Время и место</li>
+  <li>Статус (запланировано / в процессе / выполнено)</li>
+</ul>
+
+<h3>Журнал (история)</h3>
+<p>Список прошлых активностей, сгруппированных по дням. Каждая запись содержит:</p>
+<ul>
+  <li><strong>Иконку по типу</strong> — гантеря (зал), бег (марафон), щит (ГTO), QR (аренда)</li>
+  <li><strong>Название</strong> — «Зал · СП Петровское», «Летний Кубок · 2-е место»</li>
+  <li><strong>Статус</strong> — Подтверждено / Ожидает / Отклонено / Система</li>
+  <li><strong>Баллы</strong> — +40, +20, +75 и т.д.</li>
+</ul>
+
+<div class="highlight">
+  <p><strong>Важно:</strong> Активности — это <em>прошлое и настоящее</em>. Здесь нет будущих событий. Это «квитанция» о том, что пользователь сделал.</p>
+</div>
+
+<!-- ============================== 6. КАЛЕНДАРЬ VS АКТИВНОСТИ ============================== -->
+
+<h2 id="calendar-vs-activities">6. Календарь vs Активности — зачем два экрана</h2>
+
+<div class="card">
+  <div class="card-title">Принципиальное различие</div>
+  <p><strong>Календарь</strong> = <em>«Что я буду делать»</em> (планы, записи, расписание)</p>
+  <p><strong>Активности</strong> = <em>«Что я уже сделал»</em> (журнал, баллы, статусы)</p>
+</div>
+
+<table>
+  <tr><th>Критерий</th><th>Календарь</th><th>Активности</th></tr>
+  <tr><td><strong>Временной фокус</strong></td><td>Будущее + настоящее</td><td>Прошлое + настоящее</td></tr>
+  <tr><td><strong>Цель</strong></td><td>Планирование, запись</td><td>Отчёт, мотивация</td></tr>
+  <tr><td><strong>Действия</strong></td><td>Записаться, отменить, создать</td><td>Посмотреть, поделиться</td></tr>
+  <tr><td><strong>Фильтры</strong></td><td>По типу события</td><td>По дням / по типу активности</td></tr>
+  <tr><td><strong>Связь с баллами</strong></td><td>Нет (баллы начисляются事后)</td><td>Да (каждая запись = баллы)</td></tr>
+  <tr><td><strong>Связь с рейтингом</strong></td><td>Нет</td><td>Да (история влияет на позицию)</td></tr>
+</table>
+
+<h3>Как они связаны</h3>
+
+<div class="flow">
+  <span class="flow-step">Календарь: записался на марафон</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">Марафон состоялся</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">Активности: «Подтверждено +50 баллов»</span>
+</div>
+
+<div class="flow">
+  <span class="flow-step">Календарь: создал личную тренировку</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">Тренировка прошла</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">Активности: «Ожидает проверки +20 баллов»</span>
+</div>
+
+<div class="flow">
+  <span class="flow-step">Активности: «Зал · по QR · 07:45»</span>
+  <span class="flow-arrow">←</span>
+  <span class="flow-step">Пользователь отсканировал QR на входе</span>
+</div>
+
+<div class="warn">
+  <p><strong>Почему не один экран?</strong> Если смешать планы и журнал, пользователь не поймёт: «Это уже было или ещё будет?». Раздельные экраны дают чёткое разделение: <em>сюда иду</em> vs <em>вот что сделал</em>. Это стандартная UX-паттерн для фитнес-приложений (см. Nike Training Club, Apple Fitness+).</p>
+</div>
+
+<h3>Дополнительная логика</h3>
+
+<ul>
+  <li><strong>Календарь</strong> связан с конструктором тренировок: план можно «пересадить в календарь»</li>
+  <li><strong>Активности</strong> связаны с рейтингом: каждая подтверждённая активность = баллы = позиция в таблице</li>
+  <li><strong>Календарь</strong> показывает события клубов (социальный аспект)</li>
+  <li><strong>Активности</strong> показывают серию (стрек) — мотивация не пропускать дни</li>
+</ul>
+
+<!-- ============================== 7. СООБЩЕСТВО ============================== -->
+
+<h2 id="community">7. Сообщество</h2>
+
+<p><code>community.html</code> — социальный раздел с двумя вкладками:</p>
+
+<h3>Лента</h3>
+<p>Новости и посты клубов. Каждый пост → <code>news.html</code> с полным текстом.</p>
+
+<h3>Клубы</h3>
+<p>Список клубов → <code>club.html</code> с детальной информацией:</p>
+<ul>
+  <li>Вкладки: Лента / Мероприятия / Участники / Новости / Настройки</li>
+  <li>Участники с аватарами</li>
+  <li>Мероприятия клуба (связаны с календарём)</li>
+</ul>
+
+<!-- ============================== 8. ПРОФИЛЬ ============================== -->
+
+<h2 id="profile">8. Профиль</h2>
+
+<p><code>profile.html</code> — личный кабинет:</p>
+
+<ul>
+  <li><strong>Шапка:</strong> аватар, имя, роль (Спортсмен/Тренер/Админ)</li>
+  <li><strong>Дашборд:</strong> 5 карточек (Баллы, Серия, QR, Достижения, Рейтинг)</li>
+  <li><strong>Карточка ГТО:</strong> текущий знак → <code>goal.html</code></li>
+  <li><strong>Друзья:</strong> список → <code>friends.html</code></li>
+  <li><strong>Меню:</strong> План тренировок → <code>13-training-constructor.html</code>, Настройки, Выход</li>
+</ul>
+
+<!-- ============================== 9. ГТО ============================== -->
+
+<h2 id="gto">9. ГТО — полный флоу</h2>
+
+<p>ГТО (Готовность к Труду и Обороне) — государственная система нормативов. Приложение интегрировано с ней:</p>
+
+<div class="flow">
+  <span class="flow-step">goal.html<br><small>Выбор цели</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">23-gto-plan.html<br><small>План подготовки</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">24-gto-workout.html<br><small>Тренировка</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">25-gto-test.html<br><small>Сдача норматива</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">26-gto-result.html<br><small>Знак получен</small></span>
+</div>
+
+<h3>Шаг 1: Выбор цели (<code>goal.html</code>)</h3>
+<ul>
+  <li>Список нормативов: Подтягивания, Бег 100м, Наклон вперёд, Отжимания, Бег 2км</li>
+  <li>Статусы: пройден (зелёный) / следующий (синий) / не начат (серый)</li>
+  <li>Два действия: «План подготовки» или «Сдать норматив»</li>
+</ul>
+
+<h3>Шаг 2a: План подготовки (<code>23-gto-plan.html</code>)</h3>
+<ul>
+  <li>Табы по нормативам</li>
+  <li>Сетка: недели × дни, кликабельные ячейки</li>
+  <li>«Начать тренировку» → <code>24-gto-workout.html?norm=pull&week=1&day=1</code></li>
+  <li>«Добавить в календарь» → сохранение плана → ссылка на <code>07-calendar.html</code></li>
+</ul>
+
+<h3>Шаг 2b: Тренировка ГТО (<code>24-gto-workout.html</code>)</h3>
+<ul>
+  <li>Параметры из URL: норматив, неделя, день</li>
+  <li>Сет/повторы с чекбоксами или таймером обратного отсчёта</li>
+  <li>Таймер сессии с паузой</li>
+  <li>«Завершить тренировку» → подтверждение → сохранение в <code>localStorage</code> → возврат на план</li>
+</ul>
+
+<h3>Шаг 3: Сдача норматива (<code>25-gto-test.html</code>)</h3>
+<ul>
+  <li>Ввод результата (степпер или текстовое поле)</li>
+  <li>Проверка: сдал → показать знак → «Получить знак» → результат; не сдал → план подготовки</li>
+</ul>
+
+<h3>Шаг 4: Знак получен (<code>26-gto-result.html</code>)</h3>
+<ul>
+  <li>Плакат знака (Бронза/Серебро/Золото)</li>
+  <li>Результат и баллы (+150 / +300 / +500)</li>
+  <li>«В профиль» / «Следующий норматив» / «Поделиться»</li>
+</ul>
+
+<!-- ============================== 10. КОНСТРУКТОР ============================== -->
+
+<h2 id="constructor">10. Конструктор тренировок</h2>
+
+<p><code>13-training-constructor.html</code> — создание индивидуального плана:</p>
+
+<ul>
+  <li><strong>Табы-пресеты:</strong> ГТО / ОФП / Свои</li>
+  <li>Редактируемая сетка: упражнения × дни недели</li>
+  <li>Добавление/удаление упражнений, переключение ячеек</li>
+  <li>Баннер рекомендации (после опросника)</li>
+  <li>Stepper: количество тренировок для генерации</li>
+  <li>«Пересадить в календарь» → сохранение → <code>07-calendar.html</code></li>
+  <li>«Начать тренировку» → для ГТО: <code>24-gto-workout.html</code></li>
+</ul>
+
+<!-- ============================== 11. СОБЫТИЯ ============================== -->
+
+<h2 id="events">11. События</h2>
+
+<h3>Марафон (<code>15-event-marathon.html</code>)</h3>
+<ul>
+  <li>Три вкладки: Обзор / Результаты / Участники</li>
+  <li>Машинный автомат кнопок: Записаться → Начать забег (админ) → Отменить запись</li>
+</ul>
+
+<h3>Аренда (<code>16-rental-detail.html</code>)</h3>
+<ul>
+  <li>Детали площадки, время, стоимость</li>
+  <li>Запись на аренду</li>
+</ul>
+
+<h3>Добавление события (<code>07-add-event.html</code>)</h3>
+<ul>
+  <li>Форма: тип, дата, время</li>
+</ul>
+
+<!-- ============================== 12. БАЛЛЫ ============================== -->
+
+<h2 id="rating">12. Баллы и рейтинг</h2>
+
+<p><code>rating-details.html</code> — три вкладки:</p>
+
+<h3>Баллы</h3>
+<ul>
+  <li>Карточка уровня: Новичок → Активный → Мастер (полоса прогресса)</li>
+  <li>Дашборд: Серия + За 30 дней</li>
+  <li>Журнал начислений по дням</li>
+  <li>Лист правил (модалка)</li>
+</ul>
+
+<h3>Рейтинг</h3>
+<ul>
+  <li>Место в регионе (например, 12-е из 214)</li>
+  <li>Фильтры: Регион / Друзья / Сообщество</li>
+  <li>Лидерборд с аватарами, именами и баллами</li>
+  <li>Топ-3: золото/серебро/бронза</li>
+</ul>
+
+<h3>Посещаемость</h3>
+<ul>
+  <li>Число посещений за месяц</li>
+  <li>Тепловая карта (календарь с цветовой интенсивностью)</li>
+  <li>График по месяцам</li>
+  <li>Экспорт в Excel</li>
+</ul>
+
+<!-- ============================== 13. ДОСТИЖЕНИЯ ============================== -->
+
+<h2 id="achievements">13. Достижения</h2>
+
+<p><code>17-achievements.html</code> — фильтры: Все / Полученные / Неполученные / Знаки ГТО. Карточки с иконками и описанием.</p>
+
+<!-- ============================== 14. QR ============================== -->
+
+<h2 id="qr">14. QR-код</h2>
+
+<p><code>22-qr-scanner.html</code> — персональный QR-код для отметки на входе. Переключение между отображением и сканированием.</p>
+
+<!-- ============================== 15. ОНБОРДИНГ ============================== -->
+
+<h2 id="onboarding">15. Онбординг</h2>
+
+<div class="flow">
+  <span class="flow-step">00-splash<br><small>Заставка</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">01-welcome<br><small>Приветствие</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">02-auth<br><small>Вход/Регистрация</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">02-pin<br><small>PIN-код</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">03-role<br><small>Выбор роли</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">05-questionnaire<br><small>Анкета</small></span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-step">06-home<br><small>Главная</small></span>
+</div>
+
+<!-- ============================== 16. ТАБЛИЦА ============================== -->
+
+<h2 id="points">16. Таблица баллов</h2>
+
+<table>
+  <tr><th>Действие</th><th>Баллы</th></tr>
+  <tr><td>Зал · отметка по QR</td><td>+40</td></tr>
+  <tr><td>Самостоятельная тренировка</td><td>+20 (до 3 в неделю)</td></tr>
+  <tr><td>Аренда площадки</td><td>+30</td></tr>
+  <tr><td>Участие в соревновании</td><td>+50</td></tr>
+  <tr><td>1-е / 2-е / 3-е место</td><td>+100 / +75 / +50</td></tr>
+  <tr><td>Норматив ГТО (ступень)</td><td>+50</td></tr>
+  <tr><td>Знак ГТО: бронза / серебро / золото</td><td>+150 / +300 / +500</td></tr>
+  <tr><td>Серия 3 / 7 / 30 дней</td><td>+10 / +25 / +75</td></tr>
+  <tr><td>Нарушение правил сообщества</td><td>−50</td></tr>
+</table>
+
+<p><strong>Уровни:</strong> Новичок (0) → Активный (1 000) → Мастер (2 500)</p>
+
+</div>
+</body>
+</html>

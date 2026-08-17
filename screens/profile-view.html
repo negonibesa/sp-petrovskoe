@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -39,7 +41,6 @@
   .pv-gto-tx > span { display: block; margin-top: 2px; font-size: var(--fs-meta); color: var(--muted); }
   .pv-gto-bar { height: 4px; margin-top: var(--space-2); border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
   .pv-gto-bar i { display: block; height: 100%; border-radius: inherit; background: var(--gto-gold); }
-  .pv-gto-pts { flex: none; font-size: var(--fs-meta); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* Общие данные */
   .pv-info { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
@@ -119,8 +120,32 @@
         <span id="pv-gto-meta">сдано 3 из 5 нормативов</span>
         <span class="pv-gto-bar"><i id="pv-gto-bar" style="width: 60%"></i></span>
       </span>
-      <span class="pv-gto-pts" id="pv-gto-pts">+300</span>
+      <span class="mrow-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg><span id="pv-gto-pts">+300</span></span>
     </div>
+
+    <section class="sec" data-od-id="pv-achievements">
+      <div class="sec-head"><h2>Достижения</h2></div>
+      <div class="evd-rows">
+        <div class="mrow" data-od-id="ach-gto-silver">
+          <span class="gto-badge" aria-hidden="true"><img src="../assets/gto/sign-silver.png" alt=""></span>
+          <span class="mrow-tx"><b>Знак ГТО · Серебро</b><span>Получен 12 августа 2026</span></span>
+          <span class="mrow-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+300</span>
+        </div>
+        <div class="mrow" data-od-id="ach-100-trainings">
+          <span class="mrow-media" aria-hidden="true"><svg><use href="#ic-dumbbell"></use></svg></span>
+          <span class="mrow-tx"><b>100 тренировок</b><span>Пройдено за сезон</span></span>
+        </div>
+        <div class="mrow" data-od-id="ach-3rd-place">
+          <span class="mrow-media" aria-hidden="true"><svg><use href="#ic-trend-up"></use></svg></span>
+          <span class="mrow-tx"><b>3-е место · Летний Кубок</b><span>Плавание · июнь 2026</span></span>
+        </div>
+        <div class="mrow is-locked" data-od-id="ach-gto-gold">
+          <span class="gto-badge" aria-hidden="true"><img src="../assets/gto/sign-gold.png" alt=""></span>
+          <span class="mrow-tx"><b>Знак ГТО · Золото</b><span>Сдайте ещё 2 норматива</span></span>
+        </div>
+      </div>
+      <button type="button" class="sec-all" data-toast="Полный список достижений откроется в полной версии" style="display:flex;justify-content:center;margin-top:var(--space-2)">Показать ещё →</button>
+    </section>
 
     <section class="sec" data-od-id="pv-info">
       <div class="sec-head"><h2>Общие данные</h2></div>
@@ -140,7 +165,7 @@
             <span class="mrow-t">Летний Кубок · 3-е место</span>
             <span class="mrow-s">Соревнование · 14 августа</span>
           </span>
-          <span class="mrow-side"><span class="mrow-pts">+50</span></span>
+          <span class="mrow-side"><span class="mrow-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+50</span></span>
         </div>
         <div class="mrow is-static">
           <span class="mrow-media" style="--c: var(--success)" aria-hidden="true"><svg><use href="#ic-trend-up"></use></svg></span>
@@ -148,7 +173,7 @@
             <span class="mrow-t">Вечерний бег · 5 км</span>
             <span class="mrow-s">Самостоятельно · 12 августа</span>
           </span>
-          <span class="mrow-side"><span class="mrow-pts">+20</span></span>
+          <span class="mrow-side"><span class="mrow-pts"><svg aria-hidden="true"><use href="#ic-star"></use></svg>+20</span></span>
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="ru">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b7bff'/%3E%3C/svg%3E">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fc">
@@ -60,7 +62,6 @@
     color: var(--c, var(--accent));
   }
   .sr-media svg { color: currentColor; }
-  .sr-ava { background: var(--c, var(--accent)); }
 
   .sr-tag {
     flex: none; display: inline-flex; align-items: center;
@@ -278,7 +279,7 @@
 
   function rowHtml(it) {
     var media = it.type === 'person'
-      ? '<span class="mrow-ava sr-ava" style="--c:' + (it.c || TYPE_C.person) + '">' + esc(initials(it.title)) + '</span>'
+      ? '<span class="mrow-ava is-tint" style="--c:' + (it.c || TYPE_C.person) + '">' + esc(initials(it.title)) + '</span>'
       : '<span class="mrow-media sr-media" style="--c:' + (it.c || TYPE_C[it.type]) + '"><svg aria-hidden="true"><use href="#' + it.ic + '"></use></svg></span>';
     var side = it.tag ? '<span class="sr-tag" style="--c:' + it.tagC + '">' + esc(it.tag) + '</span>' : '';
     var inner = media +
