@@ -127,8 +127,7 @@
     <section class="r-hero r-rise" data-od-id="gto-result-hero">
       <div class="gto-plaque" id="r-plaque">
         <div class="gto-emblem">
-          <img class="gto-ribbon" src="../assets/gto/ribbon.png" alt="" aria-hidden="true">
-          <img class="gto-sign" id="r-sign" src="../assets/gto/sign-gold.png" alt="Знак ГТО">
+          <svg class="gto-sign" id="r-sign" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>
         </div>
         <span class="gto-plaque-cap" id="r-cap">Знак ГТО получен · Золото</span>
       </div>
@@ -195,9 +194,9 @@
     run100: { name: 'Бег 100 м', unit: 'с' }
   };
   var LEVELS = [
-    { key: 'bronze', name: 'Бронзовый знак ГТО', cap: 'Бронза',  chip: 'ГТО · бронза',  img: 'sign-bronze.png' },
-    { key: 'silver', name: 'Серебряный знак ГТО', cap: 'Серебро', chip: 'ГТО · серебро', img: 'sign-silver.png' },
-    { key: 'gold',   name: 'Золотой знак ГТО',   cap: 'Золото',   chip: 'ГТО · золото',   img: 'sign-gold.png' }
+    { key: 'bronze', name: 'Бронзовый знак ГТО', cap: 'Бронза',  chip: 'ГТО · бронза',  cls: 'is-bronze' },
+    { key: 'silver', name: 'Серебряный знак ГТО', cap: 'Серебро', chip: 'ГТО · серебро', cls: 'is-silver' },
+    { key: 'gold',   name: 'Золотой знак ГТО',   cap: 'Золото',   chip: 'ГТО · золото',   cls: 'is-gold' }
   ];
 
   var DEFAULT_V = { pull: '20', run100: '14,6' };
@@ -224,7 +223,6 @@
   var plaque = $('r-plaque');
   plaque.classList.remove('is-bronze', 'is-silver', 'is-gold');
   plaque.classList.add('is-' + l.key);
-  $('r-sign').src = '../assets/gto/' + l.img;
   $('r-cap').textContent = 'Знак ГТО получен · ' + l.cap;
 
   if (rows.length === 1) {

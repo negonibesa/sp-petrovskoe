@@ -1491,7 +1491,7 @@ select.input:invalid { color: var(--muted); }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-3) var(--space-4);
   box-shadow: var(--elev-card);
 }
 .cal-head { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-1) var(--space-3); }
@@ -1507,12 +1507,12 @@ select.input:invalid { color: var(--muted); }
 
 /* Сетка недели и дней */
 .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-.cal-week { padding-bottom: var(--space-1); }
-.cal-grid { row-gap: var(--space-1); }
-.cal-wd { text-align: center; font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--meta); padding: var(--space-2) 0; }
+.cal-week { padding-bottom: 2px; }
+.cal-grid { row-gap: 4px; }
+.cal-wd { text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--meta); padding: 4px 0; }
 .cal-cell {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  width: 44px; height: 44px; margin: 0 auto;
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  width: 36px; height: 36px; margin: 0 auto;
   border: 1px solid var(--border); border-radius: 50%;
   background: var(--surface); color: var(--fg);
   cursor: pointer;
@@ -1521,13 +1521,13 @@ select.input:invalid { color: var(--muted); }
 .cal-cell:hover { border-color: var(--border-strong); background: var(--surface-2); }
 .cal-cell:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .cal-cell.is-other { opacity: 0.4; }
-.cal-num { font-size: var(--fs-body); font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.cal-num { font-size: 13px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
 .cal-cell.is-today { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); color: var(--accent); }
 .cal-cell.is-today .cal-num { font-weight: 700; }
 .cal-cell.is-sel { background: var(--accent); border-color: var(--accent); color: var(--accent-on); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, var(--surface)); }
 .cal-cell.is-sel .cal-num { font-weight: 700; }
-.cal-dots { display: flex; gap: var(--space-1); height: 6px; align-items: center; }
-.cal-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--c); }
+.cal-dots { display: flex; gap: 2px; height: 5px; align-items: center; }
+.cal-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--c); }
 .cal-cell.is-sel .cal-dot { background: #fff; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
 
 /* Панель дня под календарём */
@@ -1582,7 +1582,7 @@ select.input:invalid { color: var(--muted); }
 .body > .sec:first-child { margin-top: 0; }
 .body > .chips { margin-top: 0; }
 .body > .chips-sub { margin-top: var(--space-2); }
-.body > .cal-card { margin-top: var(--space-2); }
+.body > .cal-card { margin-top: var(--space-1); }
 .body > .day { margin-top: var(--space-6); }
 .site-foot { padding: var(--space-5) var(--space-2) var(--space-6); text-align: center; }
 .site-foot p { margin: 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
@@ -2127,12 +2127,12 @@ select.input:invalid { color: var(--muted); }
                <use href="assets/gto-icons.svg#gto-00-beg-1"></use>
              </svg>
    Монохром — цвет через currentColor (наследует у родителя).
-   Значки металлов в трёх размерах:
-     .gto-dot     7px    — точка в чипах (.gchip .dot);
-     .gto-badge   40×40  — круглый значок в списках/строках (.mrow),
-                  нейтральный фон — цвет несёт сам знак;
-     .gto-plaque  плашка — большой знак + лента (.gto-ribbon) под ним
-                  центр-в-центр как фон: дневник, «Знак ГТО получен».
+    Значки металлов в трёх размерах:
+      .gto-dot     7px    — точка в чипах (.gchip .dot);
+      .gto-badge   40×40  — круглый значок в списках/строках (.mrow),
+                   цветной круг по ступени (bronze/silver/gold);
+      .gto-plaque  плашка — большой знак ГТО без ленты,
+                   центр-в-центр: дневник, «Знак ГТО получен».
    ──────────────────────────────────────────────── */
 .gto-ic { flex: none; display: block; width: var(--icon-md); height: var(--icon-md); color: inherit; fill: currentColor; }
 
@@ -2144,11 +2144,13 @@ select.input:invalid { color: var(--muted); }
 .gto-badge {
   flex: none; width: 40px; height: 40px;
   display: grid; place-items: center;
-  border-radius: 50%; overflow: hidden;
-  background: var(--surface-2);
+  border-radius: 50%;
+  color: #fff;
 }
-.gto-badge img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.gto-badge .gto-ic { width: 24px; height: 24px; color: var(--muted); }
+.gto-badge.is-bronze { background: #CD7F32; }
+.gto-badge.is-silver { background: #A8B0B8; }
+.gto-badge.is-gold   { background: #FFD700; color: #5C4A00; }
+.gto-badge .gto-ic   { width: 22px; height: 22px; fill: currentColor; }
 
 .gto-plaque {
   position: relative;
@@ -2160,24 +2162,20 @@ select.input:invalid { color: var(--muted); }
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
-/* Эмблема в потоке (квадрат 50% ширины плашки), а не поверх: высота
-   плашки растёт под ширину, ничего не обрезается на любых размерах.
-   Знак 80% эмблемы — крупнее ленты, плашка компактнее по высоте. */
+/* Эмблема — тот же круг что .gto-badge, но крупнее (80×80) */
 .gto-emblem {
   position: relative;
-  width: 50%; aspect-ratio: 1 / 1;
+  width: 80px; height: 80px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: #fff;
 }
-.gto-emblem .gto-ribbon {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: contain;
-  z-index: 0;
-}
+.gto-emblem.is-bronze { background: #CD7F32; }
+.gto-emblem.is-silver { background: #A8B0B8; }
+.gto-emblem.is-gold   { background: #FFD700; color: #5C4A00; }
 .gto-emblem .gto-sign {
-  position: absolute; inset: 0; margin: auto; z-index: 1;
-  width: 80%; aspect-ratio: 1 / 1;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.18));
+  width: 44px; height: 44px;
+  fill: currentColor;
 }
 /* Подпись в потоке под эмблемой: группа «эмблема + подпись» центрируется
    по высоте баннера (justify-content: center). */
