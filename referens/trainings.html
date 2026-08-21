@@ -1,0 +1,390 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8fbff">
+<title>Петровское СП — Тренировки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/api/projects/70f2c5f4-fba6-4067-84f7-ae1f37d6970f/raw/base.css?workspaceId=dd2n7ydj2v65r2v24rls2lxe&workspaceMemberId=vlsaw47smfcyrq6outx9stha">
+<style>
+/* ── Токены — в base.css (канон design-system.html) ────────────────── */
+
+/* Статы: компактные метрики (компонент dash-stats → 3 колонки) */
+.trn-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-2); }
+.trn-stat {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.trn-stat .metric-ic { width: 36px; height: 36px; border-radius: var(--radius-sm); }
+.trn-stat .metric-ic svg { width: var(--icon-sm); height: var(--icon-sm); }
+.trn-stat-val {
+  font-family: var(--font-mono); font-size: var(--fs-title); font-weight: 600; line-height: 1;
+  color: var(--fg); font-variant-numeric: tabular-nums;
+}
+.trn-stat-val small { font-size: var(--fs-meta); font-weight: 500; color: var(--muted); }
+.trn-stat-sub { font-size: var(--fs-caption); line-height: 1.35; color: var(--muted); }
+
+/* Сегодня: план упражнений (карточка §06 + CTA §21) */
+.today-top { display: flex; align-items: flex-start; gap: var(--space-3); }
+.today-txt { flex: 1; min-width: 0; }
+.today-ex { margin: var(--space-4) 0 0; padding: 0; list-style: none; display: grid; gap: var(--space-2); }
+.today-ex li { display: flex; align-items: baseline; gap: var(--space-3); font-size: var(--fs-body); line-height: 1.4; }
+.today-ex .ex-num {
+  flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 600;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+.today-ex .ex-name { flex: 1; min-width: 0; color: var(--fg); }
+.today-ex .ex-sets { flex: none; font-size: var(--fs-meta); color: var(--meta); font-variant-numeric: tabular-nums; }
+
+/* Неделя / стрик */
+.week-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: var(--space-4); }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-1); text-align: center; }
+.wk-dow { font-size: var(--fs-caption); font-weight: 700; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--meta); margin-bottom: var(--space-1); }
+.wk-day {
+  display: grid; place-items: center; width: 36px; height: 36px; margin: 0 auto; border-radius: 50%;
+  font-family: var(--font-mono); font-size: var(--fs-meta); font-weight: 600;
+  color: var(--fg-2); background: var(--surface-2); border: 1px solid transparent;
+}
+.wk-day.is-done { background: color-mix(in srgb, var(--type-training) 16%, var(--surface)); color: var(--type-training); }
+.wk-day.is-today { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.wk-day.is-miss { color: var(--meta); opacity: 0.5; }
+.week-foot { margin: var(--space-3) var(--space-1) 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+.week-foot b { font-weight: 600; color: var(--fg-2); }
+
+/* Журнал: карточки на базе ev-card (§06) */
+.log-card { animation: rise 0.5s var(--ease-standard) both; animation-delay: calc(var(--i, 0) * 60ms); }
+@keyframes rise { from { transform: translateY(10px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .log-card { animation: none; } }
+.log-top { display: flex; align-items: center; gap: var(--space-3); }
+.log-top .ev-badge { margin-left: auto; }
+.log-meta { margin: var(--space-3) 0 0; font-size: var(--fs-meta); line-height: 1.45; color: var(--muted); }
+.log-meta b { font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.log-foot { margin-top: var(--space-3); display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.log-stat { font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+.log-replay {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  border: 0; background: var(--surface-2); color: var(--accent);
+  font-size: var(--fs-meta); font-weight: 600; border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4); cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+}
+.log-replay:hover { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); }
+.log-replay:active { transform: scale(0.985); }
+.log-replay:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.log-replay svg { width: 14px; height: 14px; }
+</style>
+</head>
+<body data-od-id="trainings">
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M4 11l8-6.5L20 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-events" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="15.5" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="ic-trend" viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 6-8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 7H19v3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 19.5c0-3.1 2.9-5.2 6.5-5.2s6.5 2.1 6.5 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 18.5c0-2.7 2.4-4.7 5.5-4.7s5.5 2 5.5 4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 6a3 3 0 0 1 0 5.6M17.6 14c1.8.6 3 2 3 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-run" viewBox="0 0 24 24"><circle cx="14.5" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13 8l-2 3 2 2 1.5 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 11L7.5 8.5M13 13l3 2M16 15l1 5M6.5 8.5L8 5.5 5 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.5l1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4 1.1-2.2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.3-5.2M19 4v4h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd" data-od-id="trn-header">
+    <div class="avatar" aria-hidden="true">Т</div>
+    <div class="hd-txt">
+      <h1>Тренировки</h1>
+      <p class="sub">Программа на неделю и журнал занятий</p>
+    </div>
+    <div class="hd-acts">
+      <button type="button" class="icon-btn" data-toast="Журнал за всё время — в полной версии" aria-label="Журнал"><svg aria-hidden="true"><use href="#ic-dots"/></svg></button>
+    </div>
+  </header>
+
+  <main class="body">
+    <section class="trn-stats" data-od-id="trn-stats">
+      <div class="trn-stat">
+        <span class="metric-ic" aria-hidden="true" style="--c: var(--accent)"><svg><use href="#ic-trend"/></svg></span>
+        <span class="trn-stat-val">2<small> / 3</small></span>
+        <span class="trn-stat-sub">по плану на неделе</span>
+      </div>
+      <div class="trn-stat">
+        <span class="metric-ic" aria-hidden="true" style="--c: var(--yellow)"><svg><use href="#ic-clock"/></svg></span>
+        <span class="trn-stat-val">3,5</span>
+        <span class="trn-stat-sub">активной работы</span>
+      </div>
+      <div class="trn-stat">
+        <span class="metric-ic" aria-hidden="true" style="--c: var(--success)"><svg><use href="#ic-cal"/></svg></span>
+        <span class="trn-stat-val">3</span>
+        <span class="trn-stat-sub">дня с тренировкой</span>
+      </div>
+    </section>
+
+    <section class="sec" data-od-id="trn-today">
+      <div class="sec-head">
+        <h2>Сегодня</h2>
+      </div>
+      <div class="ev-card" style="--c: var(--type-training)">
+        <div class="today-top">
+          <div class="today-txt">
+            <h3 class="ev-title" id="today-title"></h3>
+            <p class="ev-meta" id="today-meta"></p>
+          </div>
+          <span class="gchip" data-od-id="trn-today-badge" style="--c: var(--type-training)"><span class="dot" aria-hidden="true"></span>План</span>
+        </div>
+        <ul class="today-ex" id="today-ex"></ul>
+        <button type="button" class="cta" id="trn-start" data-od-id="trn-start">Начать тренировку</button>
+      </div>
+    </section>
+
+    <section class="sec" data-od-id="trn-week">
+      <div class="sec-head">
+        <h2>Неделя</h2>
+      </div>
+      <div class="week-card">
+        <div class="week" id="week"></div>
+        <p class="week-foot" id="week-foot"></p>
+      </div>
+    </section>
+
+    <section class="sec" data-od-id="trn-logs">
+      <div class="sec-head">
+        <h2>Последние тренировки</h2>
+        <button type="button" class="sec-all" data-toast="Полный журнал — в полной версии">Вся история<svg aria-hidden="true"><use href="#ic-chev"/></svg></button>
+      </div>
+      <div class="cards" id="trn-logs"></div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" data-od-id="tabbar" aria-label="Разделы">
+  <a class="tab" href="home-v2.html" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-home"/></svg></span>Главная</a>
+  <a class="tab" href="schedule-calendar.html" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-events"/></svg><span class="notif" aria-hidden="true">3</span></span>Расписание</a>
+  <button class="tab is-on" aria-label="Тренировки"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-trend"/></svg></span>Тренировки</button>
+  <button class="tab" data-toast="Сообщество — в следующей итерации" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-users"/></svg></span>Сообщество</button>
+  <a class="tab" href="profile-v2.html" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true"><use href="#ic-user"/></svg></span>Профиль</a>
+</nav>
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var LS_PLAN = 'trn:plan';
+  var LS_ACTIVE = 'trn:active';
+  var LS_LOGS = 'trn:logs';
+  var LS_REPORT = 'trn:report';
+
+  function defaultPlan() {
+    return {
+      id: 'plan-sila',
+      title: 'Силовая тренировка',
+      date: 'Сегодня',
+      time: '18:00 – 19:30',
+      place: 'Тренажёрный зал',
+      type: 'training',
+      exercises: [
+        { name: 'Жим штанги лёжа', sets: '4 × 8 · 40 кг' },
+        { name: 'Приседания со штангой', sets: '4 × 10 · 50 кг' },
+        { name: 'Тяга верхнего блока', sets: '3 × 12 · 30 кг' },
+        { name: 'Подъём на бицепс стоя', sets: '3 × 12 · 12 кг' },
+        { name: 'Скручивания на пресс', sets: '3 × 20' }
+      ]
+    };
+  }
+
+  function defaultLogs() {
+    return [
+      {
+        id: 'log1', title: 'Силовая тренировка', date: 'Чт, 6 авг', time: '07:00 – 08:00',
+        done: 5, total: 5, dur: 58, status: 'done', exercises: defaultPlan().exercises
+      },
+      {
+        id: 'log2', title: 'Плавание', date: 'Вт, 4 авг', time: '07:00 – 08:00',
+        done: 3, total: 4, dur: 46, status: 'done', exercises: [
+          { name: 'Разминка в воде', sets: '10 мин' },
+          { name: 'Кроль, техника', sets: '6 × 100 м' },
+          { name: 'Брасс, техника', sets: '4 × 50 м' },
+          { name: 'Заминка', sets: '5 мин' }
+        ]
+      },
+      {
+        id: 'log3', title: 'Вечерняя пробежка клуба', date: 'Сб, 2 авг', time: '19:00 – 20:30',
+        done: 1, total: 1, dur: 61, status: 'done', exercises: [
+          { name: 'Кросс 5 км', sets: '5 км' }
+        ]
+      },
+      {
+        id: 'log4', title: 'Силовая тренировка', date: 'Пн, 28 июл', time: '18:00 – 19:30',
+        done: 2, total: 5, dur: 41, status: 'cancelled', exercises: defaultPlan().exercises
+      }
+    ];
+  }
+
+  function lsGet(key, fallback) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, val); } catch (e) { /* noop */ }
+  }
+
+  function byId(id) { return document.getElementById(id); }
+
+  function toast(msg) {
+    var wrap = byId('toasts');
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(function () {
+      t.classList.add('hide');
+      setTimeout(function () { t.remove(); }, 260);
+    }, 2200);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  var plan = defaultPlan();
+  var logs = defaultLogs();
+
+  try {
+    var storedPlan = lsGet(LS_PLAN);
+    if (storedPlan) plan = JSON.parse(storedPlan);
+    var storedLogs = lsGet(LS_LOGS);
+    if (storedLogs) logs = JSON.parse(storedLogs);
+  } catch (e) { /* use defaults */ }
+
+  function renderToday() {
+    byId('today-title').textContent = plan.title;
+    byId('today-meta').textContent = (plan.time ? plan.time + ' · ' : '') + plan.place;
+    var ul = byId('today-ex');
+    ul.innerHTML = '';
+    plan.exercises.forEach(function (ex, i) {
+      var li = document.createElement('li');
+      li.innerHTML =
+        '<span class="ex-num">' + (i + 1) + '</span>' +
+        '<span class="ex-name">' + esc(ex.name) + '</span>' +
+        '<span class="ex-sets">' + esc(ex.sets || '') + '</span>';
+      ul.appendChild(li);
+    });
+  }
+
+  function renderWeek() {
+    var days = [
+      { d: 'Пн', n: 28, s: 'done' },
+      { d: 'Вт', n: 29, s: 'done' },
+      { d: 'Ср', n: 30, s: 'done' },
+      { d: 'Чт', n: 31, s: 'done' },
+      { d: 'Пт', n: 1, s: 'today' },
+      { d: 'Сб', n: 2, s: 'miss' },
+      { d: 'Вс', n: 3, s: 'miss' }
+    ];
+    var week = byId('week');
+    week.innerHTML = '';
+    days.forEach(function (d) {
+      var col = document.createElement('div');
+      col.innerHTML =
+        '<div class="wk-dow">' + d.d + '</div>' +
+        '<div class="wk-day ' + (d.s === 'today' ? 'is-today' : d.s === 'done' ? 'is-done' : d.s === 'miss' ? 'is-miss' : '') + '">' + d.n + '</div>';
+      week.appendChild(col);
+    });
+    byId('week-foot').innerHTML =
+      'Уже 3 тренировки подряд — <b>держите серию!</b> План на неделю: 3 из 3.';
+  }
+
+  function renderLogs() {
+    var wrap = byId('trn-logs');
+    wrap.innerHTML = '';
+    if (!logs.length) {
+      wrap.innerHTML = '<div class="empty"><b>Тренировок пока нет</b><span>Начните первую — план уже готов на сегодня</span></div>';
+      return;
+    }
+    logs.slice(0, 4).forEach(function (log, i) {
+      var card = document.createElement('div');
+      card.className = 'log-card ev-card';
+      card.style.setProperty('--i', i);
+      card.style.setProperty('--c', log.status === 'cancelled' ? 'var(--st-cancelled)' : 'var(--type-training)');
+      var donePct = log.total ? Math.round(log.done / log.total * 100) : 100;
+      var badge = log.status === 'cancelled'
+        ? '<span class="ev-badge" style="--c: var(--st-cancelled)">Отменено</span>'
+        : '<span class="ev-badge" style="--c: var(--st-done)">Завершено</span>';
+      card.innerHTML =
+        '<div class="log-top"><h4 class="ev-title">' + esc(log.title) + '</h4>' + badge + '</div>' +
+        '<p class="log-meta">' + esc(log.date) + ' · ' + esc(log.time) +
+        '<br>Выполнено <b>' + log.done + ' из ' + log.total + '</b> упражнений · ' + log.dur + ' мин</p>' +
+        '<div class="log-foot">' +
+        '<span class="log-stat">' + donePct + '% программы</span>' +
+        '<button type="button" class="log-replay" data-replay="' + esc(log.id) + '"><svg aria-hidden="true"><use href="#ic-refresh"/></svg>Повторить</button>' +
+        '</div>';
+      wrap.appendChild(card);
+    });
+  }
+
+  function saveActive() {
+    var active = {
+      planId: plan.id,
+      title: plan.title,
+      time: plan.time,
+      place: plan.place,
+      dateLabel: plan.date,
+      startTs: Date.now(),
+      exercises: plan.exercises.map(function (ex) {
+        return { name: ex.name, sets: ex.sets, done: false };
+      })
+    };
+    lsSet(LS_ACTIVE, JSON.stringify(active));
+  }
+
+  function start() {
+    saveActive();
+    location.href = 'training-active.html';
+  }
+
+  function replay(logId) {
+    var log = null;
+    logs.forEach(function (l) { if (l.id === logId) log = l; });
+    if (!log) return;
+    plan = {
+      id: log.id,
+      title: log.title,
+      date: 'Сегодня',
+      time: log.time,
+      place: log.place || 'Тренажёрный зал',
+      type: 'training',
+      exercises: log.exercises
+    };
+    lsSet(LS_PLAN, JSON.stringify(plan));
+    renderToday();
+    start();
+  }
+
+  byId('trn-start').addEventListener('click', start);
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-replay]') : null;
+    if (btn) replay(btn.getAttribute('data-replay'));
+  });
+
+  document.querySelectorAll('[data-toast]').forEach(function (b) {
+    b.addEventListener('click', function () { toast(b.getAttribute('data-toast')); });
+  });
+
+  renderToday();
+  renderWeek();
+  renderLogs();
+})();
+</script>
+</body>
+</html>

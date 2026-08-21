@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "fileName": "home-v2.html",
+  "currentVersionId": "cd618016-75d9-4c4c-875f-a9ef77d130a0",
+  "entries": [
+    {
+      "id": "cd618016-75d9-4c4c-875f-a9ef77d130a0",
+      "fileName": "home-v2.html",
+      "version": 1,
+      "label": "Version 1",
+      "createdAt": 1786556826361,
+      "source": "manual",
+      "prompt": null,
+      "size": 5209184,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0001-cd618016-75d9-4c4c-875f-a9ef77d130a0.html",
+      "contentDigest": "b21c9d25eefd725c5afab86739692fea7e82fb153c5bb434f1301974abc6b9e4",
+      "promptSource": "manual"
+    }
+  ]
+}

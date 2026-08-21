@@ -47,8 +47,7 @@
   </header>
 
   <main class="body" data-od-id="schedule-body">
-    <div class="chips" id="type-chips" data-od-id="type-filters" role="group" aria-label="Фильтр по типу события"></div>
-    <div class="chips chips-sub" id="sub-chips" data-od-id="sub-filters" role="group" aria-label="Подтип тренировки" hidden></div>
+    <div class="chips" id="type-chips" data-od-id="type-filters" role="group" aria-label="Фильтр по типу тренировки"></div>
 
     <section class="cal-card" data-od-id="calendar">
       <div class="cal-head">
@@ -127,16 +126,10 @@
   };
   var FILTERS = [
     { id: 'all', label: 'Все', token: null },
-    { id: 'training', label: 'Тренировки', token: '--type-training' },
-    { id: 'event', label: 'События СП', token: '--type-event' },
-    { id: 'club', label: 'Клубы', token: '--type-club' },
+    { id: 'personal', label: 'Индивидуальные', token: '--type-training' },
+    { id: 'group', label: 'Групповые', token: '--type-training' },
+    { id: 'coach', label: 'Самостоятельные', token: '--type-training' },
     { id: 'rental', label: 'Аренда', token: '--type-rental' }
-  ];
-  var SUBS = [
-    { id: 'all', label: 'Все' },
-    { id: 'personal', label: 'Личные' },
-    { id: 'coach', label: 'С тренером' },
-    { id: 'group', label: 'Групповые' }
   ];
   var state = { filter: 'all', sub: 'all', scope: 'all' };
   var SCOPE = [
@@ -197,8 +190,13 @@
     var key = iso(d.getDate(), d.getMonth(), d.getFullYear());
     return EVENTS.filter(function (e) {
       if (e.d !== key) return false;
-      if (state.filter !== 'all' && e.type !== state.filter) return false;
-      if (state.filter === 'training' && state.sub !== 'all' && e.sub !== state.sub) return false;
+      if (state.filter !== 'all') {
+        if (state.filter === 'rental') {
+          if (e.type !== 'rental') return false;
+        } else {
+          if (e.type !== 'training' || e.sub !== state.filter) return false;
+        }
+      }
       if (state.scope === 'mine' && e.st !== 'confirmed' && e.st !== 'done') return false;
       if (state.scope === 'inv' && e.st !== 'pending') return false;
       return true;
@@ -220,28 +218,6 @@
         state.filter = f.id;
         state.sub = 'all';
         renderChips();
-        renderSub();
-        renderGrid();
-        renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
-      });
-      box.appendChild(b);
-    });
-  }
-
-  function renderSub() {
-    var box = document.getElementById('sub-chips');
-    box.hidden = state.filter !== 'training';
-    if (box.hidden) return;
-    box.innerHTML = '';
-    SUBS.forEach(function (s) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'fchip' + (state.sub === s.id ? ' is-on' : '');
-      b.innerHTML = s.label;
-      b.addEventListener('click', function () {
-        if (state.sub === s.id) return;
-        state.sub = s.id;
-        renderSub();
         renderGrid();
         renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
       });
@@ -413,7 +389,6 @@
 
   renderWeek();
   renderChips();
-  renderSub();
   renderGrid();
   renderDay(new Date(view.getFullYear(), view.getMonth(), selected));
 

@@ -1,0 +1,2813 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf4ff">
+<title>Петровское СП — создание события</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eaf4ff;
+  --surface: #ffffff;
+  --surface-2: #eef6ff;
+  --surface-warm: #f8fbff;
+
+  --fg: #12213b;
+  --fg-2: #445269;
+  --muted: #78859b;
+  --meta: #99a4b7;
+
+  --border: rgba(18,33,59,0.08);
+  --border-soft: rgba(18,33,59,0.05);
+  --border-strong: rgba(18,33,59,0.16);
+
+  --accent: #1a86e0;
+  --accent-on: #ffffff;
+  --accent-hover: #2f97f0;
+  --accent-active: #1473c9;
+  --yellow: #ffc93c;
+  --yellow-on: #12213b;
+
+  --success: #2bb066;
+  --warn: #ffc93c;
+  --danger: #ff4d4d;
+
+  --font-display: "Oswald", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --leading-body: 1.5;
+  --tracking-display: 0.01em;
+  --tracking-caps: 0.08em;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 980px;
+
+  --elev-raised: 0 16px 36px rgba(18,33,59,0.10);
+  --focus-ring: 0 0 0 4px rgba(26,134,224,0.30);
+
+  --motion-fast: 150ms;
+  --motion-base: 220ms;
+  --ease-standard: cubic-bezier(0.28,0,0.22,1);
+
+  --container-max: 700px;
+}
+:root {
+  --sport-run: #e8622c;
+  --sport-swim: #1a8fd6;
+  --sport-bike: #2f9e54;
+  --sport-ofp: #9b5de5;
+  --sport-strength: #d6485b;
+  --sport-gto: #c9a06b;
+  --sport-general: #2bb066;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-warm);
+  color: var(--fg);
+  font-family: var(--font-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font-family: inherit; }
+a { color: inherit; }
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 0 calc(196px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+
+/* ── Шапка ─────────────────────────────────────────────────────────── */
+.hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 12px 8px;
+}
+@media (min-width: 560px) { .hd { padding: 40px 24px 10px; } }
+.back-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.back-btn:hover { background: var(--surface-2); }
+.back-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.back-btn svg { width: 18px; height: 18px; }
+.hd-txt { flex: 1; min-width: 0; }
+.hd h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.3;
+  color: var(--fg);
+}
+.hd-sub { margin: 2px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.hd-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.hd-close:hover { background: var(--surface); }
+.hd-close:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.hd-close svg { width: 20px; height: 20px; }
+
+/* ── Степпер ───────────────────────────────────────────────────────── */
+.steps { display: flex; gap: 6px; padding: 4px 12px 16px; }
+@media (min-width: 560px) { .steps { padding: 4px 24px 18px; } }
+.step-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  transition: background var(--motion-base) var(--ease-standard);
+}
+.step-dot.done { background: var(--accent); }
+.step-dot.now { background: var(--accent); }
+
+/* ── Тело ──────────────────────────────────────────────────────────── */
+.body { padding: 0 12px; }
+@media (min-width: 560px) { .body { padding: 0 24px; } }
+
+/* ── Постоянная сводка брони ───────────────────────────────────────── */
+.recap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.recap-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--accent);
+}
+.recap-ic svg { width: 18px; height: 18px; }
+.recap-main { flex: 1; min-width: 0; }
+.recap-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recap-when { margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--meta); }
+.recap-cost {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.step { display: none; }
+.step.active { display: block; animation: fade-in 0.28s var(--ease-standard) both; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .step.active { animation: none; } }
+
+.step-title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.25;
+}
+.step-note { margin: 0 0 16px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+
+/* ── Карточки ──────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card + .card { margin-top: -6px; }
+.card-title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.card-title .tt-ic { margin-right: 6px; font-style: normal; }
+.card-title .tt-ic svg { width: 15px; height: 15px; vertical-align: -2px; }
+
+/* ── Типы события ──────────────────────────────────────────────────── */
+.type-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 560px) { .type-grid { grid-template-columns: repeat(3, 1fr); } }
+.type-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 132px;
+  padding: 16px;
+  text-align: left;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard),
+              transform var(--motion-fast) var(--ease-standard);
+}
+.type-card:hover { border-color: color-mix(in srgb, var(--c) 50%, var(--border)); }
+.type-card:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.type-card:active { transform: scale(0.98); }
+.type-card .tc-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--c) 12%, var(--surface));
+  color: var(--c);
+}
+.type-card .tc-ic svg { width: 22px; height: 22px; }
+.type-card .tc-name { font-size: 16px; font-weight: 700; color: var(--fg); }
+.type-card .tc-hint { font-size: 12px; line-height: 1.4; color: var(--muted); }
+.type-card.is-sel {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 7%, var(--surface));
+}
+.type-card.is-sel::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--c);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 60% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 60% no-repeat;
+}
+
+/* ── Поля ──────────────────────────────────────────────────────────── */
+.field { display: grid; gap: 6px; margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.mt-3 { margin-top: 12px; }
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.input::placeholder { color: var(--meta); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+select.input { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--meta) 50%), linear-gradient(135deg, var(--meta) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.field-row .label { height: 18px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.field-row .input { height: 48px; }
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg-btn {
+  flex: 1;
+  min-width: 100px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              border-color var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard);
+}
+.seg-btn:hover:not(.is-off) { background: var(--surface-2); }
+.seg-btn.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+.seg-btn.is-off { opacity: 0.4; text-decoration: line-through; cursor: default; }
+
+/* ── Переключатели ─────────────────────────────────────────────────── */
+.card-row { display: flex; align-items: center; gap: 12px; }
+.card-text { flex: 1; min-width: 0; }
+.card-name { font-size: 15px; font-weight: 700; color: var(--fg); }
+.card-sub { font-size: 12px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  flex: none;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.switch .slider::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: var(--accent-on);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+.switch input:focus-visible + .slider { box-shadow: var(--focus-ring); }
+
+.hint-note { margin: 10px 0 0; font-size: 12px; line-height: 1.45; color: var(--meta); }
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  margin-bottom: 10px;
+}
+.btn-block { width: 100%; }
+
+.cost-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--fg-2); margin-top: 12px; }
+.cost-line b { font-family: var(--font-body); font-size: 15px; font-weight: 700; color: var(--fg); }
+
+.total-card { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.total-main { flex: 1; min-width: 0; }
+.total-label { font-size: 15px; font-weight: 700; color: var(--fg); }
+.total-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--meta); }
+.total-value { font-family: var(--font-body); font-size: 24px; font-weight: 700; color: var(--accent); }
+
+/* ── Шаблоны и упражнения ──────────────────────────────────────────── */
+.tpl-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-warm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              border-color var(--motion-fast) var(--ease-standard);
+}
+.tpl-pick:hover { background: var(--surface-2); border-color: var(--accent); }
+.tpl-pick:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.tpl-pick.has-tpl { border-style: solid; }
+.tpl-pick-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+}
+.tpl-pick-ic svg { width: 18px; height: 18px; }
+.tpl-pick-main { flex: 1; min-width: 0; }
+.tpl-pick-label { display: block; font-size: 15px; font-weight: 600; color: var(--fg); }
+.tpl-pick-sub { display: block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.tpl-pick-chev { flex: none; color: var(--meta); display: grid; place-items: center; }
+.tpl-pick-chev svg { width: 16px; height: 16px; }
+
+.tpl-srow-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 16px 2px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tpl-srow-group:first-child { margin-top: 0; }
+.tpl-srow-group .tpl-srow-dot { width: 8px; height: 8px; }
+.tpl-srow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              border-color var(--motion-fast) var(--ease-standard);
+}
+.tpl-srow:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.tpl-srow:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.tpl-srow.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.tpl-srow-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; }
+.tpl-srow-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tpl-srow-name { font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--fg); }
+.tpl-srow-count { font-size: 13px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
+.tpl-srow-check {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  color: transparent;
+  display: grid;
+  place-items: center;
+  transition: all var(--motion-fast) var(--ease-standard);
+}
+.tpl-srow.is-on .tpl-srow-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tpl-srow-check svg { width: 13px; height: 13px; }
+.tpl-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin-left: 8px;
+  vertical-align: 2px;
+}
+.tpl-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.45; color: var(--meta); }
+
+.ex-list { display: grid; gap: 8px; margin-top: 12px; }
+.ex-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+}
+.ex-row .ex-ic {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--accent);
+}
+.ex-row .ex-ic svg { width: 16px; height: 16px; }
+.ex-row .ex-main { flex: 1; min-width: 0; }
+.ex-row .ex-name { font-size: 14px; font-weight: 600; color: var(--fg); }
+.ex-row .ex-sets { font-size: 12px; color: var(--muted); }
+.ex-row .p-remove { width: 30px; height: 30px; }
+.ex-move {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.ex-move button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--meta);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+}
+.ex-move button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); }
+.ex-move button:disabled { opacity: 0.35; cursor: default; }
+.ex-move button svg { width: 13px; height: 13px; }
+.ex-empty { font-size: 12px; line-height: 1.45; color: var(--meta); margin-top: 12px; }
+.ex-add { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.ex-add select.input { flex: 1; min-width: 0; }
+.input-area { height: auto; min-height: 76px; padding: 12px 14px; resize: vertical; line-height: 1.45; }
+
+/* ── Слоты ─────────────────────────────────────────────────────────── */
+.slot-sub { margin: 0 0 10px; font-size: 14px; color: var(--fg-2); }
+.slot-sub b { font-weight: 700; color: var(--fg); }
+.slot-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.slot {
+  flex: none;
+  min-width: 76px;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              background var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard);
+}
+.slot:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.slot:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.slot.is-free { border-color: color-mix(in srgb, var(--success) 45%, var(--border)); background: color-mix(in srgb, var(--success) 8%, var(--surface)); }
+.slot.is-free.is-sel { background: var(--success); border-color: var(--success); color: #fff; }
+.slot.is-booked { border-color: color-mix(in srgb, var(--warn) 55%, var(--border)); background: color-mix(in srgb, var(--warn) 14%, var(--surface)); color: var(--fg-2); }
+.slot.is-busy { border-style: dashed; border-color: color-mix(in srgb, var(--danger) 50%, var(--border)); background: var(--surface-2); color: var(--meta); text-decoration: line-through; cursor: default; }
+.slot.is-busy:hover { background: var(--surface-2); }
+.slot[disabled] { opacity: 0.75; }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+.legend-dot.green { background: var(--success); }
+.legend-dot.yellow { background: var(--warn); }
+.legend-dot.red { background: var(--danger); }
+
+/* ── Пустое состояние слотов ───────────────────────────────────────── */
+.no-slots {
+  border: 1px dashed color-mix(in srgb, var(--danger) 55%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--danger) 4%, var(--surface));
+  padding: 18px 16px;
+  text-align: center;
+}
+.no-slots .ns-ic {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  color: var(--danger);
+}
+.no-slots .ns-ic svg { width: 24px; height: 24px; }
+.no-slots .ns-title { margin: 8px 0 4px; font-size: 16px; font-weight: 700; color: var(--fg); }
+.no-slots .ns-text { margin: 0 auto; max-width: 340px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.slot-grid > .no-slots,
+.slot-grid > .alt-block,
+.slot-grid > .waitlist { flex: 1 1 100%; width: 100%; }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              border-color var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard);
+}
+.btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn svg { flex: none; width: 18px; height: 18px; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-active); }
+.btn-outline-danger { border-color: color-mix(in srgb, var(--danger) 50%, var(--border)); color: var(--danger); background: var(--surface); }
+
+/* ── Альтернативы ──────────────────────────────────────────────────── */
+.alt-block { margin-top: 12px; }
+.alt-block .alt-title { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--fg); }
+.alt-block .alt-note { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+.alt-group { margin-bottom: 12px; }
+.alt-date { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--fg-2); }
+.alt-date em { font-style: normal; color: var(--meta); font-weight: 500; }
+.alt-venue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.alt-venue .av-main { flex: 1; min-width: 0; }
+.alt-venue .av-name { font-size: 15px; font-weight: 700; color: var(--fg); }
+.alt-venue .av-addr { font-size: 12px; color: var(--muted); }
+.alt-venue .av-slots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ── Waitlist ──────────────────────────────────────────────────────── */
+.waitlist {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 14px;
+}
+.waitlist .wl-ic {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+}
+.waitlist .wl-ic svg { width: 20px; height: 20px; }
+.waitlist .wl-main { flex: 1; min-width: 0; }
+.waitlist .wl-title { font-size: 14px; font-weight: 700; color: var(--fg); }
+.waitlist .wl-text { font-size: 12px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
+
+/* ── Люди ──────────────────────────────────────────────────────────── */
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+.person .p-ava {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--fg-2);
+  font-size: 14px;
+  font-weight: 700;
+}
+.av { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.person .p-main { flex: 1; min-width: 0; }
+.person .p-name { font-size: 15px; font-weight: 600; color: var(--fg); }
+.person .p-sub { font-size: 12px; color: var(--muted); }
+.person .p-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  border-radius: 7px;
+  padding: 3px 8px;
+}
+.person .p-badge.pending { color: var(--warn); background: color-mix(in srgb, var(--warn) 18%, var(--surface)); }
+.person .p-badge svg { width: 13px; height: 13px; flex: none; }
+.person.is-invited { border-color: color-mix(in srgb, var(--success) 45%, var(--border)); background: color-mix(in srgb, var(--success) 6%, var(--surface)); }
+.person.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.p-remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--meta);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+}
+.p-remove:hover { background: color-mix(in srgb, var(--danger) 12%, var(--surface)); color: var(--danger); }
+.p-remove svg { width: 14px; height: 14px; }
+
+/* ── Превью ────────────────────────────────────────────────────────── */
+.summary { display: grid; gap: 0; }
+.sum-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.sum-row:last-child { border-bottom: 0; }
+.sum-k { flex: none; width: 120px; font-size: 12px; font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--meta); padding-top: 3px; }
+.sum-v { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--fg); line-height: 1.4; }
+.sum-v .sub { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, var(--surface));
+  border-radius: 7px;
+  padding: 4px 9px;
+}
+
+/* ── Площадки ──────────────────────────────────────────────────────── */
+#step-facility .card { margin-bottom: 14px; }
+#step-facility .card + .card { margin-top: 0; }
+#step-facility #fac-owner { margin: 0 0 14px; }
+#step-facility #row-duration { margin-top: 18px; }
+#step-facility #fac-range { margin-top: 14px; }
+#step-trainer #tr-duration-wrap { margin-top: 18px; }
+#step-trainer #tr-range { margin-top: 14px; }
+.fac-card .card-title { margin-bottom: 18px; }
+.facility-group {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+.facility-group::-webkit-scrollbar { width: 6px; }
+.facility-group::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+.facility-group::-webkit-scrollbar-track { background: transparent; }
+.facility-row { display: flex; align-items: stretch; gap: 8px; }
+.facility-opt {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.facility-opt:hover { border-color: var(--border-strong); }
+.facility-row.is-on .facility-opt,
+.facility-row.is-on .fo-info {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+.facility-opt .fo-name { display: block; font-size: 15px; font-weight: 700; color: var(--fg); }
+.facility-opt .fo-sub { display: block; margin-top: 4px; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.fo-info {
+  flex: none;
+  width: 48px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--meta);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.fo-info:hover { color: var(--accent); border-color: var(--border-strong); }
+.fo-info svg { width: 20px; height: 20px; }
+
+/* ── Карточка о площадке ───────────────────────────────────────────── */
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 33, 59, 0.5);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: ov-in var(--motion-base) var(--ease-standard) both;
+}
+.info-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--elev-raised);
+  animation: card-pop 0.28s var(--ease-standard) both;
+}
+@keyframes card-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.info-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--fg-2);
+  cursor: pointer;
+}
+.info-close svg { width: 16px; height: 16px; }
+.info-photo {
+  position: relative;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+}
+.info-photo-ic { width: 54px; height: 54px; }
+.info-photo-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.info-body { padding: 18px; }
+.info-name { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--fg); }
+.info-addr { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.info-desc { margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: var(--fg-2); }
+.info-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.info-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+}
+
+.done-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+  border-radius: 7px;
+  padding: 4px 10px;
+}
+
+/* ── Шторка друзей ─────────────────────────────────────────────────── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18,33,59,0.45);
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: ov-in var(--motion-base) var(--ease-standard) both;
+}
+@keyframes ov-in { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  width: 100%;
+  max-width: var(--container-max);
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  animation: sheet-up 0.32s var(--ease-standard) both;
+}
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sheet-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.sheet-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--fg-2);
+  cursor: pointer;
+}
+.sheet-close svg { width: 16px; height: 16px; }
+.sheet-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+}
+.sheet-search svg { width: 18px; height: 18px; color: var(--meta); flex: none; }
+.sheet-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font: inherit; font-size: 15px; color: var(--fg); }
+.sheet-search input::placeholder { color: var(--meta); }
+.sheet-counter { font-size: 12px; font-weight: 600; color: var(--meta); margin: 0 2px 10px; }
+.sheet-list { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sheet-list .person { cursor: pointer; }
+.sheet-note { margin-top: 12px; font-size: 12px; line-height: 1.45; color: var(--meta); text-align: center; }
+.sheet-empty { text-align: center; padding: 24px 0; font-size: 14px; color: var(--meta); }
+
+/* ── Редактирование упражнения ─────────────────────────────────────── */
+.ex-sheet-name { margin: 2px 0 14px; font-size: 17px; font-weight: 700; color: var(--fg); letter-spacing: -0.011em; }
+.ex-sheet-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.45; color: var(--meta); }
+.ex-sheet-actions { display: grid; gap: 10px; margin-top: 16px; }
+.ex-sheet-actions .btn { width: 100%; height: 48px; }
+
+/* ── Экран готово ──────────────────────────────────────────────────── */
+.done-wrap { text-align: center; padding: 28px 12px 8px; }
+.done-ic {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--success) 14%, var(--surface));
+  color: var(--success);
+}
+.done-ic svg { width: 44px; height: 44px; }
+.done-title { margin: 0; font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: var(--tracking-display); }
+.done-sub { margin: 6px 0 24px; font-size: 14px; color: var(--muted); }
+.done-card {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.done-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.done-card .dc-line { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--fg-2); margin-top: 4px; }
+.done-card .dc-line svg { width: 16px; height: 16px; color: var(--meta); flex: none; }
+.done-notes { text-align: left; margin-bottom: 20px; }
+.done-note { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--fg-2); padding: 8px 2px; }
+.done-note svg { width: 18px; height: 18px; color: var(--success); flex: none; }
+
+/* ── Нижняя панель ─────────────────────────────────────────────────── */
+.actions {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: var(--container-max);
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(246,251,255,0) 0%, rgba(246,251,255,0.9) 30%, rgba(246,251,255,0.98) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 30;
+}
+@media (min-width: 560px) { .actions { bottom: 16px; width: calc(100% - 48px); border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); box-shadow: var(--elev-raised); } }
+.actions-row { display: flex; gap: 10px; }
+.actions-row .btn { flex: 1; min-height: 50px; font-size: 15px; }
+.actions-row .btn.ghost { flex: none; min-width: 110px; }
+
+/* ── Тост ──────────────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 180px;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 8px;
+  z-index: 70;
+  width: max-content;
+  max-width: calc(100vw - 40px);
+}
+.toast {
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  box-shadow: var(--elev-raised);
+  display: flex;
+  align-items: center;
+  animation: toast-in 0.3s var(--ease-standard) both;
+}
+.toast.hide { animation: toast-out 0.25s var(--ease-standard) both; }
+.toast-action {
+  margin-left: 12px;
+  padding: 3px 0 3px 12px;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  background: none;
+  color: #8cc8ff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+body.no-scroll { overflow: hidden; }
+</style>
+</head>
+<body data-od-id="create-event">
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.2-6.5-10.2a6.5 6.5 0 0 1 13 0C18.5 15.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="0.6" fill="currentColor"/></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 9.5a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-barcode" viewBox="0 0 24 24"><path d="M4 8v8M7 6.5v11M10 8v8M13 6.5v11M16 8v8M19 6.5v11M21 8v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-8 8c-1.3 0-2.6-.3-3.7-.8L4 20l1.3-4.3A8 8 0 1 1 20 11.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 19.5c0-3.3 2.9-5.3 6.5-5.3s6.5 2 6.5 5.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><rect x="3" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="17.8" y="9" width="3.2" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6.2 12h11.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-court" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 5v14" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 9.5l4.5 3.5 4.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-warn" viewBox="0 0 24 24"><path d="M12 4.5L3.5 19.5h17L12 4.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.2" r="0.4" fill="currentColor"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd" data-od-id="create-header">
+    <button type="button" class="back-btn" id="btn-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"/></svg></button>
+    <div class="hd-txt">
+      <h1 id="hd-title">Новое событие</h1>
+      <p class="hd-sub" id="hd-sub">Создание события</p>
+    </div>
+    <button type="button" class="hd-close" id="btn-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-x"/></svg></button>
+  </header>
+
+  <div class="steps" id="steps" aria-hidden="true"></div>
+
+  <main class="body">
+    <div id="step-type" class="step active" data-od-id="step-type">
+      <h2 class="step-title">Что создаём?</h2>
+      <p class="step-note">Роль спортсмена — от типа зависят дальнейшие шаги.</p>
+      <div class="type-grid" id="type-grid"></div>
+    </div>
+
+    <div id="step-common" class="step" data-od-id="step-common">
+      <h2 class="step-title">Основное</h2>
+      <p class="step-note" id="common-note"></p>
+      <div class="card">
+        <div class="field">
+          <label class="label" for="c-title">Название</label>
+          <input class="input" id="c-title" type="text" maxlength="60" placeholder="Например: Силовая тренировка">
+        </div>
+        <div class="field">
+          <label class="label" for="c-date">Дата</label>
+          <input class="input" id="c-date" type="date">
+        </div>
+        <div class="field-row">
+          <div class="field" id="row-time">
+            <label class="label" for="c-time">Время</label>
+            <input class="input" id="c-time" type="text" placeholder="14:00 – 15:00">
+          </div>
+          <div class="field" id="row-place">
+            <label class="label" for="c-place">Место</label>
+            <input class="input" id="c-place" type="text" placeholder="Например: Спортзал №1">
+          </div>
+        </div>
+      </div>
+      <div class="card" id="tpl-card" style="display:none">
+        <span class="card-title"><span class="tt-ic"><svg aria-hidden="true"><use href="#ic-dumbbell"/></svg></span>Тренировка</span>
+        <button type="button" class="tpl-pick" id="tpl-pick" data-od-id="tpl-pick">
+          <span class="tpl-pick-ic"><svg aria-hidden="true"><use href="#ic-copy"/></svg></span>
+          <span class="tpl-pick-main">
+            <span class="tpl-pick-label" id="tpl-pick-label">Добавить из шаблона</span>
+            <span class="tpl-pick-sub" id="tpl-pick-sub">Готовые тренировки по видам спорта</span>
+          </span>
+          <span class="tpl-pick-chev" aria-hidden="true"><svg><use href="#ic-chev"/></svg></span>
+        </button>
+        <div class="ex-list" id="ex-list"></div>
+        <div class="ex-add">
+          <select class="input" id="ex-sel" aria-label="Добавить упражнение"></select>
+          <button type="button" class="btn" id="ex-add" data-od-id="ex-add"><svg aria-hidden="true"><use href="#ic-plus"/></svg>Добавить</button>
+        </div>
+        <div class="field mt-3">
+          <label class="label" for="c-note">Заметки к тренировке</label>
+          <textarea class="input input-area" id="c-note" rows="2" placeholder="Самочувствие, темп, инвентарь — всё необязательно"></textarea>
+        </div>
+        <div class="field mt-3">
+          <label class="label" for="c-sport">Вид спорта</label>
+          <select class="input" id="c-sport" aria-label="Вид спорта"></select>
+        </div>
+        <div class="card-row">
+          <div class="card-text">
+            <div class="card-name">Сохранить как шаблон</div>
+            <div class="card-sub">Вернётесь к нему в следующий раз</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="tpl-save"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="step-trainer" class="step" data-od-id="step-trainer">
+      <h2 class="step-title">Тренер и время</h2>
+      <p class="step-note">Выберите дату и тренера по специальности — покажем свободные слоты.</p>
+      <div class="card">
+        <div class="field">
+          <label class="label" for="tr-date">Дата</label>
+          <input class="input" id="tr-date" type="date">
+        </div>
+      </div>
+      <div class="card">
+        <span class="card-title"><span class="tt-ic"><svg aria-hidden="true"><use href="#ic-user"/></svg></span>Тренер</span>
+        <button type="button" class="tpl-pick" id="tr-pick" data-od-id="tr-pick">
+          <span class="tpl-pick-ic"><svg aria-hidden="true"><use href="#ic-user"/></svg></span>
+          <span class="tpl-pick-main">
+            <span class="tpl-pick-label" id="tr-pick-label">Выбрать тренера</span>
+            <span class="tpl-pick-sub" id="tr-pick-sub">Поиск по специальности и рейтингу</span>
+          </span>
+          <span class="tpl-pick-chev" aria-hidden="true"><svg><use href="#ic-chev"/></svg></span>
+        </button>
+      </div>
+      <div class="card">
+        <p class="slot-sub" id="tr-owner"></p>
+        <div class="slot-grid" id="tr-slots"></div>
+        <div class="field" id="tr-duration-wrap">
+          <span class="label">Длительность</span>
+          <div class="seg" id="tr-duration"></div>
+        </div>
+        <p class="slot-sub" id="tr-range" style="display:none"></p>
+        <div class="legend" id="tr-legend" style="display:none">
+          <span class="legend-item"><span class="legend-dot green"></span>Свободно</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="step-facility" class="step" data-od-id="step-facility">
+      <h2 class="step-title">Площадка и время</h2>
+      <p class="step-note">Выберите дату и площадку — покажем свободные слоты.</p>
+      <div class="card">
+        <div class="field">
+          <label class="label" for="r-date">Дата</label>
+          <input class="input" id="r-date" type="date">
+        </div>
+      </div>
+      <div class="card fac-card">
+        <span class="card-title">Площадка</span>
+        <div class="facility-group" id="facility-group"></div>
+      </div>
+      <div class="card">
+        <p class="slot-sub" id="fac-owner"></p>
+        <div class="slot-grid" id="fac-slots"></div>
+        <div class="field" id="row-duration">
+          <span class="label">Длительность</span>
+          <div class="seg" id="duration-seg"></div>
+        </div>
+        <p class="slot-sub" id="fac-range" style="display:none"></p>
+      </div>
+    </div>
+
+    <div id="step-extras" class="step" data-od-id="step-extras">
+      <h2 class="step-title">Дополнительно</h2>
+      <p class="step-note">Необязательно — всё можно изменить позже.</p>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-text">
+            <div class="card-name">Инвентарь</div>
+            <div class="card-sub">Подберём под площадку — мячи, ракетки, коврики</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="inv-sw"><span class="slider"></span></label>
+        </div>
+        <div id="inventory-panel" style="display:none">
+          <div class="field mt-3">
+            <label class="label" for="inv-sel">Инвентарь</label>
+            <select class="input" id="inv-sel"></select>
+          </div>
+          <div class="cost-line"><span>Стоимость инвентаря</span><b id="inv-cost">0 ₽</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-text">
+            <div class="card-name">Позвать друзей</div>
+            <div class="card-sub">Идёте не один? Соберите компанию</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="fr-sw"><span class="slider"></span></label>
+        </div>
+        <p class="hint-note" id="fr-hint">Друзей можно добавить и после брони — в управлении событием.</p>
+        <div id="friends-panel" style="display:none">
+          <div class="counter" id="fr-counter"></div>
+          <button type="button" class="btn btn-primary btn-block" id="fr-add" data-od-id="fr-add"><svg aria-hidden="true"><use href="#ic-plus"/></svg>Добавить людей</button>
+          <div id="fr-list" class="mt-3"></div>
+        </div>
+      </div>
+      <div class="card total-card">
+        <div class="total-main">
+          <span class="total-label">Стоимость брони</span>
+          <span class="total-sub" id="total-sub"></span>
+        </div>
+        <b class="total-value" id="total-cost"></b>
+      </div>
+    </div>
+
+    <div id="step-confirm" class="step" data-od-id="step-confirm">
+      <h2 class="step-title">Подтверждение</h2>
+      <p class="step-note" id="confirm-note"></p>
+      <div class="card">
+        <div class="summary" id="confirm-summary"></div>
+      </div>
+    </div>
+
+    <div id="step-done" class="step" data-od-id="step-done">
+      <div class="done-wrap">
+        <div class="done-ic"><svg aria-hidden="true"><use href="#ic-check"/></svg></div>
+        <h2 class="done-title">Событие создано!</h2>
+        <p class="done-sub" id="done-sub">Оно уже в вашем календаре</p>
+        <div class="done-card" id="done-card"></div>
+        <div class="done-notes">
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-bell"/></svg>Участники уведомлены</div>
+          <div class="done-note"><svg aria-hidden="true"><use href="#ic-cal"/></svg>Добавлено в календарь</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="sheet-overlay" id="tpl-sheet" style="display:none" data-od-id="tpl-sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Шаблоны тренировок">
+    <div class="sheet-head">
+      <div class="sheet-title">Шаблоны тренировок</div>
+      <button type="button" class="sheet-close" id="tpl-sheet-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-x"/></svg></button>
+    </div>
+    <div class="sheet-search">
+      <svg aria-hidden="true"><use href="#ic-search"/></svg>
+      <input id="tpl-search" type="text" placeholder="Поиск по названию">
+    </div>
+    <div class="sheet-list" id="tpl-sheet-list"></div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="people-sheet" style="display:none" data-od-id="people-sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Выбор людей">
+    <div class="sheet-head">
+      <div class="sheet-title" id="people-title">Позвать друзей</div>
+      <button type="button" class="sheet-close" id="people-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-x"/></svg></button>
+    </div>
+    <div class="sheet-search">
+      <svg aria-hidden="true"><use href="#ic-search"/></svg>
+      <input id="people-search" type="text" placeholder="Поиск по имени или телефону">
+    </div>
+    <div class="sheet-counter" id="people-counter"></div>
+    <div class="sheet-list" id="people-list"></div>
+    <div class="sheet-note" id="people-note">Друзья получат приглашение. Изменить можно в управлении событием.</div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="ex-edit-sheet" style="display:none" data-od-id="ex-edit-sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Редактировать упражнение">
+    <div class="sheet-head">
+      <div class="sheet-title">Упражнение</div>
+      <button type="button" class="sheet-close" id="ex-edit-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-x"/></svg></button>
+    </div>
+    <h4 class="ex-sheet-name" id="ex-edit-name"></h4>
+    <div class="field">
+      <label class="label" for="ex-edit-sets">Подходы и повторения</label>
+      <input class="input" id="ex-edit-sets" type="text" placeholder="Например: 3 × 12 или 30 мин" inputmode="text">
+      <p class="ex-sheet-hint">Объём: сеты × повторения, время или дистанция. Вес — через запятую (4 × 12 · 20 кг).</p>
+    </div>
+    <div class="ex-sheet-actions">
+      <button type="button" class="btn btn-primary" id="ex-edit-save" data-od-id="ex-edit-save">Сохранить</button>
+      <button type="button" class="btn" id="ex-edit-cancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div class="info-overlay" id="fac-info" style="display:none" data-od-id="fac-info">
+  <div class="info-card" role="dialog" aria-modal="true" aria-label="О площадке">
+    <button type="button" class="info-close" id="fac-info-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-x"/></svg></button>
+    <div class="info-photo" id="fac-info-photo">
+      <svg class="info-photo-ic" aria-hidden="true"><use href="#ic-court"/></svg>
+      <span class="info-photo-name" id="fac-info-photo-name"></span>
+    </div>
+    <div class="info-body">
+      <h3 class="info-name" id="fac-info-name"></h3>
+      <p class="info-addr" id="fac-info-addr"></p>
+      <p class="info-desc" id="fac-info-desc"></p>
+      <div class="info-meta" id="fac-info-meta"></div>
+    </div>
+  </div>
+</div>
+
+<div class="actions" id="actions-bar" data-od-id="create-actions">
+  <div class="recap" id="booking-recap" style="display:none" data-od-id="booking-recap">
+    <div class="recap-ic"><svg aria-hidden="true"><use href="#ic-cal"/></svg></div>
+    <div class="recap-main">
+      <div class="recap-name" id="recap-name"></div>
+      <div class="recap-when" id="recap-when"></div>
+    </div>
+    <div class="recap-cost" id="recap-cost"></div>
+  </div>
+  <div class="actions-row">
+    <button type="button" class="btn ghost" id="act-back">Назад</button>
+    <button type="button" class="btn btn-primary" id="act-next">Далее</button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  function avaId(name) {
+    if (name === 'Вы') return 8;
+    var h = 0;
+    for (var i = 0; i < name.length; i++) { h = (h * 31 + name.charCodeAt(i)) >>> 0; }
+    return (h % 8) + 1;
+  }
+  function avaHTML(name) {
+    return '<svg class="av" aria-hidden="true"><use href="#ava-' + avaId(name) + '"/></svg>';
+  }
+
+  var p = function (n) { return (n < 10 ? '0' : '') + n; };
+  var today = new Date();
+  var DEFAULT_DATE = today.getFullYear() + '-' + p(today.getMonth() + 1) + '-' + p(today.getDate() + 1);
+
+  var STATUS = {
+    confirmed: { label: 'Подтверждено', color: '#1a86e0' },
+    pending:   { label: 'Ожидает',      color: '#ffc93c' },
+    open:      { label: 'Открыта',      color: '#0b3d91' }
+  };
+
+  var TYPES = [
+    { id: 'rental',  icon: 'ic-court',   name: 'Аренда площадки', hint: 'Зал, бассейн, корт или поле спорткомплекса', color: '#4a6fa5', status: 'confirmed' },
+    { id: 'me',      icon: 'ic-dumbbell', name: 'Моя тренировка', hint: 'Самостоятельная — план и календарь',        color: '#2f9e54', status: 'confirmed' },
+    { id: 'trainer', icon: 'ic-user',    name: 'С тренером',      hint: 'Заявка тренеру — ждёт подтверждения',        color: '#ffc93c', status: 'pending' }
+  ];
+  var TYPE = {};
+  TYPES.forEach(function (t) { TYPE[t.id] = t; });
+
+  var FACILITIES = [
+    { name: 'Спортзал №1',       addr: 'Спорткомплекс · 1 этаж',        price: 400, cap: 10, color: '#1a86e0', slots: ['10:00', '12:00', '14:00', '16:00'],
+      desc: 'Универсальный зал для командных игр: баскетбол, волейбол, мини-футбол. Трибуны на 60 мест, электронное табло, раздевалки с душевыми.',
+      inv: [ {n: 'Мячи баскетбольные', price: 150}, {n: 'Мячи футбольные', price: 150}, {n: 'Мячи волейбольные', price: 120} ] },
+    { name: 'Спортзал №2',       addr: 'Спорткомплекс · 1 этаж',        price: 350, cap: 10, color: '#2f9e54', slots: ['14:00', '15:00', '16:00', '17:00', '18:00'],
+      desc: 'Компактный зал для тренировок: волейбол, баскетбол, единоборства. Зеркальные стены, татами, инвентарь выдаётся на месте.',
+      inv: [ {n: 'Мячи волейбольные', price: 120}, {n: 'Сетка волейбольная', price: 300}, {n: 'Скакалки', price: 50} ] },
+    { name: 'Фитнес-зал',        addr: 'Спорткомплекс · 2 этаж',        price: 300, cap: 8,  color: '#ffc93c', slots: ['09:00', '10:00', '11:00', '14:00', '15:00'],
+      desc: 'Зона свободных весов и кардиотренажёры, коврики для растяжки. Подходит для персональных и самостоятельных занятий.',
+      inv: [ {n: 'Коврики', price: 50}, {n: 'Гантели 2–5 кг', price: 100}, {n: 'Скакалки', price: 50} ] },
+    { name: 'Бассейн «Волна»',   addr: 'ул. Набережная, 5 · 6 дорожек', price: 350, cap: 6,  color: '#2f97f0', slots: ['09:00', '10:00', '11:00', '13:00'],
+      desc: '25-метровый бассейн на 6 дорожек, глубина 1,2–4 м. Душ, раздевалки, доски и ласты в прокате. Тёплая вода круглый год.',
+      inv: [ {n: 'Доска для плавания', price: 100}, {n: 'Ласты', price: 150}, {n: 'Колобашка', price: 80} ] },
+    { name: 'Теннисный корт №3', addr: 'грунтовый корт',                price: 600, cap: 4,  color: '#4a6fa5', slots: ['10:00', '11:00', '14:00', '16:00', '18:00'],
+      desc: 'Грунтовый корт с разметкой под одиночные и парные игры. Ракетки и мячи в прокате, вечернее освещение до 22:00.',
+      inv: [ {n: 'Ракетки (пара)', price: 200}, {n: 'Мячи (банка)', price: 100} ] }
+  ];
+
+  var FRIENDS = [
+    { name: 'Дмитрий С.', ini: 'ДС', status: 'in',      sub: 'Согласен' },
+    { name: 'Мария П.',   ini: 'МП', status: 'in',      sub: 'Согласна' },
+    { name: 'Иван П.',    ini: 'ИП', status: 'pending', sub: 'Ожидает ответа' },
+    { name: 'Сергей И.',  ini: 'СИ', status: 'out',     sub: 'Свободен' },
+    { name: 'Анна В.',    ini: 'АВ', status: 'out',     sub: 'Свободна' },
+    { name: 'Павел Р.',   ini: 'ПР', status: 'out',     sub: 'Свободен' }
+  ];
+
+  var TRAINERS = [
+    { name: 'Иванов М.',    ini: 'ИМ', sport: 'strength', spec: 'Силовые тренировки', rating: '4.9', price: 800, slots: ['09:00', '10:00', '11:00', '14:00', '16:00', '17:00'] },
+    { name: 'Петрова А.',   ini: 'ПА', sport: 'swim',     spec: 'Плавание',           rating: '4.8', price: 700, slots: ['09:00', '11:00', '12:00', '15:00', '17:00'] },
+    { name: 'Смирнов П.',   ini: 'СП', sport: 'run',      spec: 'Бег и ОФП',          rating: '4.7', price: 600, slots: ['10:00', '11:00', '14:00', '16:00', '18:00'] },
+    { name: 'Кузнецова М.', ini: 'КМ', sport: 'general',  spec: 'Фитнес и растяжка',  rating: '4.9', price: 750, slots: ['09:00', '10:00', '14:00', '15:00', '18:00'] }
+  ];
+
+  var EXERCISES = [
+    { name: 'Бег',      sets: '30 мин' },
+    { name: 'Растяжка', sets: '15 мин' },
+    { name: 'Скакалка', sets: '5 × 1 мин' },
+    { name: 'Приседания', sets: '3 × 12' },
+    { name: 'Выпады',   sets: '3 × 10' },
+    { name: 'Отжимания', sets: '3 × 12' },
+    { name: 'Планка',   sets: '3 × 40 сек' },
+    { name: 'Пресс',    sets: '4 × 15' }
+  ];
+
+  var SPORTS = {
+    run:      { label: 'Бег',       token: '--sport-run' },
+    swim:     { label: 'Плавание',  token: '--sport-swim' },
+    bike:     { label: 'Велосипед', token: '--sport-bike' },
+    ofp:      { label: 'ОФП',       token: '--sport-ofp' },
+    strength: { label: 'Силовые',   token: '--sport-strength' },
+    gto:      { label: 'ГТО',       token: '--sport-gto' },
+    general:  { label: 'Разное',    token: '--sport-general' }
+  };
+  var SPORT_ORDER = ['run', 'swim', 'bike', 'ofp', 'strength', 'gto', 'general'];
+  function sportOf(x) { return (x && x.sport) || 'general'; }
+  function sportToken(sid) { var sp = SPORTS[sid] || SPORTS.general; return 'var(' + sp.token + ')'; }
+  function sportLabel(x) { return (SPORTS[sportOf(x)] || SPORTS.general).label; }
+
+  var TEMPLATES = [
+    { id: 'run30', sport: 'run',      name: 'Бег 30 мин',     note: 'Лёгкий темп, следить за пульсом.', coach: false, items: ['Бег', 'Растяжка'] },
+    { id: 'legs',  sport: 'strength', name: 'Силовая · ноги', note: '', coach: false, items: ['Приседания', 'Выпады', 'Планка', 'Пресс'] },
+    { id: 'gto',   sport: 'gto',      name: 'ГТО · бег 100 м', note: 'Хорошая разминка перед сдачей норматива.', coach: true, items: ['Бег', 'Скакалка', 'Планка', 'Растяжка'] }
+  ];
+
+  var TPL_KEY = 'ce_templates';
+  function savedTemplates() {
+    try { return JSON.parse(localStorage.getItem(TPL_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function allTemplates() { return TEMPLATES.concat(savedTemplates()); }
+  function templateById(id) {
+    if (!id) return null;
+    var all = allTemplates();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  }
+  function exercisesFromNames(names) {
+    return names.map(function (n) {
+      for (var i = 0; i < EXERCISES.length; i++) if (EXERCISES[i].name === n) return { name: EXERCISES[i].name, sets: EXERCISES[i].sets };
+      return { name: n, sets: '' };
+    });
+  }
+  function persistTemplate() {
+    var list = savedTemplates();
+    list.push({
+      id: 'u' + Date.now(),
+      name: state.title || 'Моя тренировка',
+      note: state.note,
+      coach: false,
+      sport: state.sportTpl,
+      items: state.exercises.map(function (e) { return e.name; })
+    });
+    try { localStorage.setItem(TPL_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  var state = {
+    type: null,
+    title: '',
+    date: DEFAULT_DATE,
+    time: '',
+    place: '',
+    trainer: 'Иванов М.',
+    facility: null,
+    slot: null,
+    duration: 1,
+    inv: false,
+    invItem: '',
+    friends: false,
+    people: [],
+    template: '',
+    exercises: [],
+    note: '',
+    saveTpl: false,
+    exTouched: false,
+    sportTpl: 'general'
+  };
+
+  var m = /[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search);
+  state.date = m ? m[1] : DEFAULT_DATE;
+  var bookedDate = state.date;
+
+  function facilityByName(name) {
+    for (var i = 0; i < FACILITIES.length; i++) if (FACILITIES[i].name === name) return FACILITIES[i];
+    return FACILITIES[0];
+  }
+  function trainerByName(nm) {
+    for (var i = 0; i < TRAINERS.length; i++) if (TRAINERS[i].name === nm) return TRAINERS[i];
+    return TRAINERS[0];
+  }
+  function freeSlotsFor(name, iso) {
+    if (name === 'Спортзал №1' && iso === bookedDate) return [];
+    return facilityByName(name).slots;
+  }
+  function shiftDate(iso, delta) {
+    var q = iso.split('-');
+    var d = new Date(+q[0], +q[1] - 1, +q[2] + delta);
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  function fmtPrice(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    var d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  function fmtDateShort(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    var d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    return d.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  function pluralize(n, one, few, many) {
+    var d = n % 10, h = n % 100;
+    if (d === 1 && h !== 11) return one;
+    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return few;
+    return many;
+  }
+
+  function stepsFor(t) {
+    if (t === 'rental') return ['facility', 'extras', 'confirm', 'done'];
+    if (t === 'trainer') return ['trainer', 'confirm', 'done'];
+    return ['common', 'confirm', 'done'];
+  }
+  var steps = ['type'].concat(stepsFor('me'));
+  var cur = 0;
+
+  function contentSteps() {
+    return steps.filter(function (s) { return s !== 'type' && s !== 'done'; });
+  }
+
+  var el = {};
+  var stepEls = {};
+
+  function byId(id) { return document.getElementById(id); }
+
+  function toast(msg, actionLabel, onAction) {
+    var wrap = el.toasts;
+    var t = document.createElement('div');
+    t.className = 'toast';
+    if (actionLabel) {
+      t.textContent = msg;
+      var a = document.createElement('button');
+      a.type = 'button';
+      a.className = 'toast-action';
+      a.textContent = actionLabel;
+      a.addEventListener('click', function () {
+        clearTimeout(t._tm);
+        t.classList.add('hide');
+        setTimeout(function () { t.remove(); }, 260);
+        if (onAction) onAction();
+      });
+      t.appendChild(a);
+    } else {
+      t.textContent = msg;
+    }
+    wrap.appendChild(t);
+    t._tm = setTimeout(function () {
+      t.classList.add('hide');
+      setTimeout(function () { t.remove(); }, 260);
+    }, actionLabel ? 3600 : 2200);
+  }
+
+  function friendByName(nm) {
+    for (var i = 0; i < FRIENDS.length; i++) if (FRIENDS[i].name === nm) return FRIENDS[i];
+    return null;
+  }
+  function invPrice() {
+    if (!state.inv || !state.invItem) return 0;
+    var f = facilityByName(state.facility);
+    for (var i = 0; i < f.inv.length; i++) if (f.inv[i].n === state.invItem) return f.inv[i].price;
+    return 0;
+  }
+  function hours() { return state.duration || 1; }
+  function endTime(start, h) {
+    var q = start.split(':');
+    var hh = (+q[0] + h) % 24;
+    return p(hh) + ':' + q[1];
+  }
+  function currentSlotPool() {
+    if (state.type === 'rental') return freeSlotsFor(state.facility, state.date);
+    if (state.type === 'trainer') return trainerByName(state.trainer).slots;
+    return [];
+  }
+  function durationAvailable(start, h) {
+    if (!start) return true;
+    var free = currentSlotPool();
+    var set = {};
+    free.forEach(function (t) { set[t] = true; });
+    var q = start.split(':');
+    var base = +q[0];
+    for (var i = 0; i < h; i++) {
+      if (!set[p(base + i) + ':' + q[1]]) return false;
+    }
+    return true;
+  }
+
+  /* ── Шаг 0: тип ──────────────────────────────────────────────────── */
+  function renderType() {
+    el.typeGrid.innerHTML = '';
+    TYPES.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'type-card' + (state.type === t.id ? ' is-sel' : '');
+      b.style.setProperty('--c', t.color);
+      b.setAttribute('data-od-id', 'type-' + t.id);
+      b.innerHTML = '<span class="tc-ic" aria-hidden="true"><svg><use href="#' + t.icon + '"/></svg></span>' +
+                    '<span class="tc-name">' + t.name + '</span>' +
+                    '<span class="tc-hint">' + t.hint + '</span>';
+      b.addEventListener('click', function () {
+        state.type = t.id;
+        state.title = '';
+        state.time = '';
+        state.place = '';
+        state.slot = null;
+        state.inv = false;
+        state.invItem = '';
+        state.friends = false;
+        state.people = [];
+        state.template = '';
+        state.exercises = [];
+        state.note = '';
+        state.saveTpl = false;
+        if (t.id === 'rental' && !state.facility) state.facility = FACILITIES[0].name;
+        steps = ['type'].concat(stepsFor(t.id));
+        cur = 1;
+        renderAll();
+      });
+      el.typeGrid.appendChild(b);
+    });
+  }
+
+  /* ── Шаг: основное (моя тренировка / с тренером) ─────────────────── */
+  function readCommon() {
+    state.title = el.cTitle.value.trim();
+    if (el.cDate.value) state.date = el.cDate.value;
+    state.time = el.cTime.value.trim();
+    state.place = el.cPlace.value.trim();
+    state.note = el.cNote.value.trim();
+  }
+  function renderCommon() {
+    var isMe = state.type === 'me';
+    el.rowTime.style.display = isMe ? '' : 'none';
+    el.rowPlace.style.display = isMe ? '' : 'none';
+    el.tplCard.style.display = isMe ? '' : 'none';
+    if (!state.date) state.date = DEFAULT_DATE;
+    if (!el.cDate.value) el.cDate.value = state.date;
+    el.cTitle.value = state.title;
+    el.cTime.value = state.time;
+    el.cPlace.value = state.place;
+    if (isMe) {
+      el.cNote.value = state.note;
+      el.tplSave.checked = state.saveTpl;
+      renderTplPick();
+      renderExercises();
+      buildExerciseSelect();
+    }
+    el.commonNote.textContent = isMe
+      ? 'Название, дата и время самостоятельной тренировки.'
+      : 'Название и дата — время подберём по свободным слотам тренера.';
+  }
+  function renderTplPick() {
+    var t = templateById(state.template);
+    el.tplPick.classList.toggle('has-tpl', !!t);
+    el.tplPickLabel.textContent = t ? t.name : 'Добавить из шаблона';
+    el.tplPickSub.textContent = t
+      ? sportLabel(t) + ' · ' + t.items.length + ' ' + pluralize(t.items.length, 'упражнение', 'упражнения', 'упражнений')
+      : 'Готовые тренировки по видам спорта';
+  }
+  function applyTpl(id) {
+    if (state.template === id) { closeTplSheet(); return; }
+    var hadTouched = state.exTouched;
+    var prev = { template: state.template, exercises: state.exercises.slice(), note: state.note, title: state.title, sportTpl: state.sportTpl };
+    state.template = id;
+    state.exTouched = false;
+    applyTemplate();
+    renderTplPick();
+    renderExercises();
+    closeTplSheet();
+    if (hadTouched) {
+      toast('Шаблон применён — ручные правки заменены', 'Отменить', function () {
+        state.template = prev.template;
+        state.exercises = prev.exercises.slice();
+        state.note = prev.note;
+        state.title = prev.title;
+        state.sportTpl = prev.sportTpl;
+        state.exTouched = true;
+        el.cNote.value = prev.note;
+        el.cTitle.value = prev.title;
+        renderTplPick();
+        renderExercises();
+      });
+    }
+  }
+  function openTplSheet() {
+    el.tplSheet.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+    el.tplSearch.value = '';
+    renderTplSheetList();
+  }
+  function closeTplSheet() {
+    el.tplSheet.style.display = 'none';
+    document.body.classList.remove('no-scroll');
+  }
+  function renderTplSheetList() {
+    var q = (el.tplSearch.value || '').trim().toLowerCase();
+    var list = el.tplSheetList;
+    list.innerHTML = '';
+    function addRow(t) {
+      var sel = state.template === t.id;
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'tpl-srow' + (sel ? ' is-on' : '');
+      row.setAttribute('data-od-id', 'tpl-srow-' + (t.id || 'none'));
+      row.innerHTML =
+        '<span class="tpl-srow-main">' +
+          '<span class="tpl-srow-name">' + t.name + '</span>' +
+          (t.items && t.items.length
+            ? '<span class="tpl-srow-count">' + t.items.length + ' ' + pluralize(t.items.length, 'упражнение', 'упражнения', 'упражнений') + '</span>'
+            : '') +
+        '</span>' +
+        (sel
+          ? '<span class="tpl-srow-check"><svg aria-hidden="true"><use href="#ic-check"/></svg></span>'
+          : '');
+      if (t.coach) {
+        row.querySelector('.tpl-srow-name').insertAdjacentHTML('beforeend', '<span class="tpl-badge">от тренера</span>');
+      }
+      row.addEventListener('click', function () { applyTpl(t.id || ''); });
+      list.appendChild(row);
+    }
+    if (!q || 'без шаблона'.indexOf(q) >= 0) addRow({ id: '', name: 'Без шаблона', items: [] });
+    SPORT_ORDER.forEach(function (sid) {
+      var group = allTemplates().filter(function (t) {
+        return sportOf(t) === sid && (!q || t.name.toLowerCase().indexOf(q) >= 0);
+      });
+      if (!group.length) return;
+      var h = document.createElement('div');
+      h.className = 'tpl-srow-group';
+      h.innerHTML = '<span class="tpl-srow-dot" style="background:' + sportToken(sid) + '" aria-hidden="true"></span>' + (SPORTS[sid] || SPORTS.general).label;
+      list.appendChild(h);
+      group.forEach(addRow);
+    });
+    if (!list.children.length) {
+      list.innerHTML = '<div class="sheet-empty">Ничего не найдено</div>';
+    }
+  }
+  function applyTemplate() {
+    var t = templateById(state.template);
+    if (!t) {
+      state.exercises = [];
+      state.note = '';
+      el.cNote.value = '';
+      return;
+    }
+    state.exercises = exercisesFromNames(t.items);
+    state.note = t.note || '';
+    el.cNote.value = state.note;
+    state.sportTpl = sportOf(t);
+    if (el.cSport) el.cSport.value = state.sportTpl;
+    if (!state.title) {
+      state.title = t.name;
+      el.cTitle.value = t.name;
+    }
+  }
+  function renderExercises() {
+    var box = el.exList;
+    box.innerHTML = '';
+    if (!state.exercises.length) {
+      box.innerHTML = '<div class="ex-empty">Упражнений пока нет — возьмите шаблон выше или добавьте из списка.</div>';
+      return;
+    }
+    state.exercises.forEach(function (ex, i) {
+      var row = document.createElement('div');
+      row.className = 'ex-row';
+      row.innerHTML =
+        '<span class="ex-ic" aria-hidden="true"><svg><use href="#ic-dumbbell"/></svg></span>' +
+        '<div class="ex-main"><div class="ex-name">' + ex.name + '</div>' +
+        (ex.sets ? '<div class="ex-sets">' + ex.sets + '</div>' : '') + '</div>';
+      var mv = document.createElement('div');
+      mv.className = 'ex-move';
+      var up = document.createElement('button');
+      up.type = 'button';
+      up.disabled = i === 0;
+      up.setAttribute('aria-label', 'Переместить «' + ex.name + '» выше');
+      up.innerHTML = '<svg aria-hidden="true"><use href="#ic-up"/></svg>';
+      up.addEventListener('click', function () {
+        if (i === 0) return;
+        var t = state.exercises[i - 1];
+        state.exercises[i - 1] = state.exercises[i];
+        state.exercises[i] = t;
+        state.exTouched = true;
+        renderExercises();
+      });
+      var dn = document.createElement('button');
+      dn.type = 'button';
+      dn.disabled = i === state.exercises.length - 1;
+      dn.setAttribute('aria-label', 'Переместить «' + ex.name + '» ниже');
+      dn.innerHTML = '<svg aria-hidden="true"><use href="#ic-down"/></svg>';
+      dn.addEventListener('click', function () {
+        if (i === state.exercises.length - 1) return;
+        var t = state.exercises[i + 1];
+        state.exercises[i + 1] = state.exercises[i];
+        state.exercises[i] = t;
+        state.exTouched = true;
+        renderExercises();
+      });
+      mv.appendChild(up);
+      mv.appendChild(dn);
+      row.appendChild(mv);
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'p-remove';
+      rm.setAttribute('aria-label', 'Убрать ' + ex.name);
+      rm.innerHTML = '<svg aria-hidden="true"><use href="#ic-x"/></svg>';
+      rm.addEventListener('click', function () {
+        state.exercises.splice(i, 1);
+        state.exTouched = true;
+        renderExercises();
+      });
+      row.appendChild(rm);
+      row.addEventListener('click', function (ev) {
+        if (ev.target.closest('.ex-move') || ev.target.closest('.p-remove')) return;
+        openExEdit(i);
+      });
+      box.appendChild(row);
+    });
+  }
+
+  var exEditIndex = -1;
+  function openExEdit(i) {
+    var ex = state.exercises[i];
+    if (!ex) return;
+    exEditIndex = i;
+    el.exEditName.textContent = ex.name;
+    el.exEditSets.value = ex.sets || '';
+    el.exEditSheet.style.display = 'flex';
+    setTimeout(function () { el.exEditSets.focus(); el.exEditSets.select(); }, 60);
+  }
+  function closeExEdit() {
+    el.exEditSheet.style.display = 'none';
+    exEditIndex = -1;
+  }
+  function saveExEdit() {
+    if (exEditIndex < 0) return;
+    var v = el.exEditSets.value.trim();
+    state.exercises[exEditIndex].sets = v;
+    state.exTouched = true;
+    closeExEdit();
+    renderExercises();
+  }
+  function buildExerciseSelect() {
+    var sel = el.exSel;
+    sel.innerHTML = '';
+    EXERCISES.forEach(function (ex, i) {
+      var o = document.createElement('option');
+      o.value = i;
+      o.textContent = ex.name + ' · ' + ex.sets;
+      sel.appendChild(o);
+    });
+    sel.value = '0';
+  }
+
+  /* ── Шаг: тренер и время (с тренером) ────────────────────────────── */
+  function renderTrainer() {
+    el.trDate.value = state.date;
+    if (!state.trainer) state.trainer = TRAINERS[0].name;
+    renderTrainerPick();
+    renderTrainerSlots();
+    renderRecap();
+  }
+  function renderTrainerPick() {
+    var tr = trainerByName(state.trainer);
+    el.trPick.classList.toggle('has-tpl', !!tr);
+    el.trPickLabel.textContent = tr ? tr.name : 'Выбрать тренера';
+    el.trPickSub.textContent = tr
+      ? tr.spec + ' · ' + tr.price + ' ₽/час · рейтинг ' + tr.rating
+      : 'Поиск по специальности и рейтингу';
+  }
+  function renderTrainerSlots() {
+    var tr = trainerByName(state.trainer);
+    el.trOwner.innerHTML = '<b>' + tr.name + '</b> · ' + tr.spec + ' — на ' + fmtDate(state.date) + ':';
+    el.trLegend.style.display = 'flex';
+    var area = el.trSlots;
+    area.innerHTML = '';
+    tr.slots.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'slot is-free' + (state.slot === t ? ' is-sel' : '');
+      b.textContent = t;
+      b.addEventListener('click', function () { state.slot = t; renderTrainer(); });
+      area.appendChild(b);
+    });
+    renderDuration(el.trDuration, el.trRange);
+  }
+
+  /* ── Шаг 1 аренды: площадка и время ──────────────────────────────── */
+  function renderFacility() {
+    el.rDate.value = state.date;
+    if (!state.facility) state.facility = FACILITIES[0].name;
+    renderFacilityGroup();
+    renderFacilitySlots();
+    renderRecap();
+  }
+  function renderFacilityGroup() {
+    var fg = el.facilityGroup;
+    fg.innerHTML = '';
+    FACILITIES.forEach(function (fa) {
+      var row = document.createElement('div');
+      row.className = 'facility-row' + (state.facility === fa.name ? ' is-on' : '');
+
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'facility-opt';
+      opt.setAttribute('data-od-id', 'facility-' + fa.name.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-+|-+$/g, ''));
+      opt.innerHTML = '<span class="fo-name">' + fa.name + '</span>' +
+                      '<span class="fo-sub">' + fa.addr + ' · ' + fa.price + ' ₽/час · до ' + fa.cap + ' чел.</span>';
+      opt.addEventListener('click', function () {
+        if (state.facility === fa.name) return;
+        state.facility = fa.name;
+        state.slot = null;
+        state.inv = false;
+        state.invItem = '';
+        renderFacilityGroup();
+        renderFacilitySlots();
+      });
+      row.appendChild(opt);
+
+      var info = document.createElement('button');
+      info.type = 'button';
+      info.className = 'fo-info';
+      info.setAttribute('aria-label', 'Подробнее о площадке: ' + fa.name);
+      info.innerHTML = '<svg aria-hidden="true"><use href="#ic-info"/></svg>';
+      info.addEventListener('click', function (e) { e.stopPropagation(); openFacInfo(fa); });
+      row.appendChild(info);
+
+      fg.appendChild(row);
+    });
+  }
+  function openFacInfo(fa) {
+    el.facInfoPhoto.style.background = 'linear-gradient(135deg, ' + fa.color + ' 0%, #0f4c81 100%)';
+    el.facInfoPhotoName.textContent = fa.name;
+    el.facInfoName.textContent = fa.name;
+    el.facInfoAddr.textContent = fa.addr + ' · ' + fa.price + ' ₽/час';
+    el.facInfoDesc.textContent = fa.desc;
+    el.facInfoMeta.innerHTML =
+      '<span class="info-tag">До ' + fa.cap + ' чел.</span>' +
+      '<span class="info-tag">' + fa.price + ' ₽/час</span>' +
+      '<span class="info-tag">Аренда 1–3 часа</span>';
+    el.facInfo.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+  }
+  function closeFacInfo() {
+    el.facInfo.style.display = 'none';
+    document.body.classList.remove('no-scroll');
+  }
+  function renderFacilitySlots() {
+    var f = facilityByName(state.facility);
+    el.facOwner.innerHTML = '<b>' + f.name + '</b> · ' + f.addr + ' — на ' + fmtDate(state.date) + ':';
+    var area = el.facSlots;
+    area.innerHTML = '';
+    var free = freeSlotsFor(f.name, state.date);
+    if (free.length) {
+      el.rowDuration.style.display = '';
+      free.forEach(function (t) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'slot is-free' + (state.slot === t ? ' is-sel' : '');
+        b.textContent = t;
+        b.addEventListener('click', function () { state.slot = t; renderFacility(); });
+        area.appendChild(b);
+      });
+      renderDuration(el.durationSeg, el.facRange);
+    } else {
+      el.rowDuration.style.display = 'none';
+      el.facRange.style.display = 'none';
+      renderNoSlots(area, f);
+    }
+  }
+  function renderDuration(segEl, rangeEl) {
+    if (state.slot) {
+      while (state.duration > 1 && !durationAvailable(state.slot, state.duration)) state.duration--;
+    }
+    segEl.innerHTML = '';
+    [1, 2, 3].forEach(function (h) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'seg-btn' + (state.duration === h ? ' is-on' : '');
+      b.setAttribute('data-od-id', 'dur-' + h);
+      b.textContent = h + ' ' + pluralize(h, 'час', 'часа', 'часов');
+      var avail = durationAvailable(state.slot, h);
+      if (!avail) { b.disabled = true; b.classList.add('is-off'); }
+      b.addEventListener('click', function () {
+        if (!avail) return;
+        state.duration = h;
+        refreshCurrent();
+      });
+      segEl.appendChild(b);
+    });
+    renderRange(rangeEl);
+  }
+  function renderRange(rangeEl) {
+    if (!state.slot) { rangeEl.style.display = 'none'; return; }
+    rangeEl.innerHTML = 'Выбрано: <b>' + state.slot + ' – ' + endTime(state.slot, hours()) + '</b> · ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов');
+    rangeEl.style.display = '';
+  }
+  function renderNoSlots(area, f) {
+    var block = document.createElement('div');
+    block.className = 'no-slots';
+    block.innerHTML =
+      '<div class="ns-ic" aria-hidden="true"><svg><use href="#ic-warn"/></svg></div>' +
+      '<div class="ns-title">Нет свободных слотов на эту дату</div>' +
+      '<p class="ns-text">На <b>' + fmtDateShort(state.date) + '</b> у площадки «' + f.name + '» всё занято.</p>' +
+      '<div class="btn-row">' +
+        '<button type="button" class="btn" id="ns-other-day" data-od-id="ns-other-day">Другой день</button>' +
+        '<button type="button" class="btn" id="ns-other-venue" data-od-id="ns-other-venue">Другие площадки</button>' +
+      '</div>';
+    area.appendChild(block);
+
+    var alt = document.createElement('div');
+    alt.className = 'alt-block';
+    alt.style.display = 'none';
+    area.appendChild(alt);
+
+    function showOtherDays() {
+      alt.innerHTML = '';
+      var box = document.createElement('div');
+      box.innerHTML = '<p class="alt-title">Свободные слоты — ' + f.name + '</p><p class="alt-note">Ближайшие дни с доступным временем:</p>';
+      var added = 0;
+      for (var i = 1; i <= 4 && added < 3; i++) {
+        var iso = shiftDate(state.date, i);
+        var slots = freeSlotsFor(f.name, iso);
+        if (!slots.length) continue;
+        added++;
+        var gdiv = document.createElement('div');
+        gdiv.className = 'alt-group';
+        var head = document.createElement('div');
+        head.className = 'alt-date';
+        head.innerHTML = '─── ' + fmtDateShort(iso) + ' ───';
+        gdiv.appendChild(head);
+        var row = document.createElement('div');
+        row.className = 'slot-grid';
+        slots.forEach(function (t) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'slot is-free';
+          b.textContent = t;
+          b.addEventListener('click', function () {
+            state.date = iso;
+            state.slot = t;
+            toast('Выбрано: ' + f.name + ' · ' + t);
+            renderFacility();
+          });
+          row.appendChild(b);
+        });
+        gdiv.appendChild(row);
+        box.appendChild(gdiv);
+      }
+      if (!added) {
+        var none = document.createElement('p');
+        none.className = 'alt-note';
+        none.textContent = 'На ближайшие дни свободных слотов нет.';
+        box.appendChild(none);
+      }
+      var act = document.createElement('div');
+      act.className = 'btn-row';
+      act.innerHTML = '<button type="button" class="btn btn-primary" id="ns-back">Вернуться к выбору</button>';
+      box.appendChild(act);
+      alt.appendChild(box);
+      alt.style.display = 'block';
+      byId('ns-back').addEventListener('click', function () { alt.style.display = 'none'; });
+    }
+
+    function showOtherVenues() {
+      alt.innerHTML = '';
+      var box = document.createElement('div');
+      box.innerHTML = '<p class="alt-title">Другие площадки на ' + fmtDateShort(state.date) + '</p><p class="alt-note">Свободные слоты на выбранную дату:</p>';
+      FACILITIES.forEach(function (v) {
+        if (v.name === f.name) return;
+        var slots = freeSlotsFor(v.name, state.date);
+        var vdiv = document.createElement('div');
+        vdiv.className = 'alt-venue';
+        var main = document.createElement('div');
+        main.className = 'av-main';
+        main.innerHTML = '<div class="av-name">' + v.name + '</div><div class="av-addr">' + v.addr + ' · ' + v.price + ' ₽/час</div>';
+        var slotRow = document.createElement('div');
+        slotRow.className = 'av-slots';
+        slots.forEach(function (t) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'slot is-free';
+          b.style.minWidth = '64px';
+          b.style.height = '40px';
+          b.textContent = t;
+          b.addEventListener('click', function () {
+            state.facility = v.name;
+            state.slot = t;
+            state.inv = false;
+            state.invItem = '';
+            toast('Выбрано: ' + v.name + ' · ' + t);
+            renderFacility();
+          });
+          slotRow.appendChild(b);
+        });
+        main.appendChild(slotRow);
+        vdiv.appendChild(main);
+        box.appendChild(vdiv);
+      });
+      var act = document.createElement('div');
+      act.className = 'btn-row';
+      act.innerHTML = '<button type="button" class="btn btn-primary" id="ns-back2">Вернуться к выбору</button>';
+      box.appendChild(act);
+      alt.appendChild(box);
+      alt.style.display = 'block';
+      byId('ns-back2').addEventListener('click', function () { alt.style.display = 'none'; });
+    }
+
+    byId('ns-other-day').addEventListener('click', showOtherDays);
+    byId('ns-other-venue').addEventListener('click', showOtherVenues);
+
+    var wl = document.createElement('div');
+    wl.className = 'waitlist';
+    wl.innerHTML =
+      '<span class="wl-ic" aria-hidden="true"><svg><use href="#ic-bell"/></svg></span>' +
+      '<div class="wl-main">' +
+        '<div class="wl-title">Нет свободных слотов на эту дату?</div>' +
+        '<div class="wl-text">Подпишитесь — мы уведомим, если кто-то отменит бронь.</div>' +
+      '</div>' +
+      '<button type="button" class="btn btn-outline-danger" id="wl-sub" data-od-id="wl-sub">Подписаться</button>';
+
+    area.appendChild(wl);
+    var subscribed = false;
+    byId('wl-sub').addEventListener('click', function () {
+      if (subscribed) { toast('Вы уже подписаны на уведомление'); return; }
+      subscribed = true;
+      this.innerHTML = '<svg aria-hidden="true"><use href="#ic-check"/></svg>Подписаны';
+      this.classList.add('btn-primary');
+      this.classList.remove('btn-outline-danger');
+      toast('Вы подписаны на уведомление');
+    });
+  }
+
+  /* ── Шаг 2 аренды: дополнительно ─────────────────────────────────── */
+  function buildInventorySelect() {
+    var f = facilityByName(state.facility);
+    el.invSel.innerHTML = '';
+    var ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = 'Выберите инвентарь';
+    el.invSel.appendChild(ph);
+    f.inv.forEach(function (it) {
+      var o = document.createElement('option');
+      o.value = it.n;
+      o.textContent = it.n + ' · ' + it.price + ' ₽';
+      el.invSel.appendChild(o);
+    });
+    el.invSel.value = state.invItem || '';
+  }
+  function updateCost() {
+    var f = facilityByName(state.facility);
+    var add = invPrice();
+    var tot = f.price * hours() + add;
+    el.invCost.textContent = add ? '+ ' + add + ' ₽' : '0 ₽';
+    var sub = f.price + ' ₽ × ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов');
+    if (add) sub += ' + инвентарь ' + add + ' ₽';
+    el.totalSub.textContent = sub;
+    el.totalCost.textContent = fmtPrice(tot);
+  }
+  function renderCounter() {
+    var cap = facilityByName(state.facility).cap;
+    var txt = 'Вы + ' + state.people.length + ' из ' + cap;
+    el.frCounter.textContent = txt;
+    el.peopleCounter.textContent = txt;
+  }
+  function renderFriendsList() {
+    var list = el.frList;
+    list.innerHTML = '';
+    if (!state.people.length) {
+      var empty = document.createElement('div');
+      empty.className = 'sheet-empty';
+      empty.textContent = 'Пока никого не добавлено';
+      list.appendChild(empty);
+      return;
+    }
+    state.people.forEach(function (nm) {
+      var f = friendByName(nm);
+      var ok = f && f.status === 'in';
+      var row = document.createElement('div');
+      row.className = 'person';
+      row.innerHTML =
+        '<span class="p-ava" aria-hidden="true">' + avaHTML(nm) + '</span>' +
+        '<div class="p-main"><div class="p-name">' + nm + '</div><div class="p-sub">Приглашён</div></div>' +
+        '<span class="p-badge' + (ok ? '' : ' pending') + '">' + (ok ? '<svg aria-hidden="true"><use href="#ic-check"/></svg>Согласен' : '<svg aria-hidden="true"><use href="#ic-clock"/></svg>Ожидает') + '</span>';
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'p-remove';
+      rm.setAttribute('aria-label', 'Убрать ' + nm);
+      rm.innerHTML = '<svg aria-hidden="true"><use href="#ic-x"/></svg>';
+      rm.addEventListener('click', function () {
+        state.people = state.people.filter(function (x) { return x !== nm; });
+        toast('Убран из списка: ' + nm);
+        renderFriendsList();
+        renderCounter();
+        renderPicker();
+      });
+      row.appendChild(rm);
+      list.appendChild(row);
+    });
+  }
+  function renderExtras() {
+    el.invSw.checked = state.inv;
+    el.inventoryPanel.style.display = state.inv ? '' : 'none';
+    if (state.inv) buildInventorySelect();
+    el.frSw.checked = state.friends;
+    el.frHint.style.display = state.friends ? 'none' : '';
+    el.friendsPanel.style.display = state.friends ? '' : 'none';
+    if (state.friends) { renderCounter(); renderFriendsList(); }
+    updateCost();
+    renderRecap();
+  }
+
+  /* ── Единый пикер людей (друзья / тренеры) ───────────────────────── */
+  var pickerMode = null;
+  function openPicker(mode) {
+    pickerMode = mode;
+    el.peopleSheet.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+    el.peopleSearch.value = '';
+    el.peopleTitle.textContent = mode === 'trainer' ? 'Выберите тренера' : 'Позвать друзей';
+    el.peopleSearch.placeholder = mode === 'trainer' ? 'Поиск по имени или специальности' : 'Поиск по имени или телефону';
+    el.peopleNote.style.display = mode === 'trainer' ? 'none' : '';
+    renderPicker();
+  }
+  function closePicker() {
+    el.peopleSheet.style.display = 'none';
+    document.body.classList.remove('no-scroll');
+  }
+  function renderPicker() {
+    var q = (el.peopleSearch.value || '').trim().toLowerCase();
+    var list = el.peopleList;
+    list.innerHTML = '';
+    if (pickerMode === 'trainer') { renderTrainerPicker(list, q); return; }
+    renderFriendsPicker(list, q);
+  }
+  function renderTrainerPicker(list, q) {
+    el.peopleCounter.style.display = 'none';
+    var shown = 0;
+    SPORT_ORDER.forEach(function (sid) {
+      var group = TRAINERS.filter(function (tr) {
+        return tr.sport === sid &&
+          (!q || tr.name.toLowerCase().indexOf(q) >= 0 || tr.spec.toLowerCase().indexOf(q) >= 0);
+      });
+      if (!group.length) return;
+      var h = document.createElement('div');
+      h.className = 'tpl-srow-group';
+      h.innerHTML = '<span class="tpl-srow-dot" style="background:' + sportToken(sid) + '" aria-hidden="true"></span>' + (SPORTS[sid] || SPORTS.general).label;
+      list.appendChild(h);
+      shown += group.length;
+      group.forEach(function (tr) {
+        var sel = state.trainer === tr.name;
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'person' + (sel ? ' is-on' : '');
+        row.setAttribute('data-od-id', 'trainer-' + tr.name.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-+|-+$/g, ''));
+        row.innerHTML =
+          '<span class="p-ava" aria-hidden="true">' + avaHTML(tr.name) + '</span>' +
+          '<div class="p-main"><div class="p-name">' + tr.name + '</div><div class="p-sub">' + tr.spec + ' · ' + tr.price + ' ₽/час · ★ ' + tr.rating + '</div></div>' +
+          (sel ? '<span class="p-badge"><svg aria-hidden="true"><use href="#ic-check"/></svg>Выбран</span>' : '');
+        row.addEventListener('click', function () {
+          if (state.trainer === tr.name) { closePicker(); return; }
+          state.trainer = tr.name;
+          state.slot = null;
+          state.duration = 1;
+          closePicker();
+          toast('Тренер: ' + tr.name);
+          refreshCurrent();
+        });
+        list.appendChild(row);
+      });
+    });
+    if (!shown) {
+      var e = document.createElement('div');
+      e.className = 'sheet-empty';
+      e.textContent = 'Тренеров не нашли по запросу';
+      list.appendChild(e);
+    }
+  }
+  function renderFriendsPicker(list, q) {
+    el.peopleCounter.style.display = '';
+    renderCounter();
+    var cap = facilityByName(state.facility).cap;
+    var shown = 0;
+    FRIENDS.forEach(function (f) {
+      if (q && f.name.toLowerCase().indexOf(q) < 0) return;
+      shown++;
+      var added = state.people.indexOf(f.name) >= 0;
+      var row = document.createElement('div');
+      row.className = 'person' + (added ? ' is-invited' : '');
+      row.innerHTML =
+        '<span class="p-ava" aria-hidden="true">' + avaHTML(f.name) + '</span>' +
+        '<div class="p-main"><div class="p-name">' + f.name + '</div><div class="p-sub">' + f.sub + '</div></div>';
+      if (added) {
+        row.insertAdjacentHTML('beforeend', '<span class="p-badge"><svg aria-hidden="true"><use href="#ic-check"/></svg>Добавлен</span>');
+      } else if (f.status === 'pending') {
+        row.insertAdjacentHTML('beforeend', '<span class="p-badge pending"><svg aria-hidden="true"><use href="#ic-clock"/></svg>Ожидает</span>');
+      }
+      row.addEventListener('click', function () {
+        if (added) {
+          state.people = state.people.filter(function (x) { return x !== f.name; });
+          toast('Убран из списка: ' + f.name);
+        } else {
+          if (state.people.length >= cap - 1) { toast('Лимит площадки — до ' + cap + ' человек'); return; }
+          if (f.status === 'out') { f.status = 'pending'; f.sub = 'Ожидает ответа'; }
+          state.people.push(f.name);
+          toast('Приглашение отправлено: ' + f.name);
+        }
+        renderPicker();
+        renderFriendsList();
+        renderCounter();
+      });
+      list.appendChild(row);
+    });
+    if (!shown) {
+      var e = document.createElement('div');
+      e.className = 'sheet-empty';
+      e.textContent = 'Никого не нашли по запросу';
+      list.appendChild(e);
+    }
+  }
+
+  /* ── Подтверждение ───────────────────────────────────────────────── */
+  function confirmRows() {
+    var tn = TYPE[state.type];
+    var st = STATUS[tn.status];
+    var rows = [];
+    rows.push(['Тип', '<span class="type-pill" style="--c:' + tn.color + '">' + tn.name + '</span>']);
+    rows.push(['Статус', '<span class="type-pill" style="--c:' + st.color + '">' + st.label + '</span>']);
+    var when;
+    if (state.type === 'rental' && state.slot) {
+      when = fmtDate(state.date) + ', ' + state.slot + ' – ' + endTime(state.slot, hours()) + ' (' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + ')';
+    } else if (state.type === 'trainer' && state.slot) {
+      when = fmtDate(state.date) + ', ' + state.slot + ' – ' + endTime(state.slot, hours()) + ' (' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + ')';
+    } else {
+      when = fmtDate(state.date) + ', ' + (state.slot || state.time || 'время уточняется');
+    }
+    rows.push(['Дата и время', when]);
+    if (state.type === 'rental') {
+      var f = facilityByName(state.facility);
+      var add = invPrice();
+      rows.push(['Площадка', f.name + '<span class="sub">' + f.addr + ' · до ' + f.cap + ' чел.</span>']);
+      rows.push(['Инвентарь', state.inv && state.invItem ? state.invItem + '<span class="sub">' + add + ' ₽ за сеанс</span>' : 'Без инвентаря']);
+      var tot = f.price * hours() + add;
+      rows.push(['Стоимость', fmtPrice(tot) + '<span class="sub">' + f.price + ' ₽ × ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + (add ? ' + инвентарь ' + add + ' ₽' : '') + '</span>']);
+      var cnt = state.people.length;
+      rows.push(['Участники', cnt ? 'Вы + ' + cnt + ' ' + pluralize(cnt, 'участник', 'участника', 'участников') : 'Только вы']);
+    } else if (state.type === 'trainer') {
+      var tr = trainerByName(state.trainer);
+      rows.push(['Тренер', tr.name + '<span class="sub">' + tr.spec + ' · рейтинг ' + tr.rating + '</span>']);
+      rows.push(['Место', 'Спорткомплекс']);
+      rows.push(['Стоимость', fmtPrice(tr.price * hours()) + '<span class="sub">' + tr.price + ' ₽ × ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + '</span>']);
+    } else {
+      rows.push(['Название', state.title || '—']);
+      rows.push(['Место', state.place || '—']);
+      var tpl = templateById(state.template);
+      if (tpl) rows.push(['Шаблон', tpl.name]);
+      var ex = state.exercises;
+      if (ex.length) {
+        rows.push(['Упражнения', ex.length + ' ' + pluralize(ex.length, 'упражнение', 'упражнения', 'упражнений') +
+          '<span class="sub">' + ex.map(function (e) { return e.name + (e.sets ? ' · ' + e.sets : ''); }).join('<br>') + '</span>']);
+      }
+      if (state.note) rows.push(['Заметки', state.note]);
+      if (state.saveTpl) rows.push(['Сохранить', 'Как шаблон в профиле']);
+    }
+    return rows;
+  }
+  function renderConfirm() {
+    var box = el.confirmSummary;
+    box.innerHTML = '';
+    confirmRows().forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'sum-row';
+      row.innerHTML = '<div class="sum-k">' + r[0] + '</div><div class="sum-v">' + r[1] + '</div>';
+      box.appendChild(row);
+    });
+  }
+
+  /* ── Постоянная сводка брони ──────────────────────────────────────── */
+  function renderRecap() {
+    var name = steps[cur];
+    if (name === 'type' || name === 'done') { el.recap.style.display = 'none'; return; }
+    el.recap.style.display = 'flex';
+    var nm = '', when = '', cost = '';
+    if (state.type === 'rental') {
+      var f = state.facility ? facilityByName(state.facility) : null;
+      nm = f ? 'Аренда · ' + f.name : 'Аренда площадки';
+      when = fmtDate(state.date);
+      if (state.slot) when += ', ' + state.slot + ' – ' + endTime(state.slot, hours()) + ' (' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + ')';
+      if (f) cost = fmtPrice(f.price * hours() + invPrice());
+    } else {
+      var tn = state.type ? TYPE[state.type] : null;
+      nm = state.title || (tn ? tn.name : 'Событие');
+      when = fmtDate(state.date);
+      if (state.type === 'trainer') {
+        var tr = state.trainer ? trainerByName(state.trainer) : null;
+        nm = 'С тренером · ' + (tr ? tr.name : (state.trainer || ''));
+        if (state.slot) {
+          when += ', ' + state.slot + ' – ' + endTime(state.slot, hours());
+        } else {
+          when += ', время уточняется';
+        }
+        if (tr) cost = fmtPrice(tr.price * hours());
+      } else if (state.time) {
+        when += ', ' + state.time;
+      }
+      if (state.place) when += ' · ' + state.place;
+    }
+    el.recapName.textContent = nm;
+    el.recapWhen.textContent = when;
+    el.recapCost.textContent = cost;
+  }
+
+  /* ── Экран готово ────────────────────────────────────────────────── */
+  function renderDone() {
+    var tn = TYPE[state.type];
+    var st = STATUS[tn.status];
+    var card = el.doneCard;
+    var when;
+    if ((state.type === 'rental' || state.type === 'trainer') && state.slot) {
+      when = fmtDate(state.date) + ', ' + state.slot + ' – ' + endTime(state.slot, hours());
+    } else {
+      when = fmtDate(state.date) + ', ' + (state.slot || state.time || 'время уточняется');
+    }
+    var title = state.title ||
+      (state.type === 'rental' ? 'Аренда · ' + (state.facility || '') :
+       state.type === 'trainer' ? 'Занятие · ' + (state.trainer || '') : tn.name);
+    var place = state.type === 'rental'
+      ? ((state.facility || '') + (state.facility ? ' · ' + facilityByName(state.facility).addr : ''))
+      : (state.type === 'trainer' ? 'Спорткомплекс' : (state.place || 'Место уточняется'));
+    card.innerHTML =
+      '<h3 style="color:' + tn.color + '">' + title + '</h3>' +
+      '<div class="dc-line"><span class="done-status" style="--c:' + st.color + '">' + st.label + '</span></div>' +
+      '<div class="dc-line"><svg><use href="#ic-cal"/></svg>' + when + '</div>' +
+      '<div class="dc-line"><svg><use href="#ic-pin"/></svg>' + place + '</div>';
+    if (state.type === 'rental') {
+      var f = facilityByName(state.facility);
+      var add = invPrice();
+      card.insertAdjacentHTML('beforeend',
+        '<div class="dc-line"><svg><use href="#ic-barcode"/></svg>' + fmtPrice(f.price * hours() + add) + ' · ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + (add ? ' · с инвентарём' : '') + '</div>');
+    } else if (state.type === 'trainer') {
+      var tr = trainerByName(state.trainer);
+      card.insertAdjacentHTML('beforeend',
+        '<div class="dc-line"><svg><use href="#ic-barcode"/></svg>' + fmtPrice(tr.price * hours()) + ' · ' + hours() + ' ' + pluralize(hours(), 'час', 'часа', 'часов') + '</div>');
+    }
+    if (state.people.length) {
+      card.insertAdjacentHTML('beforeend', '<div class="dc-line"><svg><use href="#ic-chat"/></svg>Участники: ' + state.people.join(', ') + '</div>');
+    }
+    if (state.type === 'me') {
+      if (state.exercises.length) {
+        card.insertAdjacentHTML('beforeend', '<div class="dc-line"><svg><use href="#ic-dumbbell"/></svg>Упражнения: ' + state.exercises.map(function (e) { return e.name + (e.sets ? ' · ' + e.sets : ''); }).join(', ') + '</div>');
+      }
+      if (state.note) {
+        card.insertAdjacentHTML('beforeend', '<div class="dc-line"><svg><use href="#ic-info"/></svg>' + state.note + '</div>');
+      }
+    }
+    el.doneSub.textContent = state.type === 'rental' ? 'Бронь площадки подтверждена' : (state.type === 'trainer' ? 'Заявка отправлена тренеру' : 'Оно уже в вашем календаре');
+  }
+
+  /* ── Навигация ───────────────────────────────────────────────────── */
+  function renderSteps() {
+    var box = el.steps;
+    box.innerHTML = '';
+    var content = contentSteps();
+    var curIdx = content.indexOf(steps[cur]);
+    var allDone = steps[cur] === 'done';
+    content.forEach(function (s, i) {
+      var d = document.createElement('div');
+      d.className = 'step-dot' + (allDone || i < curIdx ? ' done' : (i === curIdx ? ' now' : ''));
+      box.appendChild(d);
+    });
+  }
+
+  function renderActions() {
+    var name = steps[cur];
+    if (name === 'type') { el.actionsBar.style.display = 'none'; return; }
+    el.actionsBar.style.display = 'flex';
+    if (name === 'done') {
+      el.actNext.textContent = 'Готово';
+      el.actBack.textContent = 'Поделиться';
+    } else if (name === 'confirm') {
+      el.actNext.textContent = state.type === 'rental' ? 'Забронировать' : (state.type === 'trainer' ? 'Отправить заявку' : 'Создать событие');
+      el.actBack.textContent = 'Назад';
+    } else {
+      el.actNext.textContent = 'Далее';
+      el.actBack.textContent = 'Назад';
+    }
+  }
+
+  function renderAll() {
+    renderSteps();
+    var name = steps[cur];
+    stepEls[name].classList.add('active');
+    Object.keys(stepEls).forEach(function (k) { if (k !== name) stepEls[k].classList.remove('active'); });
+
+    var tn = state.type ? TYPE[state.type] : null;
+    var titles = {
+      type: ['Новое событие', 'Что создаём?'],
+      common: [tn ? tn.name : 'Новое событие', 'Основное'],
+      trainer: ['С тренером', 'Тренер и время'],
+      facility: ['Аренда площадки', 'Площадка и время'],
+      extras: ['Аренда площадки', 'Дополнительно'],
+      confirm: ['Проверка', 'Подтверждение'],
+      done: ['Готово', 'Событие создано']
+    };
+    var t = titles[name] || ['', ''];
+    el.hdTitle.textContent = t[0];
+    if (name === 'done') el.hdSub.textContent = 'Событие создано';
+    else if (name === 'type') el.hdSub.textContent = 'Что создаём?';
+    else el.hdSub.textContent = t[1] + ' · Шаг ' + (contentSteps().indexOf(name) + 1) + ' из ' + contentSteps().length;
+
+    switch (name) {
+      case 'type': renderType(); break;
+      case 'common': readCommon(); renderCommon(); break;
+      case 'trainer': renderTrainer(); break;
+      case 'facility': renderFacility(); break;
+      case 'extras': renderExtras(); break;
+      case 'confirm':
+        el.confirmNote.textContent = state.type === 'rental'
+          ? 'Проверьте данные — бронь подтвердится сразу.'
+          : (state.type === 'trainer'
+            ? 'Проверьте данные — отправим заявку тренеру.'
+            : 'Проверьте данные перед созданием.');
+        if (state.type === 'me') readCommon();
+        renderConfirm();
+        break;
+      case 'done': renderDone(); break;
+    }
+    renderRecap();
+    renderActions();
+    window.scrollTo(0, 0);
+  }
+
+  function refreshCurrent() {
+    var name = steps[cur];
+    if (name === 'facility') { renderFacility(); return; }
+    if (name === 'trainer') { renderTrainer(); return; }
+    renderAll();
+  }
+
+  function validate() {
+    var name = steps[cur];
+    if (name === 'facility') {
+      if (!state.facility) { toast('Выберите площадку'); return false; }
+      if (!state.slot) { toast('Слоты на эту дату заняты — выберите альтернативу или подпишитесь на освобождение'); return false; }
+    }
+    if (name === 'trainer') {
+      if (!state.trainer) { toast('Выберите тренера'); return false; }
+      if (!state.slot) { toast('Выберите время'); return false; }
+    }
+    if (name === 'common') {
+      readCommon();
+      if (!state.title) { toast('Введите название'); return false; }
+    }
+    if (name === 'extras') {
+      if (state.inv && !state.invItem) { toast('Выберите инвентарь'); return false; }
+      if (state.friends && !state.people.length) { toast('Добавьте хотя бы одного участника'); return false; }
+    }
+    return true;
+  }
+
+  function go(delta) {
+    var target = cur + delta;
+    if (delta > 0 && !validate()) return;
+    if (delta > 0 && steps[cur] === 'confirm' && state.type === 'me' && state.saveTpl) {
+      persistTemplate();
+      state.saveTpl = false;
+      toast('Шаблон сохранён в профиле');
+    }
+    if (target < 0 || target >= steps.length) return;
+    cur = target;
+    renderAll();
+  }
+
+  el = {
+    steps: byId('steps'),
+    typeGrid: byId('type-grid'),
+    commonNote: byId('common-note'),
+    cTitle: byId('c-title'),
+    cDate: byId('c-date'),
+    cTime: byId('c-time'),
+    cPlace: byId('c-place'),
+    rowTime: byId('row-time'),
+    rowPlace: byId('row-place'),
+    tplCard: byId('tpl-card'),
+    tplPick: byId('tpl-pick'),
+    tplPickLabel: byId('tpl-pick-label'),
+    tplPickSub: byId('tpl-pick-sub'),
+    tplSheet: byId('tpl-sheet'),
+    tplSheetClose: byId('tpl-sheet-close'),
+    tplSearch: byId('tpl-search'),
+    tplSheetList: byId('tpl-sheet-list'),
+    exList: byId('ex-list'),
+    exSel: byId('ex-sel'),
+    exAdd: byId('ex-add'),
+    exEditSheet: byId('ex-edit-sheet'),
+    exEditClose: byId('ex-edit-close'),
+    exEditName: byId('ex-edit-name'),
+    exEditSets: byId('ex-edit-sets'),
+    exEditSave: byId('ex-edit-save'),
+    exEditCancel: byId('ex-edit-cancel'),
+    cNote: byId('c-note'),
+    tplSave: byId('tpl-save'),
+    cSport: byId('c-sport'),
+    trDate: byId('tr-date'),
+    trPick: byId('tr-pick'),
+    trPickLabel: byId('tr-pick-label'),
+    trPickSub: byId('tr-pick-sub'),
+    trOwner: byId('tr-owner'),
+    trSlots: byId('tr-slots'),
+    trDuration: byId('tr-duration'),
+    trRange: byId('tr-range'),
+    trLegend: byId('tr-legend'),
+    rDate: byId('r-date'),
+    facilityGroup: byId('facility-group'),
+    facOwner: byId('fac-owner'),
+    facSlots: byId('fac-slots'),
+    rowDuration: byId('row-duration'),
+    durationSeg: byId('duration-seg'),
+    facRange: byId('fac-range'),
+    invSw: byId('inv-sw'),
+    inventoryPanel: byId('inventory-panel'),
+    invSel: byId('inv-sel'),
+    invCost: byId('inv-cost'),
+    frSw: byId('fr-sw'),
+    frHint: byId('fr-hint'),
+    friendsPanel: byId('friends-panel'),
+    frCounter: byId('fr-counter'),
+    frList: byId('fr-list'),
+    frAdd: byId('fr-add'),
+    totalCost: byId('total-cost'),
+    totalSub: byId('total-sub'),
+    recap: byId('booking-recap'),
+    recapName: byId('recap-name'),
+    recapWhen: byId('recap-when'),
+    recapCost: byId('recap-cost'),
+    confirmNote: byId('confirm-note'),
+    confirmSummary: byId('confirm-summary'),
+    doneCard: byId('done-card'),
+    doneSub: byId('done-sub'),
+    peopleSheet: byId('people-sheet'),
+    peopleClose: byId('people-close'),
+    peopleSearch: byId('people-search'),
+    peopleList: byId('people-list'),
+    peopleCounter: byId('people-counter'),
+    peopleTitle: byId('people-title'),
+    peopleNote: byId('people-note'),
+    facInfo: byId('fac-info'),
+    facInfoClose: byId('fac-info-close'),
+    facInfoPhoto: byId('fac-info-photo'),
+    facInfoPhotoName: byId('fac-info-photo-name'),
+    facInfoName: byId('fac-info-name'),
+    facInfoAddr: byId('fac-info-addr'),
+    facInfoDesc: byId('fac-info-desc'),
+    facInfoMeta: byId('fac-info-meta'),
+    actionsBar: byId('actions-bar'),
+    actBack: byId('act-back'),
+    actNext: byId('act-next'),
+    toasts: byId('toasts'),
+    hdTitle: byId('hd-title'),
+    hdSub: byId('hd-sub')
+  };
+  var names = ['type', 'common', 'trainer', 'facility', 'extras', 'confirm', 'done'];
+  names.forEach(function (n) { stepEls[n] = byId('step-' + n); });
+
+  el.cDate.value = state.date;
+  el.cTitle.value = state.title;
+
+  el.cDate.addEventListener('change', function () { state.date = this.value || DEFAULT_DATE; state.slot = null; renderRecap(); });
+  el.cTime.addEventListener('input', function () { state.time = this.value; renderRecap(); });
+  el.cTitle.addEventListener('input', function () { state.title = this.value; renderRecap(); });
+  el.cPlace.addEventListener('input', function () { state.place = this.value; renderRecap(); });
+  el.cNote.addEventListener('input', function () { state.note = this.value; state.exTouched = true; });
+  el.tplSave.addEventListener('change', function () { state.saveTpl = this.checked; });
+  el.tplPick.addEventListener('click', openTplSheet);
+  el.tplSheetClose.addEventListener('click', closeTplSheet);
+  el.tplSearch.addEventListener('input', renderTplSheetList);
+  el.tplSheet.addEventListener('click', function (e) { if (e.target === el.tplSheet) closeTplSheet(); });
+  (function buildSportSelect() {
+    el.cSport.innerHTML = '';
+    SPORT_ORDER.forEach(function (sid) {
+      var o = document.createElement('option');
+      o.value = sid;
+      o.textContent = SPORTS[sid].label;
+      el.cSport.appendChild(o);
+    });
+    el.cSport.value = state.sportTpl;
+    el.cSport.addEventListener('change', function () { state.sportTpl = this.value; });
+  })();
+  el.exAdd.addEventListener('click', function () {
+    var i = +el.exSel.value;
+    if (isNaN(i) || !EXERCISES[i]) return;
+    var ex = EXERCISES[i];
+    if (state.exercises.some(function (x) { return x.name === ex.name; })) { toast('Упражнение уже в списке'); return; }
+    state.exercises.push({ name: ex.name, sets: ex.sets });
+    state.exTouched = true;
+    renderExercises();
+  });
+  el.trPick.addEventListener('click', function () { openPicker('trainer'); });
+  el.trDate.addEventListener('change', function () { state.date = this.value || DEFAULT_DATE; state.slot = null; refreshCurrent(); });
+  el.rDate.addEventListener('change', function () { state.date = this.value || DEFAULT_DATE; state.slot = null; renderFacility(); });
+  el.invSw.addEventListener('change', function () { state.inv = this.checked; renderExtras(); });
+  el.invSel.addEventListener('change', function () { state.invItem = this.value; updateCost(); renderRecap(); });
+  el.frSw.addEventListener('change', function () { state.friends = this.checked; renderExtras(); });
+  el.frAdd.addEventListener('click', function () { openPicker('friends'); });
+  el.peopleClose.addEventListener('click', closePicker);
+  el.peopleSearch.addEventListener('input', renderPicker);
+  el.peopleSheet.addEventListener('click', function (e) { if (e.target === el.peopleSheet) closePicker(); });
+  el.facInfoClose.addEventListener('click', closeFacInfo);
+  el.facInfo.addEventListener('click', function (e) { if (e.target === el.facInfo) closeFacInfo(); });
+  el.exEditClose.addEventListener('click', closeExEdit);
+  el.exEditCancel.addEventListener('click', closeExEdit);
+  el.exEditSave.addEventListener('click', saveExEdit);
+  el.exEditSheet.addEventListener('click', function (e) { if (e.target === el.exEditSheet) closeExEdit(); });
+  el.exEditSets.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); saveExEdit(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (el.facInfo.style.display === 'flex') { closeFacInfo(); return; }
+    if (el.tplSheet.style.display === 'flex') { closeTplSheet(); return; }
+    if (el.peopleSheet.style.display === 'flex') { closePicker(); return; }
+    if (el.exEditSheet.style.display === 'flex') closeExEdit();
+  });
+
+  byId('act-next').addEventListener('click', function () {
+    if (steps[cur] === 'done') { location.href = 'schedule-calendar.html'; return; }
+    go(1);
+  });
+  byId('act-back').addEventListener('click', function () {
+    if (steps[cur] === 'done') { toast('Ссылка отправлена друзьям'); return; }
+    go(-1);
+  });
+  byId('btn-back').addEventListener('click', function () {
+    if (cur === 0) { location.href = 'schedule-calendar.html'; return; }
+    go(-1);
+  });
+  byId('btn-close').addEventListener('click', function () { location.href = 'schedule-calendar.html'; });
+
+  renderType();
+  renderAll();
+})();
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">
+<symbol id="ava-1" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#FDF3D9"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#ffc93c"/><path d="M21 27 C21 16 28 10 36 10 C44 10 51 16 51 27 L51 30 C47 22 43 19 36 19 C29 19 25 22 21 30 Z" fill="#5C3A21"/><circle cx="36" cy="8" r="5.5" fill="#5C3A21"/><circle cx="21.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="50.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="36" cy="33" r="15" fill="#E0AC79"/></symbol>
+<symbol id="ava-2" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#0b3d91"/><path d="M21 25 C21 16 27 10 36 10 C45 10 51 16 51 25 C51 22 46 18 36 18 C26 18 21 22 21 25 Z" fill="#0F0F0F"/><circle cx="21.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="50.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="36" cy="33" r="15" fill="#E0AC79"/></symbol>
+<symbol id="ava-3" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E8F6EC"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#2f9e54"/><circle cx="24" cy="22" r="5.5" fill="#1A1A1A"/><circle cx="30" cy="16" r="6" fill="#1A1A1A"/><circle cx="38" cy="14" r="6.5" fill="#1A1A1A"/><circle cx="46" cy="17" r="6" fill="#1A1A1A"/><circle cx="50" cy="24" r="5.5" fill="#1A1A1A"/><circle cx="21.5" cy="34" r="2.6" fill="#9C6640"/><circle cx="50.5" cy="34" r="2.6" fill="#9C6640"/><circle cx="36" cy="33" r="15" fill="#9C6640"/></symbol>
+<symbol id="ava-4" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#FDF3D9"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#ffc93c"/><path d="M20 25 C20 14 27 8 36 8 C45 8 52 14 52 25 C52 18 46 13 36 13 C26 13 20 18 20 25 Z" fill="#3B2B20"/><circle cx="21.5" cy="34" r="2.6" fill="#6B4226"/><circle cx="50.5" cy="34" r="2.6" fill="#6B4226"/><circle cx="36" cy="33" r="15" fill="#6B4226"/><circle cx="30" cy="33" r="4.2" fill="none" stroke="#12213b" stroke-width="1.6"/><circle cx="42" cy="33" r="4.2" fill="none" stroke="#12213b" stroke-width="1.6"/><line x1="34.2" y1="33" x2="37.8" y2="33" stroke="#12213b" stroke-width="1.6"/></symbol>
+<symbol id="ava-5" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#1a86e0"/><path d="M20 24 C20 14 27 8 36 8 C45 8 52 14 52 24 L52 27 C48 20 43 16 36 16 C29 16 24 20 20 27 Z" fill="#7A4B2A"/><circle cx="21.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="50.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="36" cy="33" r="15" fill="#F2C6A0"/><rect x="19" y="24" width="34" height="5.5" rx="2.5" fill="#ffc93c"/></symbol>
+<symbol id="ava-6" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E8F6EC"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#4a6fa5"/><path d="M20 46 C18 30 20 12 36 12 C52 12 54 30 52 46 L47 46 C48 32 46 20 36 20 C26 20 24 32 25 46 Z" fill="#2B2118"/><circle cx="21.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="50.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="36" cy="33" r="15" fill="#C68A57"/></symbol>
+<symbol id="ava-7" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#1a86e0"/><path d="M20 26 C20 15 28 9 36 9 C44 9 52 15 52 26 C52 20 47 15 36 15 C25 15 20 20 20 26 Z" fill="#2B2118"/><circle cx="21.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="50.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="36" cy="33" r="15" fill="#F2C6A0"/></symbol>
+<symbol id="ava-8" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#4a6fa5"/><circle cx="21.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="50.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="36" cy="33" r="15" fill="#C68A57"/><path d="M19 30 C19 15 26 6 36 6 C46 6 53 15 53 30 C53 33 50 34 47 32 C44 30 42 33 38 32 C35 31 33 33 30 32 C27 31 24 33 21 32 C18 31 19 32 19 30 Z" fill="#0b3d91"/></symbol>
+</svg>
+</body>
+</html>

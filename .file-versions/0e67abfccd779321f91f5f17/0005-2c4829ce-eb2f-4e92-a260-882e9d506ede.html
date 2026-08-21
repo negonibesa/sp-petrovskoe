@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Дизайн-система v2 — оболочка в наполнении</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ds.css">
+<style>
+  .ds-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+  .ds-sw-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); }
+  .ds-sw-chip { height: 48px; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.06); margin-bottom: var(--space-2); }
+  .ds-sw-name { font-size: var(--fs-meta); font-weight: 600; color: var(--fg); word-break: break-all; }
+  .ds-sw-val { margin-top: var(--space-1); font-size: var(--fs-caption); color: var(--meta); word-break: break-all; }
+  .ds-sw-item.is-ink { color: #fff; }
+  .ds-sw-item.is-ink .ds-sw-name { color: #fff; }
+  .ds-sw-item.is-ink .ds-sw-val { color: rgba(255,255,255,0.72); }
+
+  .ds-type { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-soft); }
+  .ds-type:last-child { border-bottom: 0; }
+  .ds-type .spec { font-size: var(--fs-caption); color: var(--meta); width: 210px; flex: 0 0 auto; }
+  .ds-type .demo { color: var(--fg); }
+  .ds-type .demo.is-muted { color: var(--muted); }
+
+  .ds-space { display: grid; grid-template-columns: repeat(9, 1fr); gap: var(--space-3); }
+  .ds-space-item { display: flex; flex-direction: column; gap: var(--space-2); }
+  .ds-space-bar { border-radius: var(--radius-sm); background: var(--accent); opacity: 0.55; }
+  .ds-space-item .name { font-size: var(--fs-caption); color: var(--meta); }
+  .ds-space-item .val { font-size: var(--fs-caption); color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="ds">
+  <div class="ds-hero" data-od-id="hero">
+    <p class="ds-kicker">Дизайн-система · оболочка v2</p>
+    <h1>Пустая копия, готовая к наполнению</h1>
+    <p>Токены и каркас перенесены. Компоненты переносим поэтапно. Канонический файл — <code>assets/ds.css</code>, экраны подключают его ссылкой.</p>
+    <div class="ds-hero-meta">
+      <span class="gchip">Перенесено <b>6 / 14</b></span>
+      <span class="gchip">Кодировка <b>UTF-8</b></span>
+      <span class="gchip">Источник <b>assets/ds.css</b></span>
+    </div>
+  </div>
+
+  <nav class="ds-nav" data-od-id="stage-nav" aria-label="Этапы миграции">
+    <a href="#stage-tokens" class="is-done">Токены <em>01</em></a>
+    <a href="#stage-base" class="is-done">Каркас <em>02</em></a>
+    <a href="#stage-colors" class="is-done">Свотчи <em>03</em></a>
+    <a href="#stage-icons">Иконки <em>04</em></a>
+    <a href="#stage-avatars">Аватары <em>05</em></a>
+    <a href="#stage-buttons" class="is-done">Кнопки <em>06</em></a>
+    <a href="#stage-badges" class="is-done">Бейджи <em>07</em></a>
+    <a href="#stage-cards" class="is-done">Карточки <em>08</em></a>
+    <a href="#stage-forms">Поля и формы <em>09</em></a>
+    <a href="#stage-tabs" class="is-done">Табы и чипы <em>10</em></a>
+    <a href="#stage-lists">Листы и меню <em>11</em></a>
+    <a href="#stage-screens">Экранные блоки <em>12</em></a>
+    <a href="#stage-states">Состояния <em>13</em></a>
+    <a href="#stage-a11y">Доступность <em>14</em></a>
+  </nav>
+
+  <section class="ds-sec" data-od-id="stage-tokens" id="stage-tokens">
+    <h2 class="ds-h2"><span class="n">01</span>Токены <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Полный набор базовых переменных: поверхности, текст, границы, акцент, семантика, типографика, отступы, радиусы, высоты, тени, движение.</p>
+    <div class="ds-placeholder">:root — в <code>assets/ds.css</code>, секция «ЭТАП 1»</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-base" id="stage-base">
+    <h2 class="ds-h2"><span class="n">02</span>База и каркас <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Reset, глобальные стили, классы страницы-верстки (.ds, .ds-hero, .ds-nav, .ds-sec, .ds-h2, .ds-sub) и две базовые шкалы: <b>типографика</b> (28 → 11px, единая гарнитура Inter, без моношрифтов) и <b>отступы</b> (4pt-сетка 0 → 48). Значения — в <code>assets/ds.css</code>, «ЭТАП 1»; контрольные размеры кнопок 13/16px — в «ЭТАПЕ 5».</p>
+
+    <h3 class="ds-sub">Типографика · шкала</h3>
+    <div class="ds-panel">
+      <div class="ds-type"><span class="spec">--fs-display · 28px · 700</span><span class="demo t-display">Петровское спортивное поселение</span></div>
+      <div class="ds-type"><span class="spec">--fs-title · 18px · 600</span><span class="demo t-title">Расписание занятий</span></div>
+      <div class="ds-type"><span class="spec">--fs-title-sm · 17px · 600</span><span class="demo t-title-sm">Тренировка по плану ГТО</span></div>
+      <div class="ds-type"><span class="spec">--fs-time · 17px · 500 · tabular</span><span class="demo t-time">14:30 · 12 марта</span></div>
+      <div class="ds-type"><span class="spec">--fs-body · 16px · 400</span><span class="demo">Основной текст: описания, подписи, содержимое карточек.</span></div>
+      <div class="ds-type"><span class="spec">--fs-meta · 13px · 400</span><span class="demo is-muted">Второстепенный текст: метаданные, подписи полей, время.</span></div>
+      <div class="ds-type"><span class="spec">--fs-caption · 11px · 700 · caps</span><span class="demo t-caps">Подпись-капс</span></div>
+    </div>
+
+    <h3 class="ds-sub">Отступы · 4pt-сетка</h3>
+    <div class="ds-space">
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:4px"></div><span class="name">--space-1</span><span class="val">4px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:8px"></div><span class="name">--space-2</span><span class="val">8px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:12px"></div><span class="name">--space-3</span><span class="val">12px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:16px"></div><span class="name">--space-4</span><span class="val">16px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:20px"></div><span class="name">--space-5</span><span class="val">20px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:24px"></div><span class="name">--space-6</span><span class="val">24px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:32px"></div><span class="name">--space-8</span><span class="val">32px</span></div>
+      <div class="ds-space-item"><div class="ds-space-bar" style="height:48px"></div><span class="name">--space-12</span><span class="val">48px</span></div>
+    </div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-colors" id="stage-colors">
+    <h2 class="ds-h2"><span class="n">03</span>Цвета и свотчи <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Семантические токены цвета: категории событий, статусы, ГТО и рейтинг, виды спорта. Базовые цвета — в ЭТАПЕ 1. Значения читаются напрямую из <code>assets/ds.css</code>.</p>
+    <div id="swatches" data-od-id="color-swatches"></div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-icons" id="stage-icons">
+    <h2 class="ds-h2"><span class="n">04</span>Иконки</h2>
+    <p class="ds-desc">Инлайн-SVG иконки трёх размеров: sm / md / lg.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-avatars" id="stage-avatars">
+    <h2 class="ds-h2"><span class="n">05</span>Аватары</h2>
+    <p class="ds-desc">Аватары пользователей и организаций, размеры 32 / 48 / 72.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-buttons" id="stage-buttons">
+    <h2 class="ds-h2"><span class="n">06</span>Кнопки <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Капсула <code>--radius-pill</code>. Высоты из шкалы: <code>--h-sm</code> 32px · <code>--h-base</code> 44px · <code>--h-lg</code> 56px. Текст — Inter Semibold 600: 13px (<code>.btn-sm</code>) · 16px (<code>.btn</code> и <code>.btn-lg</code>). Цвета только из токенов: <code>--accent</code>, <code>--surface</code>, <code>--fg</code>, <code>--danger</code>, <code>--success</code>. Состояния: default · hover (подъём −2px + glow) · active (squish) · disabled (opacity 0.4) · focus-visible (кольцо <code>--focus-ring</code>). Мин-зона тапа 44×44px.</p>
+
+    <h3 class="ds-sub">Варианты</h3>
+    <div class="ds-row">
+      <button class="btn btn-accent" type="button">Основная · btn-accent</button>
+      <button class="btn btn-ghost" type="button">Вторичная · btn-ghost</button>
+      <button class="btn btn-danger" type="button">Опасная · btn-danger</button>
+      <button class="btn btn-success" type="button">Успех · btn-success</button>
+      <button class="btn btn-secondary" type="button">Контурная · btn-secondary</button>
+    </div>
+
+    <h3 class="ds-sub">Размеры</h3>
+    <div class="ds-row">
+      <button class="btn btn-accent btn-sm" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>sm · 32px</button>
+      <button class="btn btn-accent" type="button">base · 44px</button>
+      <button class="btn btn-accent btn-lg" type="button">lg · 56px</button>
+      <button class="btn btn-ghost btn-sm" type="button">sm ghost</button>
+      <button class="btn btn-ghost" type="button">base ghost</button>
+      <button class="btn btn-ghost btn-lg" type="button">lg ghost</button>
+    </div>
+
+    <h3 class="ds-sub">Состояния и ширина</h3>
+    <div class="ds-row">
+      <button class="btn btn-accent" type="button" disabled>Недоступна</button>
+      <button class="btn btn-ghost" type="button" disabled>Недоступна</button>
+      <button class="btn btn-accent is-busy" type="button"><span class="spinner"></span>Загрузка</button>
+      <button class="btn btn-accent btn-block" style="max-width: 320px" type="button">Во всю ширину · btn-block</button>
+    </div>
+
+    <h3 class="ds-sub">Круглые кнопки-иконки · icon-btn</h3>
+    <div class="ds-row">
+      <a class="icon-btn" href="#" aria-label="Сканер QR"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2"></path><path d="M17 4h2a1 1 0 0 1 1 1v2"></path><path d="M20 17v2a1 1 0 0 1-1 1h-2"></path><path d="M7 20H5a1 1 0 0 1-1-1v-2"></path><line x1="3" y1="12" x2="21" y2="12"></line></svg></a>
+      <a class="icon-btn" href="#" aria-label="Уведомления"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg><span class="notif">2</span></a>
+      <button class="icon-btn icon-btn-sm" type="button" aria-label="Меню"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></svg></button>
+    </div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-badges" id="stage-badges">
+    <h2 class="ds-h2"><span class="n">07</span>Бейджи и пилюли <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Статус события <code>.ev-status</code> (цвет из <code>--c</code> через <code>color-mix</code>), чип <code>.gchip</code> с точкой, пилюля-тег <code>.tag</code>, бейдж уведомлений <code>.notif</code>. Значения — в <code>assets/ds.css</code>, «ЭТАП 3» (статусы) и «ЭТАП 6» (чипы).</p>
+
+    <h3 class="ds-sub">Статус события · ev-status</h3>
+    <div class="ds-row">
+      <span class="ev-status" style="--c:var(--st-confirmed)">Записано</span>
+      <span class="ev-status" style="--c:var(--st-open)">Открыто</span>
+      <span class="ev-status" style="--c:var(--st-ongoing)">Идёт</span>
+      <span class="ev-status" style="--c:var(--st-done)">Завершено</span>
+      <span class="ev-status" style="--c:var(--st-cancelled)">Отменено</span>
+      <span class="ev-status is-pending">Ожидает</span>
+    </div>
+
+    <h3 class="ds-sub">Чипы · gchip</h3>
+    <div class="ds-row">
+      <span class="gchip" style="--c:var(--gto-silver)"><span class="dot" aria-hidden="true"></span>Цель на серебро</span>
+      <span class="gchip is-sign" style="--c:var(--accent)"><span class="dot" aria-hidden="true"></span>Подтверждено</span>
+      <span class="gchip is-progress"><span class="dot" aria-hidden="true"></span>В процессе</span>
+      <span class="gchip" style="--c:var(--sport-run)"><span class="dot" aria-hidden="true"></span>Бег</span>
+    </div>
+
+    <h3 class="ds-sub">Пилюля-тег и бейдж · tag / notif</h3>
+    <div class="ds-row">
+      <span class="tag">Спорт</span>
+      <span class="tag">Соревнования</span>
+      <a class="icon-btn" href="#" aria-label="Уведомления"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg><span class="notif">2</span></a>
+    </div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-cards" id="stage-cards">
+    <h2 class="ds-h2"><span class="n">08</span>Карточки главной <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Карточка события <code>.ev-card</code> (сетка when | body | side), карточка цели <code>.goal-card</code> с прогрессом, карточка статистики <code>.dash-card</code>, клубная карточка <code>.club-card</code> (горизонтальная лента), карточка новости <code>.news-card</code>, промо-баннер <code>.promo-block</code>. Картинки — слоты, контент появится позже.</p>
+
+    <h3 class="ds-sub">Заголовок секции + «Все» · sec-head</h3>
+    <div class="sec-head">
+      <h2>Занятия · четверг</h2>
+      <a class="sec-all" href="#">Все<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></a>
+    </div>
+
+    <h3 class="ds-sub">Карточка события · ev-card</h3>
+    <div class="cards">
+      <article class="ev-card" style="--c:var(--type-training)">
+        <div class="ev-when"><span class="ev-day">Четверг</span><span class="ev-time">05:40</span></div>
+        <div class="ev-body">
+          <h3 class="ev-title">Пробежка утром<span class="ev-fmt">Тренировка</span></h3>
+          <div class="ev-place">Зал в поселковом центре</div>
+        </div>
+        <span class="ev-status" style="--c:var(--st-confirmed)">Записано</span>
+        <button class="ev-menu" type="button" aria-label="Меню"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></svg></button>
+      </article>
+      <article class="ev-card" style="--c:var(--type-event)">
+        <div class="ev-when"><span class="ev-day">Вс.</span><span class="ev-time">10:00</span></div>
+        <div class="ev-body">
+          <h3 class="ev-title">Игры на траве<span class="ev-fmt">Событие</span></h3>
+          <div class="ev-place">Зона спортивного центра</div>
+        </div>
+        <span class="ev-status" style="--c:var(--st-open)">Открыто</span>
+        <button class="ev-menu" type="button" aria-label="Меню"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></svg></button>
+      </article>
+    </div>
+
+    <h3 class="ds-sub">Карточка цели · goal-card</h3>
+    <button class="cv cv-a goal-card" type="button" style="max-width: 480px">
+      <span class="cv-a-head">
+        <span class="cv-a-title">Моя цель</span>
+        <span class="gchip is-sign" style="--c: var(--gto-silver)"><span class="dot" aria-hidden="true"></span>Цель на серебро</span>
+        <span class="cv-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></span>
+      </span>
+      <span class="goal-progress" aria-hidden="true">
+        <span class="goal-progress-fill" style="width: 85%"><span class="goal-progress-pct">85%</span></span>
+      </span>
+      <span class="goal-meta">
+        <span class="goal-meta-note">Осталась неделя до ГТО.</span>
+        <span class="goal-count" aria-hidden="true"><span class="goal-count-n">4</span>/ 5 нормативов</span>
+      </span>
+    </button>
+
+    <h3 class="ds-sub">Статистика · dash-stats</h3>
+    <div class="dash-stats" style="max-width: 480px">
+      <button class="dash-card" type="button" style="--c:var(--amber)">
+        <span class="dash-cell">
+          <span class="dc-top"><svg class="dc-ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5L12 14.5l-4.5 2.2.9-5-3.6-3.5 5-.7L12 3z"></path></svg>Баллы</span>
+          <span class="dc-val">2 400<span class="st-delta">+ 125</span></span>
+        </span>
+      </button>
+      <button class="dash-card" type="button" style="--c:var(--amber)">
+        <span class="dash-cell">
+          <span class="dc-top"><svg class="dc-ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"></circle><path d="M9 14l-2 7 5-3 5 3-2-7"></path></svg>Достижения</span>
+          <span class="dc-val">14<span class="st-delta">+1</span></span>
+        </span>
+      </button>
+    </div>
+    <div class="dash-stats" style="max-width: 480px; margin-top: var(--space-2)">
+      <button class="stat-rating is-up" type="button"><svg class="stat-rating-ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg>12 место в рейтинге</button>
+    </div>
+
+    <h3 class="ds-sub">Клубная карточка · club-card (лента)</h3>
+    <div class="club-row">
+      <button type="button" class="club-card is-joined" style="--c:var(--sport-run)"><span class="club-ic" aria-hidden="true"></span><b>Легкоатле­тика</b><small>28 участников</small></button>
+      <button type="button" class="club-card" style="--c:var(--sport-swim)"><span class="club-ic" aria-hidden="true"></span><b>Плавание</b><small>41 участник</small></button>
+      <button type="button" class="club-card" style="--c:var(--sport-bike)"><span class="club-ic" aria-hidden="true"></span><b>Велоспорт</b><small>19 участников</small></button>
+      <button type="button" class="club-card" style="--c:var(--sport-gto)"><span class="club-ic" aria-hidden="true"></span><b>ГТО</b><small>47 участников</small></button>
+    </div>
+
+    <h3 class="ds-sub">Карточка новости · news-card</h3>
+    <div class="news-list" style="max-width: 480px">
+      <article class="news-card">
+        <span class="news-date"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>12 апреля</span>
+        <h3>Открыт сезон на уличной площадке</h3>
+        <p>Приходите на тренировки по расписанию, ждём всех желающих от 8 лет и старше.</p>
+        <div class="news-foot">
+          <div class="news-tags"><span class="tag">Спорт</span></div>
+          <span class="news-likes"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.4 5.4 0 0 0-7.6 0L12 6.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.8a5.4 5.4 0 0 0 0-7.6z"></path></svg>32</span>
+        </div>
+      </article>
+    </div>
+
+    <h3 class="ds-sub">Промо-баннер · promo-block</h3>
+    <div class="promo-block" style="max-width: 480px">
+      <div class="promo-inner">
+        <span class="promo-date">12 апреля</span>
+        <span class="promo-meta">54 участника</span>
+        <span class="promo-title">Открытие сезона</span>
+      </div>
+      <button class="promo-close" type="button" aria-label="Скрыть баннер"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-forms" id="stage-forms">
+    <h2 class="ds-h2"><span class="n">09</span>Поля, поиск, формы</h2>
+    <p class="ds-desc">search-field, поля ввода с иконкой, валидация, select, формы входа.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-tabs" id="stage-tabs">
+    <h2 class="ds-h2"><span class="n">10</span>Таб-бар <span class="st">· перенесено</span></h2>
+    <p class="ds-desc">Плавающий таб-бар <code>.tabbar</code> (низ страницы, отступы 16px, высота 80px, радиус 30px, тень <code>--elev-raised</code>). Пять пунктов, активный — <code>--accent</code>. Бейдж — на иконке таба.</p>
+    <nav class="tabbar" aria-label="Навигация" style="position: static; max-width: 480px; margin-inline: auto;">
+      <a class="tab is-on" href="#" aria-label="Главная"><span class="tab-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg></span>Главная</a>
+      <a class="tab" href="#" aria-label="Расписание"><span class="tab-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"></rect><path d="M8 2v4M16 2v4M3 9h18"></path></svg></span>Расписание</a>
+      <a class="tab" href="#" aria-label="Тренировки"><span class="tab-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M4 12l2-2M12 4l2 2M20 12l-2 2M8 16l-2 2M16 8l2-2"></path></svg></span>Тренировки</a>
+      <a class="tab" href="#" aria-label="Сообщество"><span class="tab-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c1-3.2 3.4-4.5 6.5-4.5s5.5 1.3 6.5 4.5"></path><path d="M16 5.2a3.5 3.5 0 0 1 0 5.6M17.5 15.8c1.7.5 3 1.6 4 4.2"></path></svg></span>Сообщество</a>
+      <a class="tab" href="#" aria-label="Профиль"><span class="tab-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-5.5 8-5.5s6.5 1.5 8 5.5"></path></svg></span>Профиль</a>
+    </nav>
+    <p class="ds-note">В демо таб-бар позиционирован статично; в экранах — <code>position: fixed</code> (см. «ЭТАП 6» в <code>assets/ds.css</code>).</p>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-lists" id="stage-lists">
+    <h2 class="ds-h2"><span class="n">11</span>Листы, меню, тосты, уведомления</h2>
+    <p class="ds-desc">Нижние листы, меню «⋯», тосты, карточки уведомлений, строки настроек.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-screens" id="stage-screens">
+    <h2 class="ds-h2"><span class="n">12</span>Экранные блоки</h2>
+    <p class="ds-desc">Шапки, календарь, статистика, баллы и мотивация, профиль, тренировки, ГТО, сканер, сплэш.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-states" id="stage-states">
+    <h2 class="ds-h2"><span class="n">13</span>Пустые состояния и загрузка</h2>
+    <p class="ds-desc">Пустые состояния, скелетоны, loading-сценарии.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+
+  <section class="ds-sec" data-od-id="stage-a11y" id="stage-a11y">
+    <h2 class="ds-h2"><span class="n">14</span>Анимации и доступность</h2>
+    <p class="ds-desc">Моушн-токены, reduced-motion, фокус-кольца, контраст.</p>
+    <div class="ds-placeholder">Пусто — ждёт переноса</div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var groups = [
+    { title: 'Категории событий', keys: ['--type-training', '--type-event', '--type-club', '--type-rental'] },
+    { title: 'Статусы', keys: ['--st-confirmed', '--st-pending', '--st-open', '--st-ongoing', '--st-done', '--st-cancelled'] },
+    { title: 'ГТО и рейтинг', keys: ['--gto-bronze', '--gto-silver', '--gto-gold', '--rating'] },
+    { title: 'Виды спорта', keys: ['--sport-run', '--sport-swim', '--sport-bike', '--sport-ofp', '--sport-strength', '--sport-gto', '--sport-general'] },
+    { title: 'Поверхности', keys: ['--bg', '--surface', '--surface-2', '--surface-warm', '--bg-card', '--bg-card-hover'] },
+    { title: 'Текст', keys: ['--fg', '--fg-2', '--muted', '--meta', '--placeholder'] },
+    { title: 'Акцент и жёлтый', keys: ['--accent', '--accent-hover', '--accent-active', '--accent-purple', '--accent-glow', '--yellow', '--amber', '--yellow-ink', '--yellow-ink-strong'] },
+    { title: 'Семантика', keys: ['--success', '--warn', '--danger', '--danger-hover', '--danger-active'] }
+  ];
+  var root = getComputedStyle(document.documentElement);
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:absolute;visibility:hidden;';
+  document.body.appendChild(probe);
+
+  function resolve(varName) {
+    probe.style.backgroundColor = varName;
+    var c = getComputedStyle(probe).backgroundColor;
+    probe.style.backgroundColor = '';
+    return c;
+  }
+  function darkish(rgb) {
+    var m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return false;
+    var lum = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3];
+    return lum < 128;
+  }
+
+  var host = document.getElementById('swatches');
+  groups.forEach(function (g) {
+    var head = document.createElement('h3');
+    head.className = 'ds-sub';
+    head.textContent = g.title;
+    host.appendChild(head);
+
+    var grid = document.createElement('div');
+    grid.className = 'ds-sw';
+    g.keys.forEach(function (k) {
+      var declared = root.getPropertyValue(k).trim();
+      var used = resolve(declared);
+      var it = document.createElement('div');
+      it.className = 'ds-sw-item' + (darkish(used) ? ' is-ink' : '');
+      var chip = document.createElement('div');
+      chip.className = 'ds-sw-chip';
+      chip.style.backgroundColor = used;
+      var name = document.createElement('div');
+      name.className = 'ds-sw-name';
+      name.textContent = k;
+      var val = document.createElement('div');
+      val.className = 'ds-sw-val';
+      val.textContent = used;
+      it.appendChild(chip);
+      it.appendChild(name);
+      it.appendChild(val);
+      grid.appendChild(it);
+    });
+    host.appendChild(grid);
+  });
+  probe.remove();
+})();
+</script>
+</body>
+</html>

@@ -125,6 +125,8 @@ const shots = [
       await p.waitForTimeout(300);
     }},
 
+  // Опрос
+  { file: 'survey.html', name: 'survey' },
   // Состояния
   { file: 'states/empty.html', name: 'state-empty' },
   { file: 'states/error.html', name: 'state-error' },

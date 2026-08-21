@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf4ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<title>Петровское СП — сдача норматива ГТО</title>
+<style>
+:root {
+  /* ─── Surface (3 levels) ────────────────────────────────────────── */
+  --bg: #ffffff;
+  --surface: #eef6ff;
+  --surface-2: #eef6ff;
+  --surface-warm: #f5faff;
+
+  /* ─── Foreground ramp (4 levels) ───────────────────────────────── */
+  --fg: #12213b;
+  --fg-2: #445269;
+  --muted: #78859b;
+  --meta: #99a4b7;
+
+  /* ─── Border (2 levels) ────────────────────────────────────────── */
+  --border: rgba(18,33,59,0.08);
+  --border-soft: rgba(18,33,59,0.05);
+  --border-strong: rgba(18,33,59,0.16);
+
+  /* ─── Accent ────────────────────────────────────────────────────── */
+  --accent: #1a86e0;
+  --accent-on: #ffffff;
+  --accent-hover: #2f97f0;
+  --accent-active: #1473c9;
+  --yellow: #ffc93c;
+  --yellow-on: #12213b;
+  --lime: #ffc93c;
+  --lime-on: #12213b;
+
+  /* ─── Semantic ──────────────────────────────────────────────────── */
+  --success: #2bb066;
+  --warn:    #ffc93c;
+  --danger:  #ff4d4d;
+
+  /* ─── Знак ГТО ──────────────────────────────────────────────────── */
+  --gto-bronze: #c9a06b;
+  --gto-silver: #a9b6c9;
+  --gto-gold:   #ffc93c;
+
+  /* ─── Typography ────────────────────────────────────────────────── */
+  --font-display: "Oswald", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --fs-body: 16px;
+  --fs-meta: 13px;
+  --h-base: 44px;
+  --icon-md: 20px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* ─── Radius ────────────────────────────────────────────────────── */
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-pill: 980px;
+
+  /* ─── Elevation & focus ─────────────────────────────────────────── */
+  --elev-raised: 0 16px 36px rgba(18,33,59,0.10);
+  --focus-ring: 0 0 0 4px rgba(26,134,224,0.30);
+
+  /* ─── Motion ────────────────────────────────────────────────────── */
+  --motion-fast:   150ms;
+  --motion-base:   220ms;
+  --ease-standard: cubic-bezier(0.28,0,0.22,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-warm);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font-family: inherit; }
+a { color: inherit; }
+
+.app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 0 120px;
+  min-height: 100vh;
+}
+
+/* ── Экранная шапка · назад / заголовок / действие ─────────────────── */
+.topbar {
+  flex: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+.topbar-ic {
+  flex: none;
+  width: var(--h-base);
+  height: var(--h-base);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.topbar-ic:hover { background: var(--surface-2); }
+.topbar-ic:active { background: var(--border-soft); }
+.topbar-ic:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.topbar-ic svg { width: 20px; height: 20px; }
+.topbar-tx {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--space-2);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Лид-блок (eyebrow · подзаголовок) ─────────────────────────────── */
+.lead {
+  padding: var(--space-1) var(--space-4) var(--space-3);
+}
+.lead .eyebrow {
+  margin: 0 0 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.lead .sub { margin: 5px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+@media (min-width: 560px) { .lead { padding-left: var(--space-6); padding-right: var(--space-6); } }
+
+/* ── Карточка норматива ────────────────────────────────────────────── */
+.card {
+  margin: 20px 16px 0;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-raised);
+  padding: 16px;
+  animation: rise 0.4s var(--ease-standard) both;
+}
+@media (min-width: 560px) { .card { margin-left: 24px; margin-right: 24px; } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+
+.t-norm-top { display: flex; align-items: baseline; gap: 8px; }
+.t-norm-top h2 { margin: 0; flex: 1; font-size: 17px; font-weight: 700; letter-spacing: -0.011em; }
+.t-norm-target { font-size: 12px; font-weight: 600; color: var(--gto-gold); }
+.t-norm-note { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--muted); }
+
+.thresholds { display: grid; gap: 8px; margin-top: 14px; }
+.thr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--surface-warm);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+}
+.thr b { font-size: 14px; }
+.thr span { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.thr[data-lvl="0"] b { color: var(--gto-bronze); }
+.thr[data-lvl="1"] b { color: var(--gto-silver); }
+.thr[data-lvl="2"] b { color: var(--gto-gold); }
+
+/* ── Ввод результата ───────────────────────────────────────────────── */
+.t-label {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-2);
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px;
+}
+.step-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 0;
+  background: var(--bg);
+  color: var(--accent);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.step-btn:hover { background: var(--surface); }
+.step-btn:active { background: var(--border-soft); }
+.step-btn:disabled { opacity: 0.35; cursor: default; }
+.step-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.t-value {
+  min-width: 0;
+  font-size: 34px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+.t-value small { font-size: 14px; font-weight: 600; color: var(--meta); }
+.t-field {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-warm);
+  color: var(--fg);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard);
+}
+.t-field:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.t-hint { margin: 10px 0 0; font-size: 12px; line-height: 1.4; color: var(--meta); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg-2);
+  border-radius: var(--radius-pill);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              background var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard);
+}
+.chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.chip.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); color: var(--accent); }
+
+/* ── Результат ─────────────────────────────────────────────────────── */
+.t-result { display: none; }
+.t-result.is-show { display: block; }
+.res-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+}
+.res-badge .rb-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.res-badge .rb-ic svg { width: 24px; height: 24px; }
+.res-badge .rb-txt { flex: 1; min-width: 0; }
+.res-badge .rb-txt b { display: block; font-size: 15px; letter-spacing: -0.01em; }
+.res-badge .rb-txt span { font-size: 12px; line-height: 1.4; color: var(--muted); display: block; margin-top: 2px; }
+
+.res-badge.is-gold .rb-ic { background: var(--gto-gold); }
+.res-badge.is-gold { background: color-mix(in srgb, var(--gto-gold) 10%, var(--bg)); border-color: color-mix(in srgb, var(--gto-gold) 45%, var(--border)); }
+.res-badge.is-gold .rb-txt b { color: color-mix(in srgb, var(--gto-gold) 55%, #7a5a00); }
+.res-badge.is-silver .rb-ic { background: var(--gto-silver); }
+.res-badge.is-silver { background: color-mix(in srgb, var(--gto-silver) 12%, var(--bg)); border-color: color-mix(in srgb, var(--gto-silver) 50%, var(--border)); }
+.res-badge.is-bronze .rb-ic { background: var(--gto-bronze); }
+.res-badge.is-bronze { background: color-mix(in srgb, var(--gto-bronze) 11%, var(--bg)); border-color: color-mix(in srgb, var(--gto-bronze) 45%, var(--border)); }
+.res-badge.is-bronze .rb-txt b { color: color-mix(in srgb, var(--gto-bronze) 60%, #5a3210); }
+.res-badge.is-fail .rb-ic { background: var(--danger); }
+.res-badge.is-fail { background: color-mix(in srgb, var(--danger) 9%, var(--bg)); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+.res-badge.is-fail .rb-txt b { color: var(--danger); }
+
+.t-meta { margin-top: 12px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.t-meta b { color: var(--fg-2); font-weight: 600; }
+
+/* ── Нижняя панель ─────────────────────────────────────────────────── */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-top: 1px solid var(--border-soft);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+.bottom-inner { max-width: 700px; margin: 0 auto; }
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 0;
+  transition: background var(--motion-fast) var(--ease-standard),
+              transform var(--motion-fast) var(--ease-standard),
+              opacity var(--motion-fast) var(--ease-standard);
+}
+.btn:active { transform: scale(0.985); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn svg { width: 18px; height: 18px; }
+.btn-primary { background: var(--accent); color: var(--accent-on); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-active); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn:disabled:active { transform: none; }
+</style>
+</head>
+<body data-od-id="gto-test">
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3.9-1.8z" fill="currentColor"/><path d="M8.5 13.5L6.5 21l3.5-1.5L12 21l2-1.5L17.5 21l-2-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd" data-od-id="gto-test-header">
+    <a class="back" id="t-back" href="schedule-calendar.html" aria-label="Назад к календарю"><svg><use href="#ic-back"/></svg></a>
+    <div class="hd-txt">
+      <div class="eyebrow">Петровское СП · Дневник ГТО</div>
+      <h1 id="t-title">Сдача норматива</h1>
+      <p class="sub" id="t-sub">12 августа · 10:00 · Спуск на ул. Школьной</p>
+    </div>
+  </header>
+
+  <main class="body">
+    <section class="card" data-od-id="gto-test-norm">
+      <div class="t-norm-top">
+        <h2 id="t-norm-name">Подтягивания</h2>
+        <span class="t-norm-target" id="t-norm-target">цель · 20 раз</span>
+      </div>
+      <p class="t-norm-note" id="t-norm-note">Тестирование в рамках спортивной площадки. Судья фиксирует результат в протокол.</p>
+      <div class="thresholds" id="t-thresholds"></div>
+    </section>
+
+    <section class="card" data-od-id="gto-test-entry">
+      <p class="t-label">Ваш результат</p>
+      <div id="t-entry"></div>
+      <div class="chips" id="t-chips"></div>
+    </section>
+
+    <section class="card t-result" id="t-result" data-od-id="gto-test-result">
+      <div class="res-badge" id="t-badge"></div>
+      <p class="t-meta" id="t-meta"></p>
+    </section>
+  </main>
+
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <button type="button" class="btn btn-primary" id="t-submit" disabled data-od-id="gto-test-submit">Зафиксировать результат</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function qs(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  var METRICS = {
+    pull: {
+      name: 'Подтягивания', unit: 'раз', lower: false,
+      levels: [8, 12, 20], levelNames: ['Бронзовый знак', 'Серебряный знак', 'Золотой знак'],
+      placeholders: 'От 8 раз — бронза, от 12 — серебро, от 20 — золото'
+    },
+    run100: {
+      name: 'Бег 100 м', unit: 'с', lower: true,
+      levels: [15.6, 14.6, 13.5], levelNames: ['Бронзовый знак', 'Серебряный знак', 'Золотой знак'],
+      placeholders: 'До 15,6 с — бронза, до 14,6 — серебро, до 13,5 — золото'
+    }
+  };
+
+  var norm = METRICS[qs('norm')] ? qs('norm') : 'pull';
+  var m = METRICS[norm];
+  var value = 0;
+  var valueSet = false;
+  var submitted = false;
+
+  function fmtNum(v) {
+    if (m.lower) return (Math.round(v * 100) / 100).toString().replace('.', ',');
+    return String(Math.round(v));
+  }
+
+  function levelFor(v) {
+    if (m.lower) {
+      if (v <= m.levels[2] + 1e-9) return 2;
+      if (v <= m.levels[1] + 1e-9) return 1;
+      if (v <= m.levels[0] + 1e-9) return 0;
+    } else {
+      if (v >= m.levels[2]) return 2;
+      if (v >= m.levels[1]) return 1;
+      if (v >= m.levels[0]) return 0;
+    }
+    return -1;
+  }
+
+  document.getElementById('t-norm-name').textContent = m.name;
+  document.getElementById('t-norm-target').textContent = 'цель · ' + fmtNum(m.levels[2]) + ' ' + m.unit;
+
+  var thr = document.getElementById('t-thresholds');
+  ['Бронза', 'Серебро', 'Золото'].forEach(function (lbl, i) {
+    var d = document.createElement('div');
+    d.className = 'thr';
+    d.setAttribute('data-lvl', String(i));
+    d.innerHTML = '<b>' + lbl + '</b><span>' + fmtNum(m.levels[i]) + ' ' + m.unit + '</span>';
+    thr.appendChild(d);
+  });
+
+  function renderEntry() {
+    var host = document.getElementById('t-entry');
+    if (m.lower) {
+      host.innerHTML =
+        '<input type="text" inputmode="decimal" class="t-field" id="t-field" placeholder="Например 14,6" aria-label="Результат в секундах">';
+      document.getElementById('t-field').addEventListener('input', function () {
+        var t = this.value.replace(',', '.').trim();
+        if (t === '' || isNaN(+t)) { valueSet = false; value = 0; }
+        else { value = +t; valueSet = true; }
+        document.getElementById('t-submit').disabled = !valueSet;
+        setChips();
+      });
+    } else {
+      host.innerHTML =
+        '<div class="stepper">' +
+          '<button type="button" class="step-btn" id="t-minus" data-od-id="gto-test-step-minus" aria-label="Уменьшить">−</button>' +
+          '<div class="t-value" id="t-value">0<small> ' + m.unit + '</small></div>' +
+          '<button type="button" class="step-btn" id="t-plus" data-od-id="gto-test-step-plus" aria-label="Увеличить">+</button>' +
+        '</div>' +
+        '<p class="t-hint">' + m.placeholders + '</p>';
+      var valEl = document.getElementById('t-value');
+      function paint() {
+        valEl.innerHTML = fmtNum(value) + '<small> ' + m.unit + '</small>';
+        document.getElementById('t-minus').disabled = value <= 0;
+        document.getElementById('t-submit').disabled = !valueSet;
+        setChips();
+      }
+      document.getElementById('t-plus').addEventListener('click', function () {
+        value++; valueSet = true; paint();
+      });
+      document.getElementById('t-minus').addEventListener('click', function () {
+        value = Math.max(0, value - 1); paint();
+      });
+      paint();
+    }
+  }
+
+  function setChips() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-od-id^=gto-test-chip-]'), function (c) {
+      c.classList.toggle('is-on', valueSet && Math.abs(+c.getAttribute('data-v') - value) < 1e-9);
+    });
+  }
+
+  function renderChips() {
+    var host = document.getElementById('t-chips');
+    host.innerHTML = '';
+    ['Бронза', 'Серебро', 'Золото'].forEach(function (lbl, i) {
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'chip';
+      c.setAttribute('data-od-id', 'gto-test-chip-' + i);
+      c.setAttribute('data-v', String(m.levels[i]));
+      c.textContent = lbl + ' · ' + fmtNum(m.levels[i]);
+      c.addEventListener('click', function () {
+        value = m.levels[i]; valueSet = true;
+        if (m.lower) { document.getElementById('t-field').value = fmtNum(value); }
+        else { document.getElementById('t-value').innerHTML = fmtNum(value) + '<small> ' + m.unit + '</small>'; }
+        document.getElementById('t-submit').disabled = !valueSet;
+        setChips();
+      });
+      host.appendChild(c);
+    });
+    setChips();
+  }
+
+  var submit = document.getElementById('t-submit');
+  submit.addEventListener('click', function () {
+    if (!valueSet || submitted) return;
+    submitted = true;
+    var lvl = levelFor(value);
+    var badge = document.getElementById('t-badge');
+    var meta = document.getElementById('t-meta');
+    var res = document.getElementById('t-result');
+    var ic = '<svg aria-hidden="true"><use href="#ic-medal"/></svg>';
+
+    if (lvl < 0) {
+      badge.className = 'res-badge is-fail';
+      badge.innerHTML = '<span class="rb-ic">' + ic + '</span>' +
+        '<span class="rb-txt"><b>Норматив не выполнен</b><span>Нужно от ' + fmtNum(m.levels[0]) + ' ' + m.unit + ', у вас ' + fmtNum(value) + ' ' + m.unit + '</span></span>';
+      meta.innerHTML = 'Можно попробовать ещё раз на ближайшей сдаче норматива или на дополнительном тестировании. План подготовки уже в календаре.';
+      submit.textContent = 'К плану подготовки';
+      submit.onclick = function () { location.href = 'gto-plan.html'; };
+    } else {
+      var key = ['bronze', 'silver', 'gold'][lvl];
+      badge.className = 'res-badge is-' + key;
+      badge.innerHTML = '<span class="rb-ic">' + ic + '</span>' +
+        '<span class="rb-txt"><b>' + m.levelNames[lvl] + '</b><span>Результат ' + fmtNum(value) + ' ' + m.unit + ' · протокол подтверждён</span></span>';
+      meta.innerHTML = 'Судья внес результат в протокол. Знак привяжем к профилю — шеврон появится рядом с ником.';
+      submit.textContent = 'Получить знак';
+      submit.onclick = function () {
+        location.href = 'gto-result.html?norm=' + norm + '&level=' + lvl + '&v=' + encodeURIComponent(fmtNum(value));
+      };
+    }
+    res.classList.add('is-show');
+    res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  renderEntry();
+  renderChips();
+})();
+</script>
+</body>
+</html>

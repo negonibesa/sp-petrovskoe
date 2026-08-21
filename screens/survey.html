@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233ab5ad'/%3E%3C/svg%3E">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fc">
+<title>Опрос после тренировки · Петровское СП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+  .sv-app { background: var(--surface); padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .sv-body { padding-top: 4px; }
+
+  .sv-lead { padding: var(--space-1) var(--space-1) var(--space-3); }
+  .sv-lead .eyebrow {
+    margin: 0;
+    font-size: var(--fs-caption); font-weight: 600; letter-spacing: var(--tracking-caps);
+    text-transform: uppercase; color: var(--muted);
+  }
+  .sv-lead h2 { margin: 6px 0 0; font-size: var(--fs-title-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+  .sv-lead .sv-sub { margin: 4px 0 0; font-size: var(--fs-meta); line-height: 1.4; color: var(--muted); }
+
+  .sv-q { margin-bottom: var(--space-3); }
+  .sv-q-label {
+    display: flex; align-items: center; gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  }
+  .sv-q-label .sv-q-ic {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 14px; color: #fff;
+  }
+  .sv-q-label .sv-q-ic.is-feel { background: var(--accent); }
+  .sv-q-label .sv-q-ic.is-diff { background: #ff9f43; }
+  .sv-q-label .sv-q-ic.is-sat { background: #3ab5ad; }
+
+  .sv-scale {
+    display: flex; gap: 6px;
+  }
+  .sv-scale-btn {
+    flex: 1; height: 48px; border-radius: var(--radius-md);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: var(--fs-body); font-weight: 700; font-variant-numeric: tabular-nums;
+    color: var(--meta); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all var(--motion-fast) var(--ease-standard);
+  }
+  .sv-scale-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sv-scale-btn:active { transform: scale(0.95); }
+  .sv-scale-btn.is-on {
+    border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    color: var(--accent); font-weight: 800;
+  }
+  .sv-scale-hint {
+    display: flex; justify-content: space-between; margin-top: 4px;
+    font-size: 11px; color: var(--meta);
+  }
+
+  .sv-comment {
+    width: 100%; min-height: 80px; padding: var(--space-3);
+    border: 1.5px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface-warm); color: var(--fg);
+    font-family: inherit; font-size: var(--fs-body); line-height: 1.5;
+    resize: vertical; outline: none;
+    transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+  }
+  .sv-comment::placeholder { color: var(--meta); }
+  .sv-comment:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  .sv-done { display: none; text-align: center; padding: var(--space-6) var(--space-4); }
+  .sv-done.is-show { display: block; }
+  .sv-done-ic {
+    width: 64px; height: 64px; border-radius: 50%; margin: 0 auto var(--space-3);
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    display: grid; place-items: center; color: var(--accent);
+  }
+  .sv-done-ic svg { width: 32px; height: 32px; }
+  .sv-done h3 { margin: 0 0 var(--space-1); font-size: var(--fs-title-sm); font-weight: 700; color: var(--fg); }
+  .sv-done p { margin: 0; font-size: var(--fs-meta); line-height: 1.5; color: var(--muted); }
+  .sv-done .sv-points {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: var(--space-3); padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    font-size: var(--fs-body); font-weight: 700; color: var(--accent);
+  }
+
+  .sv-form { transition: opacity 0.3s ease; }
+  .sv-form.is-hidden { display: none; }
+</style>
+</head>
+<body data-od-id="survey-screen">
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M8 12.5l2.5 2.5 5.5-5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></symbol>
+  <symbol id="ic-points" viewBox="0 0 24 24"><path d="M12 2L9.2 9.2 2 12l7.2 2.8L12 22l2.8-7.2L22 12l-7.2-2.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></symbol>
+</svg>
+
+<div class="app sv-app">
+  <header class="topbar" data-od-id="survey-header">
+    <button type="button" class="topbar-ic is-back" id="sv-back" aria-label="Назад"><svg aria-hidden="true"><use href="#ic-chev"></use></svg></button>
+    <h4 class="topbar-tx">Опрос</h4>
+  </header>
+
+  <main class="body sv-body">
+    <div class="sv-lead">
+      <p class="eyebrow">Петровское СП · Опрос после тренировки</p>
+      <h2>Как прошла тренировка?</h2>
+      <p class="sv-sub">Валя Тренировка · 12 авг · Бег 5 км</p>
+    </div>
+
+    <div class="sv-form" id="sv-form">
+      <section class="card" data-od-id="survey-question-1">
+        <div class="sv-q">
+          <div class="sv-q-label">
+            <span class="sv-q-ic is-feel">☺</span>
+            <span>Как самочувствие?</span>
+          </div>
+          <div class="sv-scale" id="sv-scale-1" data-key="feeling">
+            <button type="button" class="sv-scale-btn" data-val="1">1</button>
+            <button type="button" class="sv-scale-btn" data-val="2">2</button>
+            <button type="button" class="sv-scale-btn" data-val="3">3</button>
+            <button type="button" class="sv-scale-btn" data-val="4">4</button>
+            <button type="button" class="sv-scale-btn" data-val="5">5</button>
+          </div>
+          <div class="sv-scale-hint"><span>Плохо</span><span>Отлично</span></div>
+        </div>
+      </section>
+
+      <section class="card" data-od-id="survey-question-2">
+        <div class="sv-q">
+          <div class="sv-q-label">
+            <span class="sv-q-ic is-diff">⚡</span>
+            <span>Насколько сложно было?</span>
+          </div>
+          <div class="sv-scale" id="sv-scale-2" data-key="difficulty">
+            <button type="button" class="sv-scale-btn" data-val="1">1</button>
+            <button type="button" class="sv-scale-btn" data-val="2">2</button>
+            <button type="button" class="sv-scale-btn" data-val="3">3</button>
+            <button type="button" class="sv-scale-btn" data-val="4">4</button>
+            <button type="button" class="sv-scale-btn" data-val="5">5</button>
+          </div>
+          <div class="sv-scale-hint"><span>Легко</span><span>Очень сложно</span></div>
+        </div>
+      </section>
+
+      <section class="card" data-od-id="survey-question-3">
+        <div class="sv-q">
+          <div class="sv-q-label">
+            <span class="sv-q-ic is-sat">♥</span>
+            <span>Удовлетворённость?</span>
+          </div>
+          <div class="sv-scale" id="sv-scale-3" data-key="satisfaction">
+            <button type="button" class="sv-scale-btn" data-val="1">1</button>
+            <button type="button" class="sv-scale-btn" data-val="2">2</button>
+            <button type="button" class="sv-scale-btn" data-val="3">3</button>
+            <button type="button" class="sv-scale-btn" data-val="4">4</button>
+            <button type="button" class="sv-scale-btn" data-val="5">5</button>
+          </div>
+          <div class="sv-scale-hint"><span>Не понравилось</span><span>Супер!</span></div>
+        </div>
+      </section>
+
+      <section class="card" data-od-id="survey-comment">
+        <p style="margin:0 0 var(--space-2);font-size:var(--fs-body);font-weight:600;color:var(--fg)">Комментарий <span style="font-weight:400;color:var(--meta)">(необязательно)</span></p>
+        <textarea class="sv-comment" id="sv-comment" placeholder="Расскажите подробнее..."></textarea>
+      </section>
+    </div>
+
+    <div class="sv-done" id="sv-done">
+      <div class="sv-done-ic"><svg aria-hidden="true"><use href="#ic-check-circle"></use></svg></div>
+      <h3>Спасибо за ответ!</h3>
+      <p>Ваши отзывы помогают тренерам составлять более эффективные программы тренировок.</p>
+      <div class="sv-points"><svg aria-hidden="true" width="18" height="18"><use href="#ic-points"></use></svg>+15 баллов</div>
+    </div>
+  </main>
+</div>
+
+<div class="evd-bar" data-od-id="survey-bar">
+  <button type="button" class="btn btn-accent" id="sv-submit" disabled data-od-id="survey-submit">Отправить</button>
+</div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+
+  var answers = {};
+  var allAnswered = false;
+
+  $('sv-back').addEventListener('click', function () {
+    history.length > 1 ? history.back() : location.href = '06-home.html';
+  });
+
+  document.querySelectorAll('.sv-scale').forEach(function (scale) {
+    var key = scale.dataset.key;
+    scale.querySelectorAll('.sv-scale-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        scale.querySelectorAll('.sv-scale-btn').forEach(function (b) { b.classList.remove('is-on'); });
+        btn.classList.add('is-on');
+        answers[key] = parseInt(btn.dataset.val);
+        checkReady();
+      });
+    });
+  });
+
+  function checkReady() {
+    var ready = answers.feeling && answers.difficulty && answers.satisfaction;
+    $('sv-submit').disabled = !ready;
+    if (ready && !allAnswered) {
+      allAnswered = true;
+    }
+  }
+
+  $('sv-submit').addEventListener('click', function () {
+    if (!answers.feeling || !answers.difficulty || !answers.satisfaction) return;
+    var survey = {
+      feeling: answers.feeling,
+      difficulty: answers.difficulty,
+      satisfaction: answers.satisfaction,
+      comment: $('sv-comment').value.trim(),
+      timestamp: Date.now()
+    };
+    try {
+      var surveys = JSON.parse(localStorage.getItem('surveys') || '[]');
+      surveys.push(survey);
+      localStorage.setItem('surveys', JSON.stringify(surveys));
+    } catch (e) {}
+    $('sv-form').classList.add('is-hidden');
+    $('sv-done').classList.add('is-show');
+    $('sv-submit').disabled = true;
+    $('sv-submit').textContent = 'Отправлено';
+  });
+})();
+</script>
+</body>
+</html>

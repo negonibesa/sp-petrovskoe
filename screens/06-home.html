@@ -298,35 +298,13 @@
         <h2>Новости сообщества</h2>
         <a class="sec-all" href="community.html">Все<svg aria-hidden="true"><use href="#ic-chev"></use></svg></a>
       </div>
-      <div class="news-list">
-        <a class="news-card" href="news.html?id=n2" data-od-id="news-1">
-          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>12 Августа</span>
-          <h3>Новое покрытие на летней площадке</h3>
-          <p>Ремонт завершён, беговые дорожки и зона разминки снова открыты для всех.</p>
-          <span class="news-foot">
-            <span class="news-tags"><span class="tag">футбол</span></span>
-            <span class="news-likes" aria-label="32 отметки «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>32</span>
-          </span>
-        </a>
-        <a class="news-card" href="news.html?id=n3" data-od-id="news-2">
-          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>8 Августа</span>
-          <h3>Открыт набор в секцию плавания</h3>
-          <p>Запись у администратора или через приложение, группы для детей 8–12 лет и взрослых.</p>
-          <span class="news-foot">
-            <span class="news-tags"><span class="tag">плавание</span></span>
-            <span class="news-likes" aria-label="18 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>18</span>
-          </span>
-        </a>
-        <a class="news-card" href="news.html?id=n4" data-od-id="news-3">
-          <span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>12 Августа</span>
-          <h3>Турнир по бадминтону</h3>
-          <p>18 августа в зале №&nbsp;1. Участие свободное, победитель получит абонемент на месяц.</p>
-          <span class="news-foot">
-            <span class="news-tags"><span class="tag">новость</span><span class="tag">турнир</span></span>
-            <span class="news-likes" aria-label="9 отметок «нравится»"><svg aria-hidden="true"><use href="#ic-like"></use></svg>9</span>
-          </span>
-        </a>
+      <div class="chips" id="news-filters" style="margin-bottom:var(--space-3)">
+        <button type="button" class="fchip is-on" data-tag="all">Все</button>
+        <button type="button" class="fchip" data-tag="facility"><span class="dot" style="--c:var(--accent)"></span>Площадка</button>
+        <button type="button" class="fchip" data-tag="club"><span class="dot" style="--c:#9175e8"></span>Клубы</button>
+        <button type="button" class="fchip" data-tag="event"><span class="dot" style="--c:var(--type-event)"></span>События</button>
       </div>
+      <div class="news-list" id="news-list"></div>
     </section>
 
     <footer class="site-foot">
@@ -519,6 +497,43 @@
     if(btn) btn.addEventListener('click', openAch);
     if(scrim) scrim.addEventListener('click', closeAch);
     document.querySelectorAll('.js-ach-home-close').forEach(function(b){ b.addEventListener('click', closeAch); });
+  })();
+
+  /* Фильтрация новостей по тегам */
+  (function(){
+    var NEWS = [
+      { id: 'n2', tag: 'facility', date: '12 Августа', title: 'Новое покрытие на летней площадке', desc: 'Ремонт завершён, беговые дорожки и зона разминки снова открыты для всех.', tags: ['футбол'], likes: 32 },
+      { id: 'n3', tag: 'club', date: '8 Августа', title: 'Открыт набор в секцию плавания', desc: 'Запись у администратора или через приложение, группы для детей 8–12 лет и взрослых.', tags: ['плавание'], likes: 18 },
+      { id: 'n4', tag: 'event', date: '12 Августа', title: 'Турнир по бадминтону', desc: '18 августа в зале № 1. Участие свободное, победитель получит абонемент на месяц.', tags: ['новость', 'турнир'], likes: 9 }
+    ];
+    var activeTag = 'all';
+    var list = document.getElementById('news-list');
+    function renderNews() {
+      list.innerHTML = '';
+      NEWS.filter(function(n) { return activeTag === 'all' || n.tag === activeTag; }).forEach(function(n) {
+        var a = document.createElement('a');
+        a.className = 'news-card';
+        a.href = 'news.html?id=' + n.id;
+        a.innerHTML =
+          '<span class="news-date"><svg aria-hidden="true"><use href="#ic-clock"></use></svg>' + n.date + '</span>' +
+          '<h3>' + n.title + '</h3>' +
+          '<p>' + n.desc + '</p>' +
+          '<span class="news-foot">' +
+          '<span class="news-tags">' + n.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</span>' +
+          '<span class="news-likes"><svg aria-hidden="true"><use href="#ic-like"></use></svg>' + n.likes + '</span>' +
+          '</span>';
+        list.appendChild(a);
+      });
+    }
+    document.querySelectorAll('#news-filters .fchip').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        activeTag = btn.dataset.tag;
+        document.querySelectorAll('#news-filters .fchip').forEach(function(b) { b.classList.remove('is-on'); });
+        btn.classList.add('is-on');
+        renderNews();
+      });
+    });
+    renderNews();
   })();
 
 </script>

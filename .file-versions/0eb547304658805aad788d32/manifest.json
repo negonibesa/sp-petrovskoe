@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "fileName": "index.html",
+  "currentVersionId": "0a32d01d-fb43-4e9a-b58d-eb08c3a5cd54",
+  "entries": [
+    {
+      "id": "438b4878-09c0-4cc4-93f7-59e2385d2734",
+      "fileName": "index.html",
+      "version": 1,
+      "label": "Version 1",
+      "createdAt": 1786549445479,
+      "source": "ai",
+      "prompt": "Создай файл Index.html который будет вести на все экраны и состояния приложения. Пока пустой",
+      "size": 5261,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0001-438b4878-09c0-4cc4-93f7-59e2385d2734.html",
+      "promptSource": "message",
+      "contentDigest": "d2e8cf17015f550980d99bba9ff59213a4dda250804a74055ad5087676f9eb2e"
+    },
+    {
+      "id": "a10c6789-8fa2-4100-9ba5-1aec5675ef79",
+      "fileName": "index.html",
+      "version": 2,
+      "label": "Version 2",
+      "createdAt": 1786549538467,
+      "source": "ai",
+      "prompt": "используй стили отсюда",
+      "size": 7609,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0002-a10c6789-8fa2-4100-9ba5-1aec5675ef79.html",
+      "promptSource": "message",
+      "contentDigest": "8510aaf67c72ee40ab01a312ac5220535d4289177a80834d0079acd90d6d564b"
+    },
+    {
+      "id": "e6c5039b-4daf-487d-8860-dc571fb069a6",
+      "fileName": "index.html",
+      "version": 3,
+      "label": "Version 3",
+      "createdAt": 1786550070366,
+      "source": "ai",
+      "prompt": "Начни с переноса Токенов Цветов, важно, все изменения делаем в файле дизайн системы, чтобы все автоматически менялось на будущих экранах приложения",
+      "size": 6362,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0003-e6c5039b-4daf-487d-8860-dc571fb069a6.html",
+      "promptSource": "message",
+      "contentDigest": "ce3d348b5328b147f2e38c576b71087891a3859a24a77f5bb194a329c43e3e3b"
+    },
+    {
+      "id": "8bb4d487-6dce-4bfa-b3e4-cd767838f92f",
+      "fileName": "index.html",
+      "version": 4,
+      "label": "Version 4",
+      "createdAt": 1786555556543,
+      "source": "ai",
+      "prompt": "Отлично будем делать поэтапно эти файлы есть просто в  другом проекте, там уже каша что мною было принто решение снуля его пересобирать, как раз сейчас мы делаем дизайн систему и Index. Внеси в индекс предполагаемое оглавление на будущие макеты, готовые экраны будем помечать зеленой кнопокой. Добавлять в дизайн систему жлементы по необходимости. След. этапом я скину тебе главную страницу чтобы ты на основе анализа ее и старой дизайн системы вычленил компоненты и заполнил нащу новую дизайн систему",
+      "size": 14452,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0004-8bb4d487-6dce-4bfa-b3e4-cd767838f92f.html",
+      "promptSource": "message",
+      "contentDigest": "2583847ed2628be78853b71764b6a1de371ba2930a2fff797a8c1245e8f53ba2"
+    },
+    {
+      "id": "0a32d01d-fb43-4e9a-b58d-eb08c3a5cd54",
+      "fileName": "index.html",
+      "version": 5,
+      "label": "Version 5",
+      "createdAt": 1786557627033,
+      "source": "ai",
+      "prompt": "типографика неверная в DS mono шрифты не юзаю кидаю гланвую страницу на анализ, что вычленяем и описываем в DS, недостающие картинки позже предоставлю",
+      "size": 14320,
+      "mime": "text/html; charset=utf-8",
+      "kind": "html",
+      "contentPath": "0005-0a32d01d-fb43-4e9a-b58d-eb08c3a5cd54.html",
+      "contentDigest": "585c514a75797ff118c7eaea432c6dfe0a8c032b74ebdbb03276b57eb0740441",
+      "promptSource": "message"
+    }
+  ]
+}

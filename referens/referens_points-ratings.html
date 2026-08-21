@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf4ff">
+<title>Петровское СП — баллы и рейтинги</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eaf4ff;
+  --surface: #ffffff;
+  --surface-2: #eef6ff;
+  --surface-warm: #f5faff;
+
+  --fg: #12213b;
+  --fg-2: #445269;
+  --muted: #78859b;
+  --meta: #99a4b7;
+
+  --border: rgba(18,33,59,0.08);
+  --border-soft: rgba(18,33,59,0.05);
+  --border-strong: rgba(18,33,59,0.16);
+
+  --accent: #1a86e0;
+  --accent-on: #ffffff;
+  --accent-hover: #2f97f0;
+  --accent-active: #1473c9;
+  --yellow: #ffc93c;
+  --yellow-on: #12213b;
+
+  --success: #2bb066;
+  --warn: #ffc93c;
+  --danger: #ff4d4d;
+
+  --green-text: color-mix(in oklch, var(--success) 40%, var(--fg));
+  --amber-text: color-mix(in oklch, var(--yellow) 25%, var(--fg));
+  --bronze-text: color-mix(in oklch, var(--danger) 28%, var(--fg));
+  --blue-text: color-mix(in oklch, var(--accent) 40%, var(--fg));
+  --red-text: color-mix(in oklch, var(--danger) 40%, var(--fg));
+  --gray-text: color-mix(in oklch, var(--muted) 60%, var(--fg));
+  --fill-blue-hover: color-mix(in oklch, var(--accent-active), black 10%);
+
+  --tint-green: color-mix(in srgb, var(--success) 13%, var(--surface));
+  --tint-amber: color-mix(in srgb, var(--yellow) 20%, var(--surface));
+  --tint-red: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  --tint-blue: color-mix(in srgb, var(--accent) 12%, var(--surface));
+
+  --type-me: #2f9e54;
+  --type-trainer: #ffc93c;
+  --type-event: #0b3d91;
+  --type-club: #7ec8ff;
+  --type-rental: #4a6fa5;
+
+  --font-display: "Oswald", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 980px;
+
+  --elev-card: 0 8px 24px rgba(18,33,59,0.07);
+  --elev-raised: 0 16px 36px rgba(18,33,59,0.10);
+  --focus-ring: 0 0 0 4px rgba(26,134,224,0.30);
+
+  --motion-fast: 150ms;
+  --motion-base: 220ms;
+  --ease-standard: cubic-bezier(0.28,0,0.22,1);
+
+  --container-max: 700px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-warm);
+  color: var(--fg);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font-family: inherit; }
+a { color: inherit; }
+:focus-visible { outline: none; }
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 16px calc(120px + env(safe-area-inset-bottom));
+}
+
+/* ── Шапка ─────────────────────────────────────────────────────────── */
+.hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 2px 14px;
+}
+.hd-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg-2);
+  box-shadow: var(--elev-card);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.hd-btn:hover { background: var(--surface-warm); }
+.hd-btn:active { background: var(--surface-2); }
+.hd-btn:focus-visible { box-shadow: var(--focus-ring); }
+.hd-btn svg { width: 18px; height: 18px; }
+.hd-bd { flex: 1; min-width: 0; }
+.hd-title { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: 0.02em; line-height: 1.05; }
+.hd-sub { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+/* ── Сегмент-контрол «Баллы | Рейтинги» ────────────────────────────── */
+.seg {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  margin: 4px 0 20px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.seg-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard);
+}
+.seg-btn.is-active {
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 2px 8px rgba(18,33,59,0.10);
+}
+.seg-btn:not(.is-active):hover { background: var(--surface-warm); }
+.seg-btn:focus-visible { box-shadow: var(--focus-ring); }
+
+/* ── Панели и секции ───────────────────────────────────────────────── */
+.pane { display: none; }
+.pane.is-on { display: block; animation: pane-in 0.28s var(--ease-standard); }
+@keyframes pane-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+}
+.sec-title {
+  margin: 26px 4px 0;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sec-sub { margin: 3px 4px 14px; font-size: 13px; color: var(--muted); }
+
+/* ── Карточка баланса ──────────────────────────────────────────────── */
+.hero { padding: 18px 18px 16px; }
+.hero-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.hero-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.hero-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-on);
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+.hero-balance {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 10px 0 16px;
+  font-family: var(--font-display);
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+.hero-balance svg { width: 24px; height: 24px; color: var(--yellow); align-self: center; }
+.level-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+  overflow: hidden;
+}
+.level-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-pill);
+  background: var(--yellow);
+  transition: width var(--motion-base) var(--ease-standard);
+}
+.level-scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--meta); }
+.level-hint { margin: 10px 0 0; font-size: 13px; color: var(--fg-2); }
+.level-hint b { color: var(--fg); font-weight: 600; }
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+.streak-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--yellow) 22%, var(--surface));
+  color: var(--amber-text);
+}
+.streak-ic svg { width: 20px; height: 20px; }
+.streak-tx { flex: 1; min-width: 0; }
+.streak-tx b { display: block; font-size: 14px; font-weight: 600; }
+.streak-tx span { font-size: 12px; color: var(--muted); }
+.streak-dots { display: flex; gap: 4px; }
+.streak-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.streak-dot.on { background: var(--yellow); box-shadow: none; }
+.streak-dot.next { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--yellow); }
+
+/* ── Карточки задач «награда до действия» ──────────────────────────── */
+.task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elev-card);
+}
+.task-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+.task-ic svg { width: 21px; height: 21px; }
+.task-bd { flex: 1; min-width: 0; }
+.task-name { display: block; font-size: 15px; font-weight: 600; }
+.task-meta { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.task-badges { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.pts-badge {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--yellow-on);
+  background: var(--yellow);
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+}
+.chk-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+  padding: 3px 8px;
+}
+.task-st {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.task-st.conf { color: var(--green-text); background: var(--tint-green); }
+.task-st.pend { color: var(--amber-text); background: var(--tint-amber); }
+.task .btn { flex: none; min-width: 128px; }
+
+.tone-blue    { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent-active); }
+.tone-green   { background: color-mix(in srgb, var(--success) 14%, var(--surface)); color: var(--green-text); }
+.tone-yellow  { background: color-mix(in srgb, var(--yellow) 20%, var(--surface)); color: var(--amber-text); }
+.tone-event   { background: color-mix(in srgb, var(--type-event) 12%, var(--surface)); color: var(--type-event); }
+.tone-rental  { background: color-mix(in srgb, var(--type-rental) 14%, var(--surface)); color: var(--type-rental); }
+.tone-muted   { background: var(--surface-2); color: var(--meta); }
+
+/* ── Кнопки ────────────────────────────────────────────────────────── */
+.btn {
+  min-height: 46px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-on);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.btn:hover { background: var(--accent-hover); }
+.btn:active { background: var(--accent-active); }
+.btn:focus-visible { box-shadow: var(--focus-ring); }
+.btn.ghost {
+  background: transparent;
+  color: var(--fg-2);
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+.btn.ghost:hover { background: var(--surface-warm); color: var(--fg); }
+.btn.ghost:active { background: var(--surface-2); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.btn:disabled:hover { background: var(--accent); }
+.btn.ghost:disabled:hover { background: transparent; color: var(--fg-2); }
+
+/* ── Журнал начислений ─────────────────────────────────────────────── */
+.ledger { overflow: hidden; }
+.lg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+.lg-row + .lg-row { border-top: 1px solid var(--border-soft); }
+.lg-row.is-fresh { animation: lg-in 0.6s var(--ease-standard); background: var(--surface-warm); }
+@keyframes lg-in {
+  0% { background: #fff6d6; }
+  100% { background: var(--surface-warm); }
+}
+.lg-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+.lg-ic svg { width: 19px; height: 19px; }
+.lg-tx { flex: 1; min-width: 0; }
+.lg-tx b { display: block; font-size: 14px; font-weight: 600; }
+.lg-tx small { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.lg-side { flex: none; text-align: right; }
+.lg-pts { display: block; font-family: var(--font-mono); font-size: 14px; font-weight: 600; }
+.lg-pts.pos { color: var(--green-text); }
+.lg-pts.neg { color: var(--red-text); }
+.lg-side .st { display: inline-block; margin-top: 4px; }
+
+.st {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.st.conf { color: var(--green-text); background: var(--tint-green); }
+.st.pend { color: var(--amber-text); background: var(--tint-amber); }
+.st.rej  { color: var(--red-text); background: var(--tint-red); }
+.st.sys  { color: var(--blue-text); background: var(--tint-blue); }
+
+.rules-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg-2);
+  box-shadow: var(--elev-card);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.rules-link:hover { background: var(--surface-warm); }
+.rules-link:focus-visible { box-shadow: var(--focus-ring); }
+.rules-link svg { width: 16px; height: 16px; color: var(--meta); }
+
+/* ── Рейтинги ──────────────────────────────────────────────────────── */
+.sport-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 16px; }
+.sport-chip {
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg-2);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-standard),
+              color var(--motion-fast) var(--ease-standard);
+}
+.sport-chip:hover { background: var(--surface-warm); }
+.sport-chip.is-on { background: var(--accent); color: var(--accent-on); box-shadow: none; }
+.sport-chip.is-on:hover { background: var(--fill-blue-hover); color: var(--accent-on); }
+.sport-chip:focus-visible { box-shadow: var(--focus-ring); }
+
+.season {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.season-tx { flex: 1; min-width: 0; }
+.season-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.season-tx b { display: block; margin-top: 3px; font-size: 15px; font-weight: 600; }
+.season-tx span { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+.myrank { display: flex; align-items: center; gap: 14px; padding: 16px; margin-bottom: 12px; }
+.myrank-pos { font-family: var(--font-display); font-size: 40px; font-weight: 600; line-height: 1; color: var(--fg); }
+.myrank-pos small { font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--meta); display: block; margin-top: 6px; }
+.myrank-bd { flex: 1; min-width: 0; }
+.myrank-bd b { display: block; font-size: 15px; font-weight: 600; }
+.myrank-bd span { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+}
+.delta svg { width: 13px; height: 13px; }
+.delta.up { color: var(--green-text); background: var(--tint-green); }
+.delta.down { color: var(--red-text); background: var(--tint-red); }
+.delta.flat { color: var(--meta); background: var(--surface-2); }
+
+.lb { overflow: hidden; }
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; }
+.lb-row + .lb-row { border-top: 1px solid var(--border-soft); }
+.lb-row.is-me { background: var(--surface-warm); }
+.lb-rank {
+  flex: none;
+  width: 26px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--meta);
+}
+.lb-rank.r1 { color: #b47b00; }
+.lb-rank.r2 { color: #8a94a6; }
+.lb-rank.r3 { color: #b06a3a; }
+.lb-ava {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+  color: var(--fg-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.lb-row.is-me .lb-ava { background: var(--accent); color: var(--accent-on); }
+.av { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.lb-ava .av { width: 36px; height: 36px; }
+.lb-bd { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.lb-name { font-size: 14px; font-weight: 600; }
+.lb-me-chip { font-size: 10.5px; font-weight: 600; color: var(--accent-on); background: var(--accent); border-radius: var(--radius-pill); padding: 2px 7px; }
+.lb-club { font-size: 12px; color: var(--muted); }
+.lb-pts { flex: none; font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.lb-delta { flex: none; display: grid; place-items: center; width: 18px; height: 18px; }
+.lb-delta svg { width: 14px; height: 14px; }
+.lb-delta.up { color: var(--green-text); }
+.lb-delta.down { color: var(--red-text); }
+.lb-delta.flat { color: var(--meta); }
+
+.results { overflow: hidden; }
+.res-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.res-row + .res-row { border-top: 1px solid var(--border-soft); }
+.place {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--fg-2);
+}
+.place.gold { background: #fff3cf; color: #a06d00; }
+.place.silver { background: #eef2f7; color: #6b7688; }
+.place.bronze { background: #fbece0; color: #a85c2a; }
+.res-tx { flex: 1; min-width: 0; }
+.res-tx b { display: block; font-size: 14px; font-weight: 600; }
+.res-tx small { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+.res-pts { flex: none; font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--fg-2); }
+
+/* ── Шит «Правила» ─────────────────────────────────────────────────── */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(18,33,59,0.36);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--ease-standard);
+}
+.scrim.is-on { opacity: 1; pointer-events: auto; }
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  margin: 0 auto;
+  max-width: var(--container-max);
+  max-height: 84vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.14);
+  padding: 8px 18px calc(24px + env(safe-area-inset-bottom));
+  transform: translateY(105%);
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+.sheet.is-open { transform: translateY(0); }
+.sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 4px auto 8px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 10px; }
+.sheet-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.sheet-close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--fg-2);
+  cursor: pointer;
+}
+.sheet-close:hover { background: var(--border-soft); }
+.sheet-close:focus-visible { box-shadow: var(--focus-ring); }
+.sheet-close svg { width: 15px; height: 15px; }
+
+.rule-sec { margin-top: 6px; }
+.rule-sec-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  padding: 12px 0 4px;
+}
+.rule-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13.5px;
+}
+.rule-row span { color: var(--muted); }
+.rule-row b { font-family: var(--font-mono); font-weight: 600; font-size: 13px; color: var(--fg); white-space: nowrap; }
+.rule-note { padding: 10px 0 2px; font-size: 13px; color: var(--muted); line-height: 1.55; }
+.rule-note b { color: var(--fg-2); font-weight: 600; }
+
+/* ── Тосты ─────────────────────────────────────────────────────────── */
+.toast-wrap { position: fixed; left: 0; right: 0; bottom: 26px; z-index: 80; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 40px);
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--fg);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(18,33,59,0.28);
+  animation: toast-in 0.25s var(--ease-standard) both;
+}
+.toast.hide { animation: toast-out 0.25s var(--ease-standard) both; }
+.toast b { font-family: var(--font-mono); font-weight: 600; color: var(--yellow); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toast-out { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+.back-foot { margin-top: 34px; text-align: center; }
+.back-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-2);
+  text-decoration: none;
+}
+.back-foot a:focus-visible { box-shadow: var(--focus-ring); }
+.back-foot svg { width: 15px; height: 15px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body data-od-id="points-screen">
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="8" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8-4.2-4.1 5.9-.9L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5.5H5v1.5A3 3 0 0 0 8 10M16 5.5h3V7a3 3 0 0 1-3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13v3M8.5 20h7M9.5 16h5l.5 4h-6l.5-4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.5l7 2.5v5.5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-2.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.8 12.2l2.2 2.2 4.2-4.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-scan" viewBox="0 0 24 24"><path d="M3.5 7.5V5.5A2 2 0 0 1 5.5 3.5h2M16.5 3.5h2a2 2 0 0 1 2 2v2M20.5 16.5v2a2 2 0 0 1-2 2h-2M7.5 20.5h-2a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 12h9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M4 11l8-6.5L20 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 18c0-2.8 2.4-4.8 5.5-4.8s5.5 2 5.5 4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 6.2a3 3 0 0 1 0 5.6M17.5 13.4c1.8.6 3 2 3 4.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-up" viewBox="0 0 24 24"><path d="M7 15l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-down" viewBox="0 0 24 24"><path d="M7 9l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-gym" viewBox="0 0 24 24"><path d="M7 9.5v5M9 8.5v7M15 8.5v7M17 9.5v5M9 12h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-run" viewBox="0 0 24 24"><circle cx="14.5" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13 8l-2 3 2 2 1.5 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 11L7.5 8.5M13 13l3 2M16 15l1 5M6.5 8.5L8 5.5 5 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><path d="M9.2 12l-3-6.3 4.4.9M14.8 12l3-6.3-4.4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13.8" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="ic-trend" viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 6-8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 7H19v3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd">
+    <a class="hd-btn" href="home-athlete-brand.html" aria-label="Назад" data-od-id="back-home"><svg aria-hidden="true"><use href="#ic-back"/></svg></a>
+    <div class="hd-bd">
+      <h1 class="hd-title">Баллы и рейтинги</h1>
+      <p class="hd-sub">Активность и спорт · сезон 2026</p>
+    </div>
+    <button type="button" class="hd-btn" id="rules-open" aria-label="Правила начисления" data-od-id="rules-open"><svg aria-hidden="true"><use href="#ic-info"/></svg></button>
+  </header>
+
+  <div class="seg" role="tablist" aria-label="Разделы">
+    <button type="button" class="seg-btn is-active" id="tab-points" role="tab" aria-selected="true" data-od-id="tab-points">Баллы</button>
+    <button type="button" class="seg-btn" id="tab-ratings" role="tab" aria-selected="false" data-od-id="tab-ratings">Рейтинги</button>
+  </div>
+
+  <!-- Вкладка «Баллы» -->
+  <section id="pane-points" class="pane is-on" data-od-id="pane-points">
+
+    <div class="panel hero" data-od-id="hero-balance">
+      <div class="hero-top">
+        <span class="hero-label">Ваш баланс</span>
+        <span class="hero-chip" id="level-chip">Активный</span>
+      </div>
+      <div class="hero-balance"><span id="balance">2 490</span><svg aria-hidden="true"><use href="#ic-star"/></svg></div>
+      <div class="level-track"><div class="level-fill" id="level-fill"></div></div>
+      <div class="level-scale"><span>Новичок</span><span>Активный</span><span>Мастер</span></div>
+      <p class="level-hint" id="level-hint">До уровня «Мастер» — ещё <b>10 баллов</b></p>
+
+      <div class="streak" data-od-id="streak-block">
+        <span class="streak-ic"><svg aria-hidden="true"><use href="#ic-trophy"/></svg></span>
+        <span class="streak-tx">
+          <b id="streak-name">Серия: 6 дней</b>
+          <span id="streak-note">Ещё 1 день — бонус +25</span>
+        </span>
+        <span class="streak-dots" id="streak-dots" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <h2 class="sec-title">Награды за активность</h2>
+    <p class="sec-sub">Сколько баллов вы получите — видно до выполнения</p>
+
+    <div class="task" data-od-id="task-gym">
+      <span class="task-ic tone-green"><svg aria-hidden="true"><use href="#ic-gym"/></svg></span>
+      <span class="task-bd">
+        <span class="task-name">Тренировка в зале</span>
+        <span class="task-meta">Футбол · по расписанию · подтверждается QR-кодом</span>
+        <span class="task-badges"><span class="pts-badge">+40</span><span class="chk-badge">QR</span><span class="chk-badge" id="gym-st-wrap"></span></span>
+      </span>
+      <button type="button" class="btn" id="task-gym-btn" data-od-id="task-gym-btn">Сканировать QR</button>
+    </div>
+
+    <div class="task" data-od-id="task-home">
+      <span class="task-ic tone-green"><svg aria-hidden="true"><use href="#ic-home"/></svg></span>
+      <span class="task-bd">
+        <span class="task-name">Домашняя тренировка</span>
+        <span class="task-meta">Растяжка · самостоятельная · подтверждает тренер</span>
+        <span class="task-badges"><span class="pts-badge">+20</span><span class="chk-badge">Тренер</span><span class="chk-badge" id="home-st-wrap"></span></span>
+      </span>
+      <button type="button" class="btn ghost" id="task-home-btn" data-od-id="task-home-btn">Завершить тренировку</button>
+    </div>
+
+    <div class="task" data-od-id="task-comp">
+      <span class="task-ic tone-event"><svg aria-hidden="true"><use href="#ic-medal"/></svg></span>
+      <span class="task-bd">
+        <span class="task-name">Соревнование · плавание</span>
+        <span class="task-meta">3-е место · зафиксирует судья · +75 очков в рейтинг «Плавание»</span>
+        <span class="task-badges"><span class="pts-badge">+50</span><span class="chk-badge">Судья</span><span class="chk-badge" id="comp-st-wrap"></span></span>
+      </span>
+      <button type="button" class="btn ghost" id="task-comp-btn" data-od-id="task-comp-btn">Зафиксировать результат</button>
+    </div>
+
+    <h2 class="sec-title">Журнал начислений</h2>
+    <p class="sec-sub">В баланс идут только подтверждённые начисления</p>
+    <div class="panel ledger" id="ledger" data-od-id="ledger"></div>
+
+    <button type="button" class="rules-link" id="rules-open-2" data-od-id="rules-open-2">Как начисляются баллы и рейтинг<svg aria-hidden="true"><use href="#ic-chev"/></svg></button>
+  </section>
+
+  <!-- Вкладка «Рейтинги» -->
+  <section id="pane-ratings" class="pane" data-od-id="pane-ratings">
+    <div class="sport-chips" id="sport-chips" role="tablist" aria-label="Вид спорта" data-od-id="sport-chips"></div>
+
+    <div class="panel season" data-od-id="season-banner">
+      <span class="season-tx">
+        <span class="season-eyebrow">Сезон 2026</span>
+        <b>Очки за места</b>
+        <span>1-е = 100 · 2-е = 85 · 3-е = 75 · 4-е = 65 · 5-е = 55 · 6-е = 45 · 7-е = 35 · 8-е = 25</span>
+      </span>
+      <button type="button" class="btn ghost" id="formula-open" data-od-id="formula-open">Формула</button>
+    </div>
+
+    <div class="panel myrank" id="my-rank" data-od-id="my-rank"></div>
+
+    <h2 class="sec-title">Топ спортсменов</h2>
+    <div class="panel lb" id="leaderboard" data-od-id="leaderboard"></div>
+
+    <h2 class="sec-title">Ваши результаты</h2>
+    <div class="panel results" id="results" data-od-id="results"></div>
+  </section>
+
+  <div class="back-foot">
+    <a href="home-athlete-brand.html" data-od-id="back-foot"><svg aria-hidden="true"><use href="#ic-back"/></svg>Главный экран</a>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+
+<div class="sheet" id="rules-sheet" role="dialog" aria-modal="true" aria-label="Правила начисления" data-od-id="rules-sheet" hidden>
+  <div class="sheet-grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <span class="sheet-title">Правила начисления</span>
+    <button type="button" class="sheet-close" id="rules-close" aria-label="Закрыть"><svg aria-hidden="true"><use href="#ic-close"/></svg></button>
+  </div>
+
+  <div class="rule-sec">
+    <div class="rule-sec-title">Баллы за активность</div>
+    <div class="rule-row"><span>Тренировка в зале</span><b>+40</b></div>
+    <div class="rule-row"><span>Самостоятельная / домашняя</span><b>+20</b></div>
+    <div class="rule-row"><span>Аренда площадки</span><b>+30</b></div>
+    <div class="rule-row"><span>Участие в соревновании</span><b>+50</b></div>
+    <div class="rule-row"><span>1 / 2 / 3 место</span><b>+100 / 75 / 50</b></div>
+    <div class="rule-row"><span>Серия 3 / 7 / 30 дней</span><b>+10 / 25 / 75</b></div>
+  </div>
+
+  <div class="rule-sec">
+    <div class="rule-sec-title">Рейтинг по видам спорта</div>
+    <div class="rule-row"><span>Очки за места (1–8)</span><b>100…25</b></div>
+    <div class="rule-row"><span>Участие без места</span><b>+10</b></div>
+    <div class="rule-row"><span>Период</span><b>сезон 2026</b></div>
+  </div>
+
+  <div class="rule-sec">
+    <div class="rule-sec-title">Проверка честности</div>
+    <p class="rule-note"><b>В зале</b> — динамический QR-код (обновляется каждые 3 минуты), привязка к устройству и временное окно: нельзя переслать чужое фото.</p>
+    <p class="rule-note"><b>Дома</b> — подтверждение тренера; в баланс идут только подтверждённые баллы. Лимит — 3 неподтверждённые домашние тренировки в неделю.</p>
+    <p class="rule-note"><b>Соревнования</b> — судья фиксирует место по протоколу: оно начисляет баллы и запись в рейтинг вида спорта.</p>
+    <p class="rule-note"><b>Нарушения</b> — при подозрении начисление получает статус «отклонено», баллы списываются.</p>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  function avaId(name) {
+    if (name === 'Вы') return 8;
+    var h = 0;
+    for (var i = 0; i < name.length; i++) { h = (h * 31 + name.charCodeAt(i)) >>> 0; }
+    return (h % 8) + 1;
+  }
+  function avaHTML(name) {
+    return '<svg class="av" aria-hidden="true"><use href="#ava-' + avaId(name) + '"/></svg>';
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ── Уровни ─────────────────────────────────────────────────────── */
+  var LEVELS = [
+    { name: 'Новичок', min: 0,    next: 'Активный', nextMin: 1000 },
+    { name: 'Активный', min: 1000, next: 'Мастер',  nextMin: 2500 },
+    { name: 'Мастер',   min: 2500, next: null,      nextMin: null }
+  ];
+  var LEVEL_CAP = 3000;
+  var state = {
+    balance: 2490,
+    level: 1,
+    streakDays: 6,
+    streakDone: false,
+    id: 100
+  };
+
+  /* ── Иконки журнала ─────────────────────────────────────────────── */
+  var ICON = {
+    gym:    '<svg aria-hidden="true"><use href="#ic-gym"/></svg>',
+    run:    '<svg aria-hidden="true"><use href="#ic-run"/></svg>',
+    medal:  '<svg aria-hidden="true"><use href="#ic-medal"/></svg>',
+    star:   '<svg aria-hidden="true"><use href="#ic-star"/></svg>',
+    home:   '<svg aria-hidden="true"><use href="#ic-home"/></svg>',
+    shield: '<svg aria-hidden="true"><use href="#ic-shield"/></svg>',
+    trophy: '<svg aria-hidden="true"><use href="#ic-trophy"/></svg>'
+  };
+  var TONE = {
+    gym: 'tone-green',
+    run: 'tone-green',
+    medal: 'tone-event',
+    star: 'tone-yellow',
+    home: 'tone-rental',
+    shield: 'tone-muted',
+    trophy: 'tone-yellow'
+  };
+  var ST = {
+    confirmed: '<span class="st conf">подтверждено</span>',
+    pending:   '<span class="st pend">ожидает тренера</span>',
+    rejected:  '<span class="st rej">отклонено</span>',
+    system:    '<span class="st sys">система</span>'
+  };
+
+  var ledger = [
+    { id: 1, ic: 'run',    name: 'Плавание · самостоятельная',  sub: 'Ожидает подтверждения тренера', pts: '+20', st: 'pending',  tone: 'run' },
+    { id: 2, ic: 'gym',    name: 'Футбол · тренировка в зале',  sub: 'Подтверждено по QR · спорткомплекс', pts: '+40', st: 'confirmed', tone: 'gym' },
+    { id: 3, ic: 'medal',  name: 'Волейбол · 2-е место',        sub: 'Судья по протоколу · +85 очков в рейтинг «Волейбол»', pts: '+75', st: 'confirmed', tone: 'medal' },
+    { id: 4, ic: 'home',   name: 'Аренда корта №3',             sub: 'Подтверждено по QR при старте', pts: '+30', st: 'confirmed', tone: 'home' },
+    { id: 5, ic: 'shield', name: 'Аннулировано · подозрение',   sub: 'Дубликат начисления отклонён', pts: '−50', st: 'rejected', tone: 'shield' }
+  ];
+
+  /* ── Спортивные рейтинги ────────────────────────────────────────── */
+  var SPORTS = {
+    football: {
+      label: 'Футбол',
+      lb: [
+        { n: 'Дмитрий С.', c: 'Спортшкола «Юность»', p: 305, d: 0 },
+        { n: 'Иван П.', c: 'ФК «Петровское»', p: 270, d: 1 },
+        { n: 'Алексей П.', c: 'ФК «Петровское»', p: 210, d: 2, me: true },
+        { n: 'Мария П.', c: 'Спортшкола «Юность»', p: 185, d: 0 },
+        { n: 'Сергей И.', c: 'ФК «Восход»', p: 150, d: -1 },
+        { n: 'Павел Р.', c: 'ФК «Восход»', p: 120, d: 0 },
+        { n: 'Анна В.', c: 'Спортшкола «Юность»', p: 90, d: 1 },
+        { n: 'Никита К.', c: 'ФК «Петровское»', p: 65, d: -2 }
+      ],
+      results: [
+        { e: 'Кубок поселения', s: 'февраль', pl: 2, p: 85 },
+        { e: 'Товарищеский турнир', s: 'апрель', pl: 1, p: 100 },
+        { e: 'Весенний кубок', s: 'май', pl: 5, p: 25 }
+      ]
+    },
+    volleyball: {
+      label: 'Волейбол',
+      lb: [
+        { n: 'Дмитрий С.', c: 'СК «Юность»', p: 175, d: 0 },
+        { n: 'Мария П.', c: 'СК «Юность»', p: 150, d: 1 },
+        { n: 'Иван П.', c: 'СК «Петровское»', p: 135, d: 0 },
+        { n: 'Алексей П.', c: 'СК «Петровское»', p: 120, d: 1, me: true },
+        { n: 'Сергей И.', c: 'СК «Восход»', p: 95, d: -1 },
+        { n: 'Анна В.', c: 'СК «Юность»', p: 80, d: 0 },
+        { n: 'Павел Р.', c: 'СК «Восход»', p: 60, d: 1 },
+        { n: 'Никита К.', c: 'СК «Петровское»', p: 45, d: -2 }
+      ],
+      results: [
+        { e: 'Кубок района', s: 'март', pl: 4, p: 65 },
+        { e: 'Кубок «Золотая осень»', s: 'октябрь', pl: 6, p: 45 },
+        { e: 'Участие · матч с «Восходом»', s: 'июнь', pl: 0, p: 10 }
+      ]
+    },
+    swimming: {
+      label: 'Плавание',
+      lb: [
+        { n: 'Дмитрий С.', c: 'Бассейн «Волна»', p: 160, d: 0 },
+        { n: 'Мария П.', c: 'Бассейн «Волна»', p: 140, d: 1 },
+        { n: 'Иван П.', c: 'Бассейн «Волна»', p: 120, d: 0 },
+        { n: 'Сергей И.', c: 'Бассейн «Волна»', p: 100, d: 1 },
+        { n: 'Анна В.', c: 'Бассейн «Волна»', p: 85, d: -1 },
+        { n: 'Алексей П.', c: 'Бассейн «Волна»', p: 70, d: -1, me: true },
+        { n: 'Павел Р.', c: 'Бассейн «Волна»', p: 55, d: 0 },
+        { n: 'Никита К.', c: 'Бассейн «Волна»', p: 40, d: 1 }
+      ],
+      results: [
+        { e: 'Кубок бассейна «Волна»', s: 'июль', pl: 8, p: 25 },
+        { e: 'День Нептуна', s: 'август', pl: 7, p: 35 },
+        { e: 'Участие · заплыв ветеранов', s: 'май', pl: 0, p: 10 }
+      ]
+    },
+    tennis: {
+      label: 'Теннис',
+      lb: [
+        { n: 'Дмитрий С.', c: 'Корт №3', p: 190, d: 0 },
+        { n: 'Мария П.', c: 'Корт №3', p: 165, d: 1 },
+        { n: 'Сергей И.', c: 'Корт №3', p: 130, d: 0 },
+        { n: 'Иван П.', c: 'Корт №3', p: 110, d: -1 },
+        { n: 'Анна В.', c: 'Корт №3', p: 95, d: 1 },
+        { n: 'Павел Р.', c: 'Корт №3', p: 70, d: 0 },
+        { n: 'Никита К.', c: 'Корт №3', p: 50, d: -1 },
+        { n: 'Ольга К.', c: 'Корт №3', p: 30, d: 1 }
+      ],
+      results: []
+    },
+    gto: {
+      label: 'ГТО',
+      lb: [
+        { n: 'Мария П.', c: 'Фестиваль ГТО', p: 200, d: 0 },
+        { n: 'Дмитрий С.', c: 'Фестиваль ГТО', p: 175, d: -1 },
+        { n: 'Алексей П.', c: 'Спорткомплекс', p: 185, d: 3, me: true },
+        { n: 'Иван П.', c: 'Спорткомплекс', p: 150, d: 0 },
+        { n: 'Сергей И.', c: 'Спорткомплекс', p: 120, d: 1 },
+        { n: 'Анна В.', c: 'Спорткомплекс', p: 100, d: 0 },
+        { n: 'Павел Р.', c: 'Спорткомплекс', p: 80, d: -2 },
+        { n: 'Никита К.', c: 'Спорткомплекс', p: 55, d: 0 }
+      ],
+      results: [
+        { e: 'Фестиваль ГТО', s: 'июнь', pl: 1, p: 100 },
+        { e: 'Районная сдача нормативов', s: 'сентябрь', pl: 2, p: 85 }
+      ]
+    },
+    athletics: {
+      label: 'Лёгкая атлетика',
+      lb: [
+        { n: 'Дмитрий С.', c: 'Бег · «Петровское»', p: 220, d: 0 },
+        { n: 'Мария П.', c: 'Бег · «Петровское»', p: 185, d: 1 },
+        { n: 'Сергей И.', c: 'Бег · «Восход»', p: 150, d: 0 },
+        { n: 'Иван П.', c: 'Бег · «Петровское»', p: 120, d: -1 },
+        { n: 'Анна В.', c: 'Бег · «Петровское»', p: 95, d: 1 },
+        { n: 'Алексей П.', c: 'Бег · «Петровское»', p: 55, d: 0, me: true },
+        { n: 'Павел Р.', c: 'Бег · «Восход»', p: 40, d: 0 },
+        { n: 'Никита К.', c: 'Бег · «Петровское»', p: 25, d: -1 }
+      ],
+      results: [
+        { e: 'Забег памяти', s: 'май', pl: 6, p: 45 },
+        { e: 'Участие · пробег «Волна»', s: 'июль', pl: 0, p: 10 }
+      ]
+    }
+  };
+
+  var sportIds = Object.keys(SPORTS);
+  var activeSport = sportIds[0];
+
+  /* ── Утилиты ─────────────────────────────────────────────────────── */
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+  function toast(html) {
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = html;
+    $('toasts').appendChild(el);
+    setTimeout(function () { el.classList.add('hide'); }, 2400);
+    setTimeout(function () { el.remove(); }, 2700);
+  }
+
+  /* ── Уровни и серия ──────────────────────────────────────────────── */
+  function levelIndex(balance) {
+    var lvl = 0;
+    for (var i = 0; i < LEVELS.length; i++) { if (balance >= LEVELS[i].min) lvl = i; }
+    return lvl;
+  }
+
+  function renderLevel() {
+    var cur = LEVELS[state.level];
+    $('level-chip').textContent = cur.name;
+    var fill = Math.min(state.balance / LEVEL_CAP * 100, 100);
+    $('level-fill').style.width = fill.toFixed(1) + '%';
+    if (cur.next) {
+      var left = Math.max(cur.nextMin - state.balance, 0);
+      $('level-hint').innerHTML = 'До уровня «' + cur.next + '» — ещё <b>' + fmt(left) + ' баллов</b>';
+    } else {
+      $('level-hint').innerHTML = 'Вы — <b>' + cur.name + '</b>. Максимальный уровень сезона';
+    }
+  }
+
+  function renderStreak() {
+    var days = Math.min(state.streakDays, 7);
+    var dots = '';
+    for (var i = 1; i <= 7; i++) {
+      var cls = i <= days ? 'on' : (i === days + 1 ? 'next' : '');
+      dots += '<span class="streak-dot ' + cls + '"></span>';
+    }
+    $('streak-dots').innerHTML = dots;
+    if (state.streakDone) {
+      $('streak-name').textContent = 'Серия: 7 дней';
+      $('streak-note').textContent = 'Бонус +25 за серию получен';
+    } else {
+      $('streak-name').textContent = 'Серия: ' + state.streakDays + ' дней';
+      $('streak-note').textContent = 'Ещё ' + (7 - state.streakDays) + ' день — бонус +25';
+    }
+  }
+
+  function streakTick() {
+    if (state.streakDone) return;
+    state.streakDone = true;
+    addEntry({ ic: 'star', name: 'Серия · 7 дней подряд', sub: 'Бонус за регулярность', pts: 25, st: 'system', tone: 'star', fresh: true });
+    addBalance(25);
+    renderStreak();
+    toast('Бонус за серию: <b>+25</b>');
+  }
+
+  /* ── Журнал ──────────────────────────────────────────────────────── */
+  function addEntry(e) {
+    ledger.unshift({ id: ++state.id, ic: e.ic, name: e.name, sub: e.sub, pts: '+' + e.pts, st: e.st, tone: e.tone, fresh: true });
+    renderLedger();
+  }
+
+  function renderLedger() {
+    var html = '';
+    for (var i = 0; i < ledger.length; i++) {
+      var e = ledger[i];
+      var ptsCls = e.pts.charAt(0) === '−' ? 'neg' : 'pos';
+      html +=
+        '<div class="lg-row' + (e.fresh ? ' is-fresh' : '') + '" data-od-id="lg-' + e.id + '">' +
+          '<span class="lg-ic ' + (TONE[e.tone] || 'tone-muted') + '">' + ICON[e.ic] + '</span>' +
+          '<span class="lg-tx"><b>' + e.name + '</b><small>' + e.sub + '</small></span>' +
+          '<span class="lg-side"><span class="lg-pts ' + ptsCls + '">' + e.pts + '</span>' + ST[e.st] + '</span>' +
+        '</div>';
+    }
+    $('ledger').innerHTML = html;
+  }
+
+  /* ── Баланс и уровень ────────────────────────────────────────────── */
+  function addBalance(n, reason) {
+    var before = state.level;
+    state.balance += n;
+    state.level = levelIndex(state.balance);
+    $('balance').textContent = fmt(state.balance);
+    renderLevel();
+    if (state.level > before) {
+      toast('Новый уровень: <b>' + LEVELS[state.level].name + '</b>');
+    }
+  }
+
+  /* ── Рейтинги ────────────────────────────────────────────────────── */
+  function deltaIcon(d) {
+    if (d > 0) return '<span class="lb-delta up"><svg aria-hidden="true"><use href="#ic-up"/></svg></span>';
+    if (d < 0) return '<span class="lb-delta down"><svg aria-hidden="true"><use href="#ic-down"/></svg></span>';
+    return '<span class="lb-delta flat"><svg aria-hidden="true"><use href="#ic-chev"/></svg></span>';
+  }
+
+  function renderRating() {
+    var s = SPORTS[activeSport];
+    var me = null;
+    for (var i = 0; i < s.lb.length; i++) { if (s.lb[i].me) me = s.lb[i]; }
+    var myPos = me ? s.lb.indexOf(me) + 1 : null;
+
+    if (me) {
+      var dCls = me.d > 0 ? 'up' : (me.d < 0 ? 'down' : 'flat');
+      var dLabel = me.d > 0 ? '▲ +' + me.d + ' за неделю' : (me.d < 0 ? '▼ ' + me.d + ' за неделю' : 'без изменений');
+      $('my-rank').innerHTML =
+        '<div class="myrank-pos">' + (myPos ? myPos + '-е' : '—') + '<small>место · ' + s.label + '</small></div>' +
+        '<div class="myrank-bd"><b>' + fmt(me.p) + ' очков</b><span>за сезон 2026</span></div>' +
+        '<span class="delta ' + dCls + '">' + dLabel + '</span>';
+    } else {
+      $('my-rank').innerHTML =
+        '<div class="myrank-pos">—<small>место · ' + s.label + '</small></div>' +
+        '<div class="myrank-bd"><b>Пока нет результатов</b><span>Участвуйте в соревнованиях вида спорта</span></div>';
+    }
+
+    var lb = '';
+    for (var j = 0; j < s.lb.length; j++) {
+      var r = s.lb[j];
+      lb +=
+        '<div class="lb-row' + (r.me ? ' is-me' : '') + '">' +
+          '<span class="lb-rank r' + (j + 1) + '">' + (j + 1) + '</span>' +
+          '<span class="lb-ava">' + avaHTML(r.me ? 'Вы' : r.n) + '</span>' +
+          '<span class="lb-bd"><span class="lb-name">' + r.n + (r.me ? '</span><span class="lb-me-chip">вы</span>' : '</span>') +
+          '<span class="lb-club">' + r.c + '</span></span>' +
+          '<span class="lb-pts">' + r.p + '</span>' + deltaIcon(r.d) +
+        '</div>';
+    }
+    $('leaderboard').innerHTML = lb;
+
+    var res = '';
+    if (s.results.length) {
+      for (var k = 0; k < s.results.length; k++) {
+        var x = s.results[k];
+        var pc = x.pl === 1 ? 'gold' : (x.pl === 2 ? 'silver' : (x.pl === 3 ? 'bronze' : ''));
+        res +=
+          '<div class="res-row">' +
+            '<span class="place ' + pc + '">' + (x.pl ? x.pl : '—') + '</span>' +
+            '<span class="res-tx"><b>' + x.e + '</b><small>' + x.s + (x.pl ? ' · ' + x.pl + '-е место' : ' · участие') + '</small></span>' +
+            '<span class="res-pts">+' + x.p + '</span>' +
+          '</div>';
+      }
+    } else {
+      res = '<div class="lg-row"><span class="lg-tx"><b>Нет результатов</b><small>Соревнования по виду появятся в расписании</small></span></div>';
+    }
+    $('results').innerHTML = res;
+  }
+
+  function addRating(sportId, pts, evName) {
+    var s = SPORTS[sportId];
+    var me = null;
+    for (var i = 0; i < s.lb.length; i++) { if (s.lb[i].me) me = s.lb[i]; }
+    if (!me) return;
+    me.p += pts;
+    s.lb.sort(function (a, b) { return b.p - a.p; });
+    s.results.unshift({ e: evName, s: 'август', pl: 3, p: 75 });
+    renderRating();
+  }
+
+  /* ── Чипы видов спорта ───────────────────────────────────────────── */
+  function renderChips() {
+    var html = '';
+    for (var i = 0; i < sportIds.length; i++) {
+      var id = sportIds[i];
+      html += '<button type="button" class="sport-chip' + (id === activeSport ? ' is-on' : '') + '" role="tab" aria-selected="' + (id === activeSport) + '" data-sport="' + id + '">' + SPORTS[id].label + '</button>';
+    }
+    $('sport-chips').innerHTML = html;
+  }
+
+  /* ── Демо: награда до действия и античит ─────────────────────────── */
+  var done = { gym: false, homeStage: 0, comp: false };
+  var pendingEntryId = null;
+
+  function setTaskSt(id, st, text) {
+    var wrap = $(id);
+    wrap.innerHTML = st ? '<span class="task-st ' + st + '">' + text + '</span>' : '';
+  }
+
+  $('task-gym-btn').addEventListener('click', function () {
+    if (done.gym) return;
+    done.gym = true;
+    addEntry({ ic: 'gym', name: 'Футбол · тренировка в зале', sub: 'Подтверждено по QR · спорткомплекс', pts: 40, st: 'confirmed', tone: 'gym', fresh: true });
+    addBalance(40);
+    streakTick();
+    setTaskSt('gym-st-wrap', 'conf', 'Подтверждено · QR');
+    var b = $('task-gym-btn');
+    b.disabled = true;
+    b.textContent = 'Выполнено';
+    toast('QR распознан · <b>+40</b> баллов');
+  });
+
+  $('task-home-btn').addEventListener('click', function () {
+    var b = $('task-home-btn');
+    if (done.homeStage === 0) {
+      done.homeStage = 1;
+      addEntry({ ic: 'home', name: 'Растяжка · домашняя тренировка', sub: 'Ожидает подтверждения тренера', pts: 20, st: 'pending', tone: 'run', fresh: true });
+      pendingEntryId = ledger[0].id;
+      setTaskSt('home-st-wrap', 'pend', 'Ожидает тренера');
+      b.classList.add('ghost');
+      b.textContent = 'Подтвердить (тренер)';
+      toast('Завершено · ждёт подтверждения <b>тренера</b>');
+      return;
+    }
+    if (done.homeStage === 1) {
+      done.homeStage = 2;
+      for (var i = 0; i < ledger.length; i++) {
+        if (ledger[i].id === pendingEntryId) { ledger[i].st = 'confirmed'; ledger[i].sub = 'Подтверждено тренером'; }
+      }
+      renderLedger();
+      addBalance(20);
+      streakTick();
+      setTaskSt('home-st-wrap', 'conf', 'Подтверждено · тренер');
+      b.disabled = true;
+      b.textContent = 'Подтверждено';
+      toast('Тренер подтвердил · <b>+20</b> баллов');
+    }
+  });
+
+  $('task-comp-btn').addEventListener('click', function () {
+    if (done.comp) return;
+    done.comp = true;
+    addEntry({ ic: 'medal', name: 'Плавание · 3-е место', sub: 'Судья по протоколу · +75 очков в рейтинг «Плавание»', pts: 75, st: 'confirmed', tone: 'medal', fresh: true });
+    addBalance(75);
+    addRating('swimming', 75, 'Летний заплыв «Волна»');
+    setTaskSt('comp-st-wrap', 'conf', 'Судья · протокол');
+    var b = $('task-comp-btn');
+    b.disabled = true;
+    b.textContent = 'Зафиксировано';
+    toast('Место засчитано · <b>+75</b> баллов · <b>+75</b> в рейтинг');
+  });
+
+  /* ── Вкладки ─────────────────────────────────────────────────────── */
+  var TABS = { 'tab-points': 'pane-points', 'tab-ratings': 'pane-ratings' };
+
+  function switchTab(id) {
+    var pane = TABS[id];
+    if (!pane) return;
+    $('tab-points').classList.toggle('is-active', id === 'tab-points');
+    $('tab-ratings').classList.toggle('is-active', id === 'tab-ratings');
+    $('tab-points').setAttribute('aria-selected', id === 'tab-points');
+    $('tab-ratings').setAttribute('aria-selected', id === 'tab-ratings');
+    $('pane-points').classList.toggle('is-on', id === 'tab-points');
+    $('pane-ratings').classList.toggle('is-on', id === 'tab-ratings');
+    try { localStorage.setItem('pts:tab', id); } catch (e) {}
+  }
+
+  $('tab-points').addEventListener('click', function () { switchTab('tab-points'); });
+  $('tab-ratings').addEventListener('click', function () { switchTab('tab-ratings'); });
+
+  $('sport-chips').addEventListener('click', function (ev) {
+    var chip = ev.target.closest('.sport-chip');
+    if (!chip) return;
+    activeSport = chip.getAttribute('data-sport');
+    try { localStorage.setItem('pts:sport', activeSport); } catch (e) {}
+    renderChips();
+    renderRating();
+  });
+
+  /* ── Шит правил ──────────────────────────────────────────────────── */
+  function openSheet() {
+    $('rules-sheet').hidden = false;
+    $('scrim').classList.add('is-on');
+    requestAnimationFrame(function () { $('rules-sheet').classList.add('is-open'); });
+  }
+  function closeSheet() {
+    $('rules-sheet').classList.remove('is-open');
+    $('scrim').classList.remove('is-on');
+    setTimeout(function () { $('rules-sheet').hidden = true; }, 260);
+  }
+  $('rules-open').addEventListener('click', openSheet);
+  $('rules-open-2').addEventListener('click', openSheet);
+  $('formula-open').addEventListener('click', openSheet);
+  $('rules-close').addEventListener('click', closeSheet);
+  $('scrim').addEventListener('click', closeSheet);
+
+  /* ── Инициализация ───────────────────────────────────────────────── */
+  try {
+    var savedTab = localStorage.getItem('pts:tab');
+    if (savedTab && TABS[savedTab]) switchTab(savedTab);
+    var savedSport = localStorage.getItem('pts:sport');
+    if (savedSport && SPORTS[savedSport]) activeSport = savedSport;
+  } catch (e) {}
+
+  renderLevel();
+  renderStreak();
+  renderLedger();
+  renderChips();
+  renderRating();
+})();
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">
+<symbol id="ava-1" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#FDF3D9"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#ffc93c"/><path d="M21 27 C21 16 28 10 36 10 C44 10 51 16 51 27 L51 30 C47 22 43 19 36 19 C29 19 25 22 21 30 Z" fill="#5C3A21"/><circle cx="36" cy="8" r="5.5" fill="#5C3A21"/><circle cx="21.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="50.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="36" cy="33" r="15" fill="#E0AC79"/></symbol>
+<symbol id="ava-2" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#0b3d91"/><path d="M21 25 C21 16 27 10 36 10 C45 10 51 16 51 25 C51 22 46 18 36 18 C26 18 21 22 21 25 Z" fill="#0F0F0F"/><circle cx="21.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="50.5" cy="34" r="2.6" fill="#E0AC79"/><circle cx="36" cy="33" r="15" fill="#E0AC79"/></symbol>
+<symbol id="ava-3" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E8F6EC"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#2f9e54"/><circle cx="24" cy="22" r="5.5" fill="#1A1A1A"/><circle cx="30" cy="16" r="6" fill="#1A1A1A"/><circle cx="38" cy="14" r="6.5" fill="#1A1A1A"/><circle cx="46" cy="17" r="6" fill="#1A1A1A"/><circle cx="50" cy="24" r="5.5" fill="#1A1A1A"/><circle cx="21.5" cy="34" r="2.6" fill="#9C6640"/><circle cx="50.5" cy="34" r="2.6" fill="#9C6640"/><circle cx="36" cy="33" r="15" fill="#9C6640"/></symbol>
+<symbol id="ava-4" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#FDF3D9"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#ffc93c"/><path d="M20 25 C20 14 27 8 36 8 C45 8 52 14 52 25 C52 18 46 13 36 13 C26 13 20 18 20 25 Z" fill="#3B2B20"/><circle cx="21.5" cy="34" r="2.6" fill="#6B4226"/><circle cx="50.5" cy="34" r="2.6" fill="#6B4226"/><circle cx="36" cy="33" r="15" fill="#6B4226"/><circle cx="30" cy="33" r="4.2" fill="none" stroke="#12213b" stroke-width="1.6"/><circle cx="42" cy="33" r="4.2" fill="none" stroke="#12213b" stroke-width="1.6"/><line x1="34.2" y1="33" x2="37.8" y2="33" stroke="#12213b" stroke-width="1.6"/></symbol>
+<symbol id="ava-5" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#1a86e0"/><path d="M20 24 C20 14 27 8 36 8 C45 8 52 14 52 24 L52 27 C48 20 43 16 36 16 C29 16 24 20 20 27 Z" fill="#7A4B2A"/><circle cx="21.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="50.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="36" cy="33" r="15" fill="#F2C6A0"/><rect x="19" y="24" width="34" height="5.5" rx="2.5" fill="#ffc93c"/></symbol>
+<symbol id="ava-6" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E8F6EC"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#4a6fa5"/><path d="M20 46 C18 30 20 12 36 12 C52 12 54 30 52 46 L47 46 C48 32 46 20 36 20 C26 20 24 32 25 46 Z" fill="#2B2118"/><circle cx="21.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="50.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="36" cy="33" r="15" fill="#C68A57"/></symbol>
+<symbol id="ava-7" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#1a86e0"/><path d="M20 26 C20 15 28 9 36 9 C44 9 52 15 52 26 C52 20 47 15 36 15 C25 15 20 20 20 26 Z" fill="#2B2118"/><circle cx="21.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="50.5" cy="34" r="2.6" fill="#F2C6A0"/><circle cx="36" cy="33" r="15" fill="#F2C6A0"/></symbol>
+<symbol id="ava-8" viewBox="0 0 72 72"><circle cx="36" cy="36" r="36" fill="#E6F1FB"/><path d="M14 72 C14 54 22 46 36 46 C50 46 58 54 58 72 Z" fill="#4a6fa5"/><circle cx="21.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="50.5" cy="34" r="2.6" fill="#C68A57"/><circle cx="36" cy="33" r="15" fill="#C68A57"/><path d="M19 30 C19 15 26 6 36 6 C46 6 53 15 53 30 C53 33 50 34 47 32 C44 30 42 33 38 32 C35 31 33 33 30 32 C27 31 24 33 21 32 C18 31 19 32 19 30 Z" fill="#0b3d91"/></symbol>
+</svg>
+</body>
+</html>

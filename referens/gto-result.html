@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf4ff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<title>Петровское СП — знак ГТО получен</title>
+<style>
+:root {
+  /* ─── Surface (3 levels) ────────────────────────────────────────── */
+  --bg: #ffffff;
+  --surface: #eef6ff;
+  --surface-2: #eef6ff;
+  --surface-warm: #f5faff;
+
+  /* ─── Foreground ramp (4 levels) ───────────────────────────────── */
+  --fg: #12213b;
+  --fg-2: #445269;
+  --muted: #78859b;
+  --meta: #99a4b7;
+
+  /* ─── Border (2 levels) ────────────────────────────────────────── */
+  --border: rgba(18,33,59,0.08);
+  --border-soft: rgba(18,33,59,0.05);
+  --border-strong: rgba(18,33,59,0.16);
+
+  /* ─── Accent ────────────────────────────────────────────────────── */
+  --accent: #1a86e0;
+  --accent-on: #ffffff;
+  --accent-hover: #2f97f0;
+  --accent-active: #1473c9;
+  --yellow: #ffc93c;
+  --yellow-on: #12213b;
+  --lime: #ffc93c;
+  --lime-on: #12213b;
+
+  /* ─── Semantic ──────────────────────────────────────────────────── */
+  --success: #2bb066;
+  --warn:    #ffc93c;
+  --danger:  #ff4d4d;
+
+  /* ─── Знак ГТО ──────────────────────────────────────────────────── */
+  --gto-bronze: #c9a06b;
+  --gto-silver: #a9b6c9;
+  --gto-gold:   #ffc93c;
+
+  /* ─── Typography ────────────────────────────────────────────────── */
+  --font-display: "Oswald", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --fs-body: 16px;
+  --fs-meta: 13px;
+  --h-base: 44px;
+  --icon-md: 20px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* ─── Radius ────────────────────────────────────────────────────── */
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-pill: 980px;
+
+  /* ─── Elevation & focus ─────────────────────────────────────────── */
+  --elev-raised: 0 16px 36px rgba(18,33,59,0.10);
+  --focus-ring: 0 0 0 4px rgba(26,134,224,0.30);
+
+  /* ─── Motion ────────────────────────────────────────────────────── */
+  --motion-fast:   150ms;
+  --motion-base:   220ms;
+  --ease-standard: cubic-bezier(0.28,0,0.22,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-warm);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font-family: inherit; }
+a { color: inherit; }
+
+.app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 0 120px;
+  min-height: 100vh;
+}
+
+/* ── Шапка ─────────────────────────────────────────────────────────── */
+.hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px 16px;
+}
+@media (min-width: 560px) { .hd { padding: 36px 24px 20px; } }
+.back {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--fg-2);
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.back::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+.back:hover { background: var(--surface); }
+.back:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.back svg { width: 17px; height: 17px; }
+.hd-txt { flex: 1; min-width: 0; }
+.eyebrow {
+  margin: 0 0 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.hd h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-display, -0.015em);
+  line-height: 1.15;
+}
+.hd .sub { margin: 5px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+/* ── Герой: знак ───────────────────────────────────────────────────── */
+.hero {
+  margin: 20px 16px 0;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-raised);
+  padding: 30px 20px;
+  text-align: center;
+  animation: rise 0.4s var(--ease-standard) both;
+}
+@media (min-width: 560px) { .hero { margin-left: 24px; margin-right: 24px; } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hero, .card { animation: none; } }
+.hero-ic {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  animation: pop 0.5s var(--ease-standard) 0.15s both;
+}
+.hero-ic svg { width: 44px; height: 44px; }
+.hero.is-gold .hero-ic { background: linear-gradient(160deg, #ffd75e, var(--gto-gold)); }
+.hero.is-silver .hero-ic { background: linear-gradient(160deg, #c7ccd4, var(--gto-silver)); }
+.hero.is-bronze .hero-ic { background: linear-gradient(160deg, #e09a5e, var(--gto-bronze)); }
+@keyframes pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.hero b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.hero .h-level { display: block; margin-top: 4px; font-size: 15px; font-weight: 600; }
+.hero .h-sub { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+/* ── Карточки ──────────────────────────────────────────────────────── */
+.card {
+  margin: 20px 16px 0;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-raised);
+  padding: 16px;
+  animation: rise 0.4s var(--ease-standard) 0.2s both;
+}
+@media (min-width: 560px) { .card { margin-left: 24px; margin-right: 24px; } }
+.card-title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+
+/* Шеврон у профиля */
+.chev-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-warm);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+}
+.chev-txt { flex: 1; min-width: 0; }
+.chev-txt b { display: block; font-size: 14px; }
+.chev-txt span { display: block; font-size: 12px; color: var(--meta); margin-top: 1px; }
+.chev-chip {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.chev-chip svg { width: 14px; height: 14px; }
+.chev-chip.is-gold { background: linear-gradient(160deg, #ffd75e, #d99a00); }
+.chev-chip.is-silver { background: linear-gradient(160deg, #c7ccd4, #828a96); }
+.chev-chip.is-bronze { background: linear-gradient(160deg, #e09a5e, #a05a1e); }
+
+/* Результаты */
+.res-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface-warm);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+.res-row + .res-row { margin-top: 8px; }
+.res-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; }
+.res-name small { display: block; font-size: 11px; font-weight: 500; color: var(--meta); }
+.res-val { flex: none; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.res-val small { font-size: 11px; font-weight: 600; color: var(--meta); }
+
+/* Следующий шаг */
+.next-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 12px;
+  text-align: left;
+  background: var(--surface-warm);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.next-link:hover { background: var(--surface); }
+.next-link:active { background: var(--border-soft); }
+.next-link:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.nl-ic {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+.nl-ic svg { width: 20px; height: 20px; }
+.nl-txt { flex: 1; min-width: 0; }
+.nl-txt b { display: block; font-size: 14px; }
+.nl-txt span { display: block; font-size: 12px; color: var(--meta); margin-top: 1px; }
+.nl-chev { flex: none; color: var(--meta); }
+.nl-chev svg { width: 16px; height: 16px; }
+
+/* ── Нижняя панель ─────────────────────────────────────────────────── */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-top: 1px solid var(--border-soft);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+.bottom-inner { max-width: 700px; margin: 0 auto; display: flex; gap: 10px; }
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  height: 50px;
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 0;
+  transition: background var(--motion-fast) var(--ease-standard),
+              transform var(--motion-fast) var(--ease-standard),
+              opacity var(--motion-fast) var(--ease-standard);
+}
+.btn:active { transform: scale(0.985); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn svg { width: 18px; height: 18px; }
+.btn-primary { background: var(--accent); color: var(--accent-on); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-active); }
+.btn-secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border-soft); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn:disabled:active { transform: none; }
+
+/* ── Тост ──────────────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 8px;
+  z-index: 70;
+  width: max-content;
+  max-width: calc(100vw - 40px);
+}
+.toast {
+  background: var(--fg);
+  color: var(--surface-warm);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  animation: toast-in 0.3s var(--ease-standard) both;
+}
+.toast.hide { animation: toast-out 0.25s var(--ease-standard) both; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+</style>
+</head>
+<body data-od-id="gto-result">
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-medal" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 6.6l.9 1.8 2 .3-1.4 1.4.3 2-1.8-1-1.8 1 .3-2-1.4-1.4 2-.3.9-1.8z" fill="currentColor"/><path d="M8.5 13.5L6.5 21l3.5-1.5L12 21l2-1.5L17.5 21l-2-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-share" viewBox="0 0 24 24"><path d="M12 15V3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.5 8L12 3.5 16.5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hd" data-od-id="gto-result-header">
+    <a class="back" href="schedule-calendar.html" aria-label="Назад к календарю"><svg><use href="#ic-back"/></svg></a>
+    <div class="hd-txt">
+      <div class="eyebrow">Петровское СП · Дневник ГТО</div>
+      <h1>Знак получен</h1>
+      <p class="sub">12 августа · сдача норматива ГТО</p>
+    </div>
+  </header>
+
+  <main class="body">
+    <section class="hero" id="r-hero" data-od-id="gto-result-hero">
+      <div class="hero-ic"><svg aria-hidden="true"><use href="#ic-medal"/></svg></div>
+      <b id="r-title">Знак получен</b>
+      <span class="h-level" id="r-level"></span>
+      <p class="h-sub" id="r-sub"></p>
+    </section>
+
+    <section class="card" data-od-id="gto-result-profile">
+      <p class="card-title">Шеврон у профиля</p>
+      <div class="chev-row">
+        <span class="avatar" aria-hidden="true">И</span>
+        <span class="chev-txt"><b>Иван Петров</b><span>Петровское СП</span></span>
+        <span class="chev-chip" id="r-chip">Знак ГТО</span>
+      </div>
+      <p class="card-title" style="margin-top:14px;">Результаты</p>
+      <div class="res-row" data-od-id="gto-result-item">
+        <span class="res-name" id="r-norm">Подтягивания<small>Норматив ГТО · 12 августа 2026</small></span>
+        <span class="res-val" id="r-val">20<small> раз</small></span>
+      </div>
+    </section>
+
+    <section class="card" data-od-id="gto-result-next">
+      <a class="next-link" id="r-next" href="gto-plan.html">
+        <span class="nl-ic"><svg aria-hidden="true"><use href="#ic-medal"/></svg></span>
+        <span class="nl-txt"><b id="r-next-name">Следующий норматив</b><span id="r-next-sub">Продолжите подготовку по плану</span></span>
+        <span class="nl-chev"><svg aria-hidden="true"><use href="#ic-chev"/></svg></span>
+      </a>
+    </section>
+  </main>
+
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <button type="button" class="btn btn-secondary" id="r-profile" data-od-id="gto-result-profile-btn">В профиль</button>
+      <button type="button" class="btn btn-primary" id="r-share" data-od-id="gto-result-share"><svg><use href="#ic-share"/></svg>Поделиться</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+(function () {
+  function qs(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function toast(msg) {
+    var wrap = document.getElementById('toasts');
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(function () {
+      t.classList.add('hide');
+      setTimeout(function () { t.remove(); }, 260);
+    }, 2200);
+  }
+
+  var METRICS = {
+    pull:   { name: 'Подтягивания', unit: 'раз' },
+    run100: { name: 'Бег 100 м', unit: 'с' }
+  };
+  var LEVELS = [
+    { key: 'bronze', name: 'Бронзовый знак ГТО', chip: 'Знак ГТО · бронза' },
+    { key: 'silver', name: 'Серебряный знак ГТО', chip: 'Знак ГТО · серебро' },
+    { key: 'gold',   name: 'Золотой знак ГТО', chip: 'Знак ГТО · золото' }
+  ];
+
+  var normKey = METRICS[qs('norm')] ? qs('norm') : 'pull';
+  var m = METRICS[normKey];
+  var lvl = Math.min(Math.max(parseInt(qs('level') || '2', 10), 0), 2);
+  var l = LEVELS[lvl];
+  var val = qs('v') || (normKey === 'pull' ? '20' : '14,6');
+
+  var hero = document.getElementById('r-hero');
+  hero.className = 'hero is-' + l.key;
+  document.getElementById('r-level').textContent = l.name;
+  document.getElementById('r-sub').innerHTML = 'Норматив «' + m.name + '» сдан на площадке Петровского СП. Результат засчитан — знак закреплён за профилем.';
+
+  var chip = document.getElementById('r-chip');
+  chip.className = 'chev-chip is-' + l.key;
+  chip.innerHTML = '<svg aria-hidden="true"><use href="#ic-medal"/></svg>' + l.chip;
+
+  document.getElementById('r-norm').innerHTML = m.name + '<small>Норматив ГТО · 12 августа 2026</small>';
+  document.getElementById('r-val').innerHTML = val + '<small> ' + m.unit + '</small>';
+
+  var nextName = normKey === 'pull'
+    ? { name: 'Бег 100 м', sub: 'Второй норматив программы — по плану подготовки' }
+    : { name: 'Подтягивания', sub: 'Продолжите подготовку по плану' };
+  document.getElementById('r-next-name').textContent = 'Следующий норматив — ' + nextName.name;
+  document.getElementById('r-next-sub').textContent = nextName.sub;
+
+  document.getElementById('r-profile').addEventListener('click', function () {
+    location.href = 'profile.html';
+  });
+
+  var share = document.getElementById('r-share');
+  share.addEventListener('click', function () {
+    var txt = 'Знак ГТО получен! ' + l.name + ' — «' + m.name + '» ' + val + ' ' + m.unit + '. Петровское СП.';
+    if (navigator.share) {
+      navigator.share({ title: 'Петровское СП · ГТО', text: txt })
+        .catch(function () { toast('Не удалось открыть меню «Поделиться»'); });
+    } else {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function () {
+          toast('Результат скопирован в буфер обмена');
+        }).catch(function () { toast('Результат скопирован в буфер обмена'); });
+      } else {
+        toast('Результат скопирован в буфер обмена');
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
